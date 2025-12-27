@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "323480120059",
+    "project_id": "cnm-ci",
+    "storage_bucket": "cnm-ci.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323480120059:android:92610d464337796967de5e",
+        "android_client_info": {
+          "package_name": "com.ankk.cnmci"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy14ZsXWOSoQ7sqQEJX53yBpQdijfa7wc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
