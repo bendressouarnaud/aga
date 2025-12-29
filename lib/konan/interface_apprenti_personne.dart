@@ -86,6 +86,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   TextEditingController emailController = TextEditingController();
 
   TextEditingController specialiteController = TextEditingController();
+  TextEditingController apprentissageMetierController = TextEditingController();
   TextEditingController centreFormationController = TextEditingController();
   TextEditingController intituleFormationController = TextEditingController();
 
@@ -105,7 +106,6 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   TextEditingController niveauEtudeController = TextEditingController();
   TextEditingController classeController = TextEditingController();
   TextEditingController diplomeController = TextEditingController();
-  TextEditingController apprentissageMetierController = TextEditingController();
   TextEditingController metierController = TextEditingController();
   TextEditingController activitePrincipaleController = TextEditingController();
   TextEditingController activiteSecondaireController = TextEditingController();
@@ -312,6 +312,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     contact2Controller.text = "";
     emailController.text = "";
     centreFormationController.text = "";
+    apprentissageMetierController.text = "";
     intituleFormationController.text = "";
     diplomeController.text = "";
     cnpsController.text = "";
@@ -1069,8 +1070,8 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                   initialSelection: laSpecialite,
                   controller: specialiteController,
                   hintText: "Spécialité",
-                  requestFocusOnTap: false,
-                  enableSearch: false,
+                  requestFocusOnTap: true,
+                  enableSearch: true,
                   enableFilter: false,
                   label: const Text('Spécialité'),
                   // Initial Value
@@ -1095,7 +1096,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
               width: MediaQuery.of(context).size.width,
               menuHeight: 250,
               initialSelection: lApprentissageMetier,
-              controller: centreFormationController,
+              controller: apprentissageMetierController,
               hintText: "Avez-vous appris le métier ?",
               requestFocusOnTap: false,
               enableSearch: false,

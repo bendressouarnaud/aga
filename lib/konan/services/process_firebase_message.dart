@@ -15,10 +15,13 @@ class FirebaseProcessMessage{
 
   // Method
   void process(RemoteMessage message) async{
+
+    print('Données FCM reçues');
+
     int sujet = int.parse(message.data['sujet']);
     switch(sujet){
       case 1:
-        if(message.data['type'].equals("ART")) {
+        if(message.data['type'] == "ART") {
           // Persist
           Artisan artisan = artisanControllerX.data
               .where((a) => a.id == int.parse(message.data['entite']))
@@ -91,7 +94,7 @@ class FirebaseProcessMessage{
           //
           artisanControllerX.updateData(updateArtisan);
         }
-        else if(message.data['type'].equals("APP")) {
+        else if(message.data['type'] == "APP") {
           Apprenti apprenti = apprentiControllerX.data
               .where((a) => a.id == int.parse(message.data['entite']))
               .first;
@@ -141,7 +144,7 @@ class FirebaseProcessMessage{
           );
           apprentiControllerX.updateData(updateApprenti);
         }
-        else if(message.data['type'].equals("COM")) {
+        else if(message.data['type'] == "COM") {
           Compagnon compagnon = compagnonControllerX.data
               .where((a) => a.id == int.parse(message.data['entite']))
               .first;

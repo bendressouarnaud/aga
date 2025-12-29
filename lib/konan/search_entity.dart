@@ -117,40 +117,40 @@ class _SearchEntity extends State<SearchEntity> {
           title: Text('Recherche'
           )
       ),
-      body: Column(
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
-            child: TextField(
-              onChanged: (value){
-                if(value.trim().length > 2){
-                  setState(() {
-                    lookForEntity(value);
-                  });
-                }
-                else{
-                  // Hide history if needed
-                  if(liste.isNotEmpty){
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
+              child: TextField(
+                onChanged: (value){
+                  if(value.trim().length > 2){
                     setState(() {
-                      liste = [];
+                      lookForEntity(value);
                     });
                   }
-                }
-              },
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey.withOpacity(0.4),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none
-                )
+                  else{
+                    // Hide history if needed
+                    if(liste.isNotEmpty){
+                      setState(() {
+                        liste = [];
+                      });
+                    }
+                  }
+                },
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey.withOpacity(0.4),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none
+                    )
+                ),
               ),
             ),
-          ),
-          Visibility(
-              visible: liste.isNotEmpty,
-              child: SingleChildScrollView(
+            Visibility(
+                visible: liste.isNotEmpty,
                 child: ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.vertical,
@@ -160,28 +160,28 @@ class _SearchEntity extends State<SearchEntity> {
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                              if(widget.screen == 1){
-                                // ARTISAN
-                                return InterfaceViewArtisan(
-                                    artisan: artisanControllerX.data.where((a) => a.id == liste[index].id).first);
-                              }
-                              else if(widget.screen == 2){
-                                // APPRENTI
-                                return InterfaceViewApprenti(
-                                    apprenti: apprentiControllerX.data.where((a) => a.id == liste[index].id).first);
-                              }
-                              else if(widget.screen == 3){
-                                // COMPAGNON
-                                return InterfaceViewCompagnon(
-                                    compagnon: compagnonControllerX.data.where((a) => a.id == liste[index].id).first);
-                              }
-                              else{
-                                // ENTREPRISE
-                                return InterfaceViewEntreprise(
-                                    entreprise: entrepriseControllerX.data.where((a) => a.id == liste[index].id).first);
-                              }
-                            })
+                              MaterialPageRoute(builder: (context) {
+                                if(widget.screen == 1){
+                                  // ARTISAN
+                                  return InterfaceViewArtisan(
+                                      artisan: artisanControllerX.data.where((a) => a.id == liste[index].id).first);
+                                }
+                                else if(widget.screen == 2){
+                                  // APPRENTI
+                                  return InterfaceViewApprenti(
+                                      apprenti: apprentiControllerX.data.where((a) => a.id == liste[index].id).first);
+                                }
+                                else if(widget.screen == 3){
+                                  // COMPAGNON
+                                  return InterfaceViewCompagnon(
+                                      compagnon: compagnonControllerX.data.where((a) => a.id == liste[index].id).first);
+                                }
+                                else{
+                                  // ENTREPRISE
+                                  return InterfaceViewEntreprise(
+                                      entreprise: entrepriseControllerX.data.where((a) => a.id == liste[index].id).first);
+                                }
+                              })
                           );
                         },
                         child: Card(
@@ -234,11 +234,11 @@ class _SearchEntity extends State<SearchEntity> {
                         ),
                       );
                     }
-                ),
-              )
-          )
-        ],
-      ),
+                )
+            )
+          ],
+        ),
+      )
     );
   }
 
