@@ -16,6 +16,7 @@ import 'package:http/http.dart';
 import '../getxcontroller/internet_access_controller_x.dart';
 import '../main.dart';
 import 'historique/historique_artisan.dart';
+import 'interface_controle_manager.dart';
 
 class InterfaceAccueil extends StatefulWidget {
   const InterfaceAccueil({Key? key}) : super(key: key);
@@ -104,6 +105,20 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
               )
           ),
           actions: [
+            Visibility(
+                visible: globalUser!.profil == "ROLE_ADMINISTRATEUR_CONTROLE_MANAGER" ||
+                    globalUser!.profil == "ROLE_SUPER_ADMIN",
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return InterfaceControleManager();
+                          })
+                      );
+                    },
+                    icon: const Icon(Icons.manage_accounts, color: Colors.black)
+                )
+            ),
             Visibility(
               visible: currentPageIndex > 0,
                 child: IconButton(
