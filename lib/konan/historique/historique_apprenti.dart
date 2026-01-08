@@ -180,7 +180,9 @@ class _HistoriqueApprenti extends State<HistoriqueApprenti> {
                                                 text: 'Métier : ',
                                                 //style: TextStyle(fontWeight: FontWeight.bold),
                                                 children: <TextSpan>[
-                                                  TextSpan(text: lesMetiers.where((m) => m.id == tampon[index].metier).first.libelle,
+                                                  TextSpan(text: MesServices().processEntityName(
+                                                lesMetiers.where((m) => m.id == tampon[index].metier).first.libelle,
+                                                limitCharacterMetier),
                                                       style: TextStyle(fontWeight: FontWeight.bold)
                                                   )
                                                 ]

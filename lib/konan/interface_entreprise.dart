@@ -457,6 +457,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     leCrm = lesCrms.first;
     leDepartement = lesDepartements.first;
     laSousPrefecture = lesSousPrefectures.first;
+
     laCommune = lesCommunes.first;
     laVilleCommune = lesCommunes.first;
     laPieceDelivre = lesCommunes.first;
@@ -503,6 +504,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     adressePostaleController.text = "";
     contact1Controller.text = "";
     contact2Controller.text = "";
+    emailController.text = "";
     emailController.text = "";
     denominationController.text = "";
     sigleController.text = "";
@@ -615,7 +617,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
 
   Future<void> _selectDateCreation() async {
     choixDate = 1;
-    final now = DateTime(1965, 1, 2, 00, 00);
+    final now = DateTime(2000, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -632,7 +634,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
 
   Future<void> _selectDateImmatriculation() async {
     choixDate = 1;
-    final now = DateTime(1965, 1, 2, 00, 00);
+    final now = DateTime(2000, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -735,52 +737,25 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             ),
             onPressed: () async {
               if(!streamGps) {
-                /*if (currentStep == 1) {
-                  if (communeController.text != laCommune.libelle) {
-                    displayToast('Ville de naissance incorrecte !');
-                    return;
-                  }
-                  else if (villeResidenceController.text !=
-                      laVilleResidence.libelle) {
-                    displayToast('Ville de résidence incorrecte !');
-                    return;
-                  }
-                  else
-                  if (pieceDelivreController.text != laPieceDelivre.libelle) {
-                    displayToast(
-                        'Ville de délivrance de la pièce incorrecte !');
-                    return;
-                  }
-                }*/
-
                 if (currentStep == 2) {
-                  if (activitePrincipaleController.text !=
-                      lActivitePrincipale.libelle) {
-                    displayToast(
-                        'L\'activité principale renseignée est incorrecte !');
-                    return;
-                  }
-                  else if (activiteSecondaireController.text !=
-                      lActiviteSecondaire.libelle) {
-                    displayToast(
-                        'L\'activité secondaire renseignée est incorrecte !');
-                    return;
-                  }
-                  else
                   if (capitalSocialController.text.trim().isEmpty) {
                     displayToast('Veuillez définir le CAPITAL SOCIAL !');
+                    return;
+                  }
+                  else if (dureePersonneMoraleController.text.trim().isEmpty) {
+                    displayToast('Veuillez définir la durée de la personne morale !');
+                    return;
+                  }
+                  else if (nombreAssocieController.text.trim().isEmpty) {
+                    displayToast('Veuillez définir le nombre d\'associés !');
                     return;
                   }
                 }
 
                 // check on ville :
                 if (currentStep == 2) {
-                  if (nomController.text
-                      .trim()
-                      .isEmpty || prenomController.text
-                      .trim()
-                      .isEmpty
-                      || dateNaissanceController.text.isEmpty ||
+                  if (nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty ||
+                      dateNaissanceController.text.isEmpty || dateImmatriculationController.text.isEmpty ||
                       datePieceController.text.isEmpty ||
                       contact1Controller.text
                           .trim()
@@ -980,7 +955,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                       nomController.text = value;
                     });
                   },
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.name,
                   controller: nomController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -1006,7 +981,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                       prenomController.text = value;
                     });
                   },
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.name,
                   controller: prenomController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -1616,27 +1591,30 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              DropdownMenu<GenericData>(
-                  menuHeight: 250,
-                  initialSelection: laFormeJuridique,
-                  controller: formeJuridiqueController,
-                  hintText: "Forme Juridique",
-                  requestFocusOnTap: false,
-                  enableSearch: false,
-                  enableFilter: false,
-                  label: const Text('Forme Juridique'),
-                  // Initial Value
-                  onSelected: (GenericData? value) {
-                    laFormeJuridique = value!;
-                  },
-                  dropdownMenuEntries:
-                  lesFormesJuridiques.map<DropdownMenuEntry<GenericData>>((GenericData menu) {
-                    return DropdownMenuEntry<GenericData>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.school));
-                  }).toList()
+          SizedBox(
+            width: (MediaQuery.of(context).size.width / 2) - 20,
+            child: DropdownMenu<GenericData>(
+              menuHeight: 250,
+              initialSelection: laFormeJuridique,
+              controller: formeJuridiqueController,
+              hintText: "Forme Juridique",
+              requestFocusOnTap: false,
+              enableSearch: false,
+              enableFilter: false,
+              label: const Text('Forme Juridique'),
+              // Initial Value
+              onSelected: (GenericData? value) {
+                laFormeJuridique = value!;
+              },
+              dropdownMenuEntries:
+              lesFormesJuridiques.map<DropdownMenuEntry<GenericData>>((GenericData menu) {
+                return DropdownMenuEntry<GenericData>(
+                    value: menu,
+                    label: menu.libelle,
+                    leadingIcon: Icon(Icons.school));
+              }).toList()
               )
+            )
             ],
           )
       ),
@@ -1646,49 +1624,79 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              DropdownMenu<Metier>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: lActivitePrincipale,
-                  controller: activitePrincipaleController,
-                  hintText: "Activité principale",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Activité principale'),
-                  // Initial Value
-                  onSelected: (Metier? value) {
-                    lActivitePrincipale = value!;
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<Metier>(
+                  mode: Mode.form,
+                  onChanged: (Metier? value) => {
+                    lActivitePrincipale = value!
                   },
-                  dropdownMenuEntries:
-                  lesMetiers.map<DropdownMenuEntry<Metier>>((Metier menu) {
-                    return DropdownMenuEntry<Metier>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.work));
-                  }).toList()
+                  compareFn: (Metier? a, Metier? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: lActivitePrincipale,
+                  itemAsString: (metier) => metier.libelle,
+                  items: (filter, infiniteScrollProps) => lesMetiers,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Activité principale',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 300,
+                          maxHeight: 400
+                      )
+                  ),
+                ),
               ),
-              DropdownMenu<Metier>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: lActiviteSecondaire,
-                  controller: activiteSecondaireController,
-                  hintText: "Activité secondaire",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Activité secondaire'),
-                  // Initial Value
-                  onSelected: (Metier? value) {
-                    lActiviteSecondaire = value!;
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<Metier>(
+                  mode: Mode.form,
+                  onChanged: (Metier? value) => {
+                    lActiviteSecondaire = value!
                   },
-                  dropdownMenuEntries:
-                  lesMetiers.map<DropdownMenuEntry<Metier>>((Metier menu) {
-                    return DropdownMenuEntry<Metier>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.work));
-                  }).toList()
+                  compareFn: (Metier? a, Metier? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: lActiviteSecondaire,
+                  itemAsString: (metier) => metier.libelle,
+                  items: (filter, infiniteScrollProps) => lesMetiers,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Activité secondaire',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 300,
+                          maxHeight: 400
+                      )
+                  ),
+                ),
               )
             ],
           )

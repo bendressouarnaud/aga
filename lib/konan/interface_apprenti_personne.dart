@@ -481,23 +481,6 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                 )
             ),
             onPressed: () async {
-              /*if(communeController.text != laCommune.libelle){
-                displayToast('Ville de naissance incorrecte !');
-                return;
-              }
-              else if(villeResidenceController.text != laVilleResidence.libelle){
-                displayToast('Ville de résidence incorrecte !');
-                return;
-              }
-              else if(specialiteController.text != laSpecialite.libelle){
-                displayToast('Libellé de la spécialité incorrect !');
-                return;
-              }
-              else if(pieceDelivreController.text != laPieceDelivre.libelle){
-                displayToast('Ville de délivrance de la pièce incorrecte !');
-                return;
-              }*/
-
               // check on ville :
               if(nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty
                   || dateNaissanceController.text.isEmpty || datePieceController.text.isEmpty ||
@@ -543,7 +526,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                       nomController.text = value;
                     });
                   },
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.name,
                   controller: nomController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -569,7 +552,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                       prenomController.text = value;
                     });
                   },
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.name,
                   controller: prenomController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -1064,27 +1047,42 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                         leadingIcon: Icon(Icons.school));
                   }).toList()
               ),
-              DropdownMenu<Metier>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: laSpecialite,
-                  controller: specialiteController,
-                  hintText: "Spécialité",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Spécialité'),
-                  // Initial Value
-                  onSelected: (Metier? value) {
-                    laSpecialite = value!;
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<Metier>(
+                  mode: Mode.form,
+                  onChanged: (Metier? value) => {
+                    laSpecialite = value!
                   },
-                  dropdownMenuEntries:
-                  lesMetiers.map<DropdownMenuEntry<Metier>>((Metier menu) {
-                    return DropdownMenuEntry<Metier>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.work));
-                  }).toList()
+                  compareFn: (Metier? a, Metier? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: laSpecialite,
+                  itemAsString: (metier) => metier.libelle,
+                  items: (filter, infiniteScrollProps) => lesMetiers,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Spécialité',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 300,
+                          maxHeight: 400
+                      )
+                  ),
+                ),
               )
             ],
           )

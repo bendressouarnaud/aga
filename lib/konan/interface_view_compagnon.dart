@@ -3,21 +3,17 @@ import 'dart:convert';
 
 import 'package:cnmci/getxcontroller/compagnon_controller_x.dart';
 import 'package:cnmci/konan/model/compagnon.dart';
-import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
-import 'package:cnmci/konan/webviews/webview_payment_wave.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:http/http.dart';
 import 'package:money_formatter/money_formatter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/wave_payment_response.dart';
-import 'historique/historique_apprenti.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewCompagnon extends StatefulWidget{
@@ -333,8 +329,10 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                             height: 3,
                           ),
                         ),
-                        Container(
-                          alignment: Alignment.topLeft,
+                        Visibility(
+                          visible: false,
+                            child: Container(
+                            alignment: Alignment.topLeft,
                             margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
                             padding: EdgeInsets.all(5),
                             //height: 30,
@@ -356,6 +354,7 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                                   color: Colors.white,
                                 )
                             )
+                        )
                         ),
                         GetBuilder(
                             builder: (CompagnonControllerX controllerX) {

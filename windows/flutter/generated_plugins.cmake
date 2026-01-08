@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   firebase_core
   geolocator_windows
+  maps_launcher
   url_launcher_windows
 )
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cnmci/konan/search_entity_manager.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -97,27 +98,12 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
               NavigationDestination(
                 selectedIcon: Icon(Icons.show_chart), //Icon(Icons.announcement),
                 icon: Icon(Icons.show_chart_outlined),//Icon(Icons.announcement_outlined),
-                label: 'Stats',
+                label: 'Statistiques',
               ),
               NavigationDestination(
-                selectedIcon: Icon(Icons.person), //Icon(Icons.announcement),
-                icon: Icon(Icons.person_outline),//Icon(Icons.announcement_outlined),
-                label: 'Art',
-              ),
-              NavigationDestination(
-                selectedIcon: Icon(Icons.people_alt), //Icon(Icons.announcement),
-                icon: Icon(Icons.people_alt_outlined),//Icon(Icons.announcement_outlined),
-                label: 'App',
-              ),
-              NavigationDestination(
-                selectedIcon: Icon(Icons.people_outline_outlined), //Icon(Icons.announcement),
-                icon: Icon(Icons.people_outline),//Icon(Icons.announcement_outlined),
-                label: 'Com',
-              ),
-              NavigationDestination(
-                selectedIcon: Icon(Icons.desk), //Icon(Icons.announcement),
-                icon: Icon(Icons.desk_outlined),//Icon(Icons.announcement_outlined),
-                label: 'Ent',
+                selectedIcon: Icon(Icons.person_search_sharp), //Icon(Icons.announcement),
+                icon: Icon(Icons.person_search_outlined),//Icon(Icons.announcement_outlined),
+                label: 'Recherche',
               )
             ]
         ),
@@ -128,126 +114,130 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
         ),
       ),
 
-      body: FutureBuilder(
-        future: Future.wait([getStatsBean()]),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
-          if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
-            // Process DATA from there :
-            List<StatsBean> pickedData = snapshot.data[0];
-            return SingleChildScrollView(
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: pickedData.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width ,
-                    padding: EdgeInsets.all(7),
-                    margin: EdgeInsets.all(7),
-                    decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8.0)
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+      body: <Widget>[
+        FutureBuilder(
+          future: Future.wait([getStatsBean()]),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
+            if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
+              // Process DATA from there :
+              List<StatsBean> pickedData = snapshot.data[0];
+              return SingleChildScrollView(
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: pickedData.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width ,
+                      padding: EdgeInsets.all(7),
+                      margin: EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8.0)
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(pickedData[index].libelle,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(formatValue(pickedData[index].population),
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold
-                                    )),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                getAppropriateIcon(pickedData[index].libelle)
-                              ],
-                            )
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Frais attendus',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            Text('${formatValue(pickedData[index].attendu)} f',
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(pickedData[index].libelle,
                                 style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold
-                                )),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Frais réglés',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            Text('${formatValue(pickedData[index].paye)} f',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    //fontWeight: FontWeight.bold,
-                                  color: Colors.red
-                                )),
-                          ],
-                        ),
-                        Divider(
-                          height: 7,
-                          color: Colors.brown,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Taux recouvrement',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            Row(
-                              children: [
-                                Text('${pickedData[index].pourcentage} %'),
-                                SizedBox(
-                                  width: 10,
                                 ),
-                                Icon( pickedData[index].pourcentage < 50 ?
-                                Icons.show_chart : Icons.stacked_line_chart,
-                                color: pickedData[index].pourcentage < 50 ?
-                                  Colors.red : Colors.green,
-                                )
-                              ],
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                }
-              )
-            );
+                              ),
+                              Row(
+                                children: [
+                                  Text(formatValue(pickedData[index].population),
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold
+                                      )),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  getAppropriateIcon(pickedData[index].libelle)
+                                ],
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Frais attendus',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Text('${formatValue(pickedData[index].attendu)} f',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold
+                                  )),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Frais réglés',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Text('${formatValue(pickedData[index].paye)} f',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      //fontWeight: FontWeight.bold,
+                                    color: Colors.red
+                                  )),
+                            ],
+                          ),
+                          Divider(
+                            height: 7,
+                            color: Colors.brown,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Taux recouvrement',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
+                                ),),
+                              Row(
+                                children: [
+                                  Text('${pickedData[index].pourcentage} %'),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Icon( pickedData[index].pourcentage < 50 ?
+                                  Icons.show_chart : Icons.stacked_line_chart,
+                                  color: pickedData[index].pourcentage < 50 ?
+                                    Colors.red : Colors.green,
+                                  )
+                                ],
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  }
+                )
+              );
+            }
+            else{
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
           }
-          else{
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        })
+        ),
+        SearchEntityManager()
+      ][currentPageIndex]
     );
 
   }

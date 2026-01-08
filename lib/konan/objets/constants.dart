@@ -23,3 +23,5 @@ const double defaultPadding = 16.0;
 const int timeOutValue = 15;
 const int gpsPrecisionAccuracy = 10; // 7
 const int limitCharacter = 12;
+const int limitCharacterEntity = 28;
+const int limitCharacterMetier = 23;

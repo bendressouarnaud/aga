@@ -172,7 +172,9 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
                                                 text: 'Métier : ',
                                                 //style: TextStyle(fontWeight: FontWeight.bold),
                                                 children: <TextSpan>[
-                                                  TextSpan(text: lesMetiers.where((m) => m.id == tampon[index].specialite).first.libelle,
+                                                  TextSpan(text: MesServices().processEntityName(
+                                                lesMetiers.where((m) => m.id == tampon[index].specialite).first.libelle,
+                                                limitCharacterMetier),
                                                       style: TextStyle(fontWeight: FontWeight.bold)
                                                   )
                                                 ]

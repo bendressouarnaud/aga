@@ -152,10 +152,12 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
                                           alignment: Alignment.topLeft,
                                           child: Text.rich(
                                             TextSpan(
-                                                text: 'Mérier : ',
+                                                text: 'Métier : ',
                                                 //style: TextStyle(fontWeight: FontWeight.bold),
                                                 children: <TextSpan>[
-                                                  TextSpan(text: lesMetiers.where((m) => m.id == controller.data[index].specialite).first.libelle,
+                                                  TextSpan(text: MesServices().processEntityName(
+                                                      lesMetiers.where((m) => m.id == controller.data[index].specialite).first.libelle,
+                                                      limitCharacterMetier),
                                                       style: TextStyle(fontWeight: FontWeight.bold)
                                                   )
                                                 ]

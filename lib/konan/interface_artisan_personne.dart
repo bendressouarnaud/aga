@@ -540,47 +540,6 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             ),
             onPressed: () async {
               //
-              /*if(currentStep == 1) {
-                if (communeController.text != laCommune.libelle) {
-                  displayToast('Ville de naissance incorrecte !');
-                  return;
-                }
-                else
-                if (villeResidenceController.text != laVilleResidence.libelle) {
-                  displayToast('Ville de résidence incorrecte !');
-                  return;
-                }
-                else
-                if (pieceDelivreController.text != laPieceDelivre.libelle) {
-                  displayToast('Ville de délivrance de la pièce incorrecte !');
-                  return;
-                }
-              }*/
-
-              if(currentStep == 2) {
-                if (metierController.text != leMetier.libelle) {
-                  displayToast('La spécialité renseignée incorrecte !');
-                  return;
-                }
-                else if (activitePrincipaleController.text !=
-                    lActivitePrincipale.libelle) {
-                  displayToast(
-                      'L\'activité principale renseignée est incorrecte !');
-                  return;
-                }
-                else if (activiteSecondaireController.text !=
-                    lActiviteSecondaire.libelle) {
-                  displayToast(
-                      'L\'activité secondaire renseignée est incorrecte !');
-                  return;
-                }
-                /*else
-                if (villeCommuneController.text != laVilleCommune.libelle) {
-                  displayToast('La commune de l\'activité est incorrecte !');
-                  return;
-                }*/
-              }
-
               if(currentStep == 1){
                 if(nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty
                     || dateNaissanceController.text.isEmpty || datePieceController.text.isEmpty ||
@@ -725,7 +684,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                       nomController.text = value;
                     });
                   },
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.name,
                   controller: nomController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -751,7 +710,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                       prenomController.text = value;
                     });
                   },
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.name,
                   controller: prenomController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -1754,9 +1713,43 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       ),
       Container(
         alignment: Alignment.topLeft,
-        margin: EdgeInsets.only(top: 20, left: 10),
+        margin: EdgeInsets.only(top: 20, left: 10, right: 10),
         width: MediaQuery.of(context).size.width,
-        child: DropdownMenu<Metier>(
+        child: DropdownSearch<Metier>(
+          mode: Mode.form,
+          onChanged: (Metier? value) => {
+            leMetier = value!
+          },
+          compareFn: (Metier? a, Metier? b){
+            if(a == null || b == null){
+              return false;
+            }
+            return a.id == b.id;
+          },
+          selectedItem: leMetier,
+          itemAsString: (metier) => metier.libelle,
+          items: (filter, infiniteScrollProps) => lesMetiers,
+          decoratorProps: DropDownDecoratorProps(
+            decoration: InputDecoration(
+              labelText: 'Spécialité',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          popupProps: PopupProps.menu(
+              showSearchBox: true,
+              searchFieldProps: TextFieldProps(
+                  decoration: InputDecoration(
+                      hintText: 'Rechercher'
+                  )
+              ),
+              fit: FlexFit.loose,
+              constraints: BoxConstraints(
+                  minHeight: 300,
+                  maxHeight: 400
+              )
+          ),
+        )
+        /*DropdownMenu<Metier>(
             width: (MediaQuery.of(context).size.width / 2) - 20,
             menuHeight: 250,
             initialSelection: leMetier,
@@ -1777,7 +1770,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   label: menu.libelle,
                   leadingIcon: Icon(Icons.work_history));
             }).toList()
-        ),
+        ),*/
       ),
       Container(
         width: MediaQuery.of(context).size.width,
@@ -1793,7 +1786,44 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              DropdownMenu<Metier>(
+              SizedBox(
+              width: (MediaQuery.of(context).size.width / 2) - 20,
+              child:DropdownSearch<Metier>(
+                    mode: Mode.form,
+                    onChanged: (Metier? value) => {
+                      lActivitePrincipale = value!
+                    },
+                    compareFn: (Metier? a, Metier? b){
+                      if(a == null || b == null){
+                        return false;
+                      }
+                      return a.id == b.id;
+                    },
+                    selectedItem: lActivitePrincipale,
+                    itemAsString: (metier) => metier.libelle,
+                    items: (filter, infiniteScrollProps) => lesMetiers,
+                    decoratorProps: DropDownDecoratorProps(
+                      decoration: InputDecoration(
+                        labelText: 'Activité principale',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    popupProps: PopupProps.menu(
+                        showSearchBox: true,
+                        searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                                hintText: 'Rechercher'
+                            )
+                        ),
+                        fit: FlexFit.loose,
+                        constraints: BoxConstraints(
+                            minHeight: 300,
+                            maxHeight: 400
+                        )
+                    ),
+                  )
+              )
+              /*DropdownMenu<Metier>(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
                   menuHeight: 250,
                   initialSelection: lActivitePrincipale,
@@ -1814,8 +1844,45 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                         label: menu.libelle,
                         leadingIcon: Icon(Icons.work));
                   }).toList()
+              )*/,
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child:DropdownSearch<Metier>(
+                  mode: Mode.form,
+                  onChanged: (Metier? value) => {
+                    lActiviteSecondaire = value!
+                  },
+                  compareFn: (Metier? a, Metier? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: lActiviteSecondaire,
+                  itemAsString: (metier) => metier.libelle,
+                  items: (filter, infiniteScrollProps) => lesMetiers,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Activité secondaire',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 300,
+                          maxHeight: 400
+                      )
+                  ),
+                )
               ),
-              DropdownMenu<Metier>(
+              /*DropdownMenu<Metier>(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
                   menuHeight: 250,
                   initialSelection: lActiviteSecondaire,
@@ -1836,7 +1903,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                         label: menu.libelle,
                         leadingIcon: Icon(Icons.work));
                   }).toList()
-              )
+              )*/
             ],
           )
       ),
@@ -1988,28 +2055,6 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   ),
                 ),
               ),
-              /*DropdownMenu<Commune>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: laVilleCommune,
-                  controller: villeCommuneController,
-                  hintText: "Commune",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Commune'),
-                  // Initial Value
-                  onSelected: (Commune? value) {
-                    laVilleCommune = value!;
-                  },
-                  dropdownMenuEntries:
-                  lesCommunes.map<DropdownMenuEntry<Commune>>((Commune menu) {
-                    return DropdownMenuEntry<Commune>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.location_city));
-                  }).toList()
-              ),*/
               SizedBox(
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(

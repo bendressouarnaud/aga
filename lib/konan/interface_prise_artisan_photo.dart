@@ -676,7 +676,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   }
 
   void displayDataSending(){
-    print('Envoi des données ...........');
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -803,7 +802,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "photo_diplome" : photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
 
             "longitude" : longitude.toString(),
-            "latitude" : longitude.toString(),
+            "latitude" : latitude.toString(),
             "crm" : artisanToManage.crm,
             "departement" : artisanToManage.departement,
             "sous_pref" : artisanToManage.sous_prefecture,

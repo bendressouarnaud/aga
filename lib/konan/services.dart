@@ -138,14 +138,19 @@ class MesServices{
     showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext dContext) {
           return AlertDialog(
             titleTextStyle: TextStyle(
               color: Colors.deepOrange,
               fontSize: 18,
               fontWeight: FontWeight.bold
             ),
-              title: Text('Scannez le QR code'),
+              title: GestureDetector(
+                child: Text('Scannez le QR code (Fermer)'),
+                onTap: (){
+                  Navigator.pop(dContext);
+                },
+              ),
               content: SizedBox(
                   height: 300,
                   width: 300,
@@ -175,7 +180,7 @@ class MesServices{
           ),
         ),
         placeholder: (context, url) => const CircularProgressIndicator(
-          color: Colors.amber,
+          color: Colors.brown,
         ),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ) : 
@@ -190,6 +195,6 @@ class MesServices{
   }
 
   String processEntityName(String name, int limit){
-    return name.length > 13 ? '${name.substring(0, limit)}...' : name;
+    return name.length > (limit + 1) ? '${name.substring(0, limit)}...' : name;
   }
 }
