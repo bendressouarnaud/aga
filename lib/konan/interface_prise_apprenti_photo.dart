@@ -203,6 +203,8 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                 onPressed: () async {
                   try {
                     await _cameraController!.pausePreview();
+                    cameraOnPause = true;
+                    // Reset :
                     setState(() {
                       stepForPhoto = 0;
                     });
@@ -707,7 +709,9 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             "formation_metier_terminee": apprentiToManage.formation_metier_terminee,
             "diplome_obtenu_metier": apprentiToManage.diplome_obtenu_metier,
             "cnps" : apprentiToManage.cnps,
-            "cmu" : apprentiToManage.cmu
+            "cmu" : apprentiToManage.cmu,
+            "statut_apprenti" : apprentiToManage.statut_apprenti,
+            "numero_immatriculation" : apprentiToManage.numero_immatriculation
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -720,7 +724,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             prenom: apprentiToManage.prenom,
             civilite: apprentiToManage.civilite,
             date_naissance: apprentiToManage.date_naissance,
-            numero_immatriculation: '',
+            numero_immatriculation: apprentiToManage.numero_immatriculation,
             lieu_naissance_autre: apprentiToManage.lieu_naissance_autre,
             lieu_naissance: apprentiToManage.lieu_naissance,
             nationalite: apprentiToManage.nationalite,
@@ -756,7 +760,8 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             cmu: apprentiToManage.cmu,
             artisan_id: apprentiToManage.artisan_id,
             entreprise_id: apprentiToManage.entreprise_id,
-            millisecondes: apprentiToManage.millisecondes
+            millisecondes: apprentiToManage.millisecondes,
+            statut_apprenti: apprentiToManage.statut_apprenti
         );
         apprentiControllerX.addItem(apprenti);
         flagSendData = false;

@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 1;
+  static final _databaseVersion = 3;
 
 
   // Make this a singleton class.
@@ -58,19 +58,33 @@ class DatabaseHelper {
         await _createDatabase(db);
         break;
     case 2:
-        await _updateReservationTable(db);
+        await _addQuartierTable(db);
         break;
-    /*case 3:
-      await _addStreamChatObject(db);
-      break;*/
+      case 3:
+        await _addStatutColumn(db);
+        break;
+      default:
+        // todo
+        break;
     }
   }
 
-  Future _updateReservationTable(Database db) async {
-    await db.execute('ALTER TABLE reservation ADD COLUMN paysid TEXT');
-    await db.execute('ALTER TABLE reservation ADD COLUMN modeliaid TEXT');
-    // Init that :
-    //await db.execute('UPDATE parameters SET appmigration = 0');
+  Future _addQuartierTable(Database db) async {
+    await db.execute('CREATE TABLE quartier (id INTEGER PRIMARY KEY, libelle TEXT, idx integer)');
+    // Update ARTISAN :
+    //await db.execute('ALTER TABLE artisan ADD COLUMN quartier_residence_id integer');
+    await db.execute('ALTER TABLE artisan ADD COLUMN quartier_activite_id integer');
+    // Update ENTREPRISE :
+    await db.execute('ALTER TABLE entreprise ADD COLUMN quartier_siege_id integer');
+  }
+
+  Future _addStatutColumn(Database db) async {
+    await db.execute('ALTER TABLE artisan ADD COLUMN statut_artisan integer');
+    await db.execute('update artisan set statut_artisan = 0');
+    await db.execute('ALTER TABLE apprenti ADD COLUMN statut_apprenti integer');
+    await db.execute('update apprenti set statut_apprenti = 0');
+    await db.execute('ALTER TABLE compagnon ADD COLUMN statut_compagnon integer');
+    await db.execute('update compagnon set statut_compagnon = 0');
   }
 
   Future _createDatabase(Database db) async {

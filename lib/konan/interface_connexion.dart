@@ -13,6 +13,7 @@ import 'package:cnmci/konan/model/entreprise.dart';
 import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/niveau_etude.dart';
 import 'package:cnmci/konan/model/pays.dart';
+import 'package:cnmci/konan/model/quartier.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
 import 'package:cnmci/konan/model/statut_matrimonial.dart';
 import 'package:cnmci/konan/model/type_compte_bancaire.dart';
@@ -25,6 +26,7 @@ import 'package:cnmci/konan/repositories/diplome_repository.dart';
 import 'package:cnmci/konan/repositories/metier_repository.dart';
 import 'package:cnmci/konan/repositories/niveau_etude_repository.dart';
 import 'package:cnmci/konan/repositories/pays_repository.dart';
+import 'package:cnmci/konan/repositories/quartier_repository.dart';
 import 'package:cnmci/konan/repositories/sous_prefecture_repository.dart';
 import 'package:cnmci/konan/repositories/statut_matrimonial_repository.dart';
 import 'package:cnmci/konan/repositories/type_compte_bancaire_repository.dart';
@@ -58,6 +60,7 @@ class _ConnexionViewState extends State<ConnexionView> {
   final DepartementRepository _departementRepository = DepartementRepository();
   final SousPrefectureRepository _sousPrefectureRepository = SousPrefectureRepository();
   final CommuneRepository _communeRepository = CommuneRepository();
+  final QuartierRepository _quartierRepository = QuartierRepository();
   final PaysRepository _paysRepository = PaysRepository();
   final StatutMatrimonialRepository _statutMatrimonialRepository = StatutMatrimonialRepository();
   final TypeCompteBancaireRepository _typeCompteBancaireRepository = TypeCompteBancaireRepository();
@@ -305,6 +308,11 @@ class _ConnexionViewState extends State<ConnexionView> {
           _communeRepository.insert(dt);
         }
         lesCommunes.addAll(donnee.commune);
+        // QUARTIER :
+        for(Quartier dt in donnee.quartier){
+          _quartierRepository.insert(dt);
+        }
+        lesQuartiers.addAll(donnee.quartier);
         // PAYS :
         for(Pays dt in donnee.pays){
           _paysRepository.insert(dt);

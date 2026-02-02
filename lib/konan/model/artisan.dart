@@ -66,6 +66,10 @@ class Artisan {
   final String rccm;
   final int niveau_equipement;
   final int millisecondes;
+  final int quartier_activite_id;
+
+  // 02/02/2026
+  final int statut_artisan;
 
   // M e t h o d s  :
   Artisan({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance, required this.numero_registre,
@@ -82,7 +86,8 @@ class Artisan {
     required this.specialite, required this.activite_principale, required this.activite_secondaire,
     required this.raison_social, required this.sigle, required this.date_creation,
     required this.commune_activite, required this.quartier_activite, required this.rccm,
-    required this.niveau_equipement, required this.millisecondes
+    required this.niveau_equipement, required this.millisecondes, required this.quartier_activite_id,
+    required this.statut_artisan
   });
   factory Artisan.fromDatabaseJson(Map<String, dynamic> data) => Artisan(
     id: data['id'],
@@ -146,7 +151,9 @@ class Artisan {
     quartier_activite: data['quartier_activite'],
     rccm: data['rccm'],
     niveau_equipement: data['niveau_equipement'],
-    millisecondes: data['millisecondes']
+    millisecondes: data['millisecondes'],
+    quartier_activite_id: data['quartier_activite_id'],
+    statut_artisan: data['statut_artisan']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -211,6 +218,8 @@ class Artisan {
     "quartier_activite": quartier_activite,
     "rccm": rccm,
     "niveau_equipement": niveau_equipement,
-    "millisecondes": millisecondes
+    "millisecondes": millisecondes,
+    "quartier_activite_id": quartier_activite_id,
+    "statut_artisan": statut_artisan
   };
 }

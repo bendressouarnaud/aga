@@ -8,6 +8,7 @@ import 'package:http/http.dart';
 import 'package:money_formatter/money_formatter.dart';
 
 import 'beans/stats_bean.dart';
+import 'interface_controle_sermente.dart';
 import 'objets/constants.dart';
 
 class InterfaceControleManager extends StatefulWidget {
@@ -99,6 +100,11 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
                 selectedIcon: Icon(Icons.show_chart), //Icon(Icons.announcement),
                 icon: Icon(Icons.show_chart_outlined),//Icon(Icons.announcement_outlined),
                 label: 'Statistiques',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.checklist_outlined), //Icon(Icons.announcement),
+                icon: Icon(Icons.checklist_rounded),//Icon(Icons.announcement_outlined),
+                label: 'Contrôle',
               ),
               NavigationDestination(
                 selectedIcon: Icon(Icons.person_search_sharp), //Icon(Icons.announcement),
@@ -236,6 +242,7 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
             }
           }
         ),
+        InterfaceControleSermente(),
         SearchEntityManager()
       ][currentPageIndex]
     );

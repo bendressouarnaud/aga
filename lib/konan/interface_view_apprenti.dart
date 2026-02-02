@@ -266,7 +266,7 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                                             alignment: Alignment.topLeft,
                                             child: Text.rich(
                                               TextSpan(
-                                                  text: 'Mérier : ',
+                                                  text: 'Métier : ',
                                                   //style: TextStyle(fontWeight: FontWeight.bold),
                                                   children: <TextSpan>[
                                                     TextSpan(text: lesMetiers.where((m) => m.id == widget.apprenti.metier).first.libelle,

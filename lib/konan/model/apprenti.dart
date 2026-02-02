@@ -52,6 +52,10 @@ class Apprenti {
   final int entreprise_id;
   final int millisecondes;
 
+  // 02/02/2026
+  final int statut_apprenti;
+
+
   // M e t h o d s  :
   Apprenti({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance,
     required this.numero_immatriculation, required this.lieu_naissance_autre, required this.lieu_naissance, required this.nationalite,
@@ -64,7 +68,7 @@ class Apprenti {
     required this.a_suivi_formation, required this.centre_formation_metier, required this.intitule_formation_metier,
     required this.formation_metier_terminee, required this.diplome_obtenu_metier,
     required this.cnps, required this.cmu, required this.artisan_id, required this.entreprise_id,
-    required this.millisecondes
+    required this.millisecondes, required this.statut_apprenti
   });
   factory Apprenti.fromDatabaseJson(Map<String, dynamic> data) => Apprenti(
     id: data['id'],
@@ -109,7 +113,8 @@ class Apprenti {
 
     artisan_id: data['artisan_id'],
       entreprise_id: data['entreprise_id'],
-    millisecondes: data['millisecondes']
+    millisecondes: data['millisecondes'],
+      statut_apprenti: data['statut_apprenti']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -155,6 +160,7 @@ class Apprenti {
 
     "artisan_id": artisan_id,
     "entreprise_id": entreprise_id,
-    "millisecondes": millisecondes
+    "millisecondes": millisecondes,
+    "statut_apprenti": statut_apprenti
   };
 }

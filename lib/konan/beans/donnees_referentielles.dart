@@ -6,6 +6,7 @@ import 'package:cnmci/konan/model/diplome.dart';
 import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/niveau_etude.dart';
 import 'package:cnmci/konan/model/pays.dart';
+import 'package:cnmci/konan/model/quartier.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
 import 'package:cnmci/konan/model/statut_matrimonial.dart';
 import 'package:cnmci/konan/model/type_compte_bancaire.dart';
@@ -18,6 +19,7 @@ class DonneesReferentielles {
   final List<Departement> departement;
   final List<SousPrefecture> sous_prefecture;
   final List<Commune> commune;
+  final List<Quartier> quartier;
   final List<Pays> pays;
   final List<StatutMatrimonial> statut_matrimonial;
   final List<TypeCompteBancaire> type_compte_bancaire;
@@ -30,13 +32,15 @@ class DonneesReferentielles {
   // M e t h o d s  :
   DonneesReferentielles({required this.crm, required this.departement, required this.sous_prefecture, required this.commune,
     required this.pays, required this.statut_matrimonial, required this.type_compte_bancaire, required this.type_document,
-    required this.niveau_etude, required this.classe, required this.diplome, required this.metier});
+    required this.niveau_etude, required this.classe, required this.diplome, required this.metier,
+    required this.quartier});
   factory DonneesReferentielles.fromJson(Map<String, dynamic> json) {
     return DonneesReferentielles(
       crm: List<dynamic>.from(json['crm']).map((i) => Crm.fromDatabaseJson(i)).toList(),
       departement: List<dynamic>.from(json['departement']).map((i) => Departement.fromDatabaseJson(i)).toList(),
       sous_prefecture: List<dynamic>.from(json['sous_prefecture']).map((i) => SousPrefecture.fromDatabaseJson(i)).toList(),
       commune: List<dynamic>.from(json['commune']).map((i) => Commune.fromDatabaseJson(i)).toList(),
+      quartier: List<dynamic>.from(json['quartier']).map((i) => Quartier.fromDatabaseJson(i)).toList(),
       pays: List<dynamic>.from(json['pays']).map((i) => Pays.fromDatabaseJson(i)).toList(),
       statut_matrimonial: List<dynamic>.from(json['statut_matrimonial']).map((i) => StatutMatrimonial.fromDatabaseJson(i)).toList(),
       type_compte_bancaire: List<dynamic>.from(json['type_compte_bancaire']).map((i) => TypeCompteBancaire.fromDatabaseJson(i)).toList(),

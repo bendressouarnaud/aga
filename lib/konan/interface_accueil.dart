@@ -95,7 +95,7 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: const Text(
-            "CnmCI",
+            "Accueil",
             textAlign: TextAlign.left,
           ),
           shape: const RoundedRectangleBorder(
@@ -107,7 +107,8 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
           actions: [
             Visibility(
                 visible: globalUser!.profil == "ROLE_ADMINISTRATEUR_CONTROLE_MANAGER" ||
-                    globalUser!.profil == "ROLE_SUPER_ADMIN",
+                    globalUser!.profil == "ROLE_SUPER_ADMIN" ||
+                    globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE",
                 child: IconButton(
                     onPressed: () {
                       Navigator.push(context,

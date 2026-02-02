@@ -74,19 +74,23 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
     return GetBuilder<EntrepriseControllerX>(
         builder: (EntrepriseControllerX controller){
 
-          return controller.data.isNotEmpty ?
+          var currentData = controller.data.isNotEmpty ?
+          controller.data.length > 10 ?
+          controller.data.sublist(0, 9) : controller.data : [];
+
+          return currentData.isNotEmpty ?
           SingleChildScrollView(
             child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
-                itemCount: controller.data.length, //listeChat.length,
+                itemCount: currentData.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                            return InterfaceViewEntreprise(entreprise: controller.data[index]);
+                            return InterfaceViewEntreprise(entreprise: currentData[index]);
                           })
                       );
                     },
@@ -107,12 +111,12 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(MesServices().processEntityName(controller.data[index].denomination, limitCharacter),
+                                        Text(MesServices().processEntityName(currentData[index].denomination, limitCharacterHisto),
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold
                                           ),
                                         ),
-                                        Text(controller.data[index].date_creation)
+                                        Text(currentData[index].date_creation)
                                       ],
                                     )
                                 ),
@@ -122,12 +126,12 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(controller.data[index].contact1),
-                                      Text(controller.data[index].statut_paiement == 0 ? 'Non payé' :
-                                      controller.data[index].statut_paiement == 1 ? 'En cours' : 'Payé',
+                                      Text(currentData[index].contact1),
+                                      Text(currentData[index].statut_paiement == 0 ? 'Non payé' :
+                                      currentData[index].statut_paiement == 1 ? 'En cours' : 'Payé',
                                         style: TextStyle(
-                                            color: controller.data[index].statut_paiement == 0 ? Colors.red :
-                                            controller.data[index].statut_paiement == 1 ? Colors.blueGrey : Colors.green,
+                                            color: currentData[index].statut_paiement == 0 ? Colors.red :
+                                            currentData[index].statut_paiement == 1 ? Colors.blueGrey : Colors.green,
                                             fontWeight: FontWeight.bold
                                         ),)
                                     ],
@@ -149,7 +153,8 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
                                           text: 'Activité princ. : ',
                                           //style: TextStyle(fontWeight: FontWeight.bold),
                                           children: <TextSpan>[
-                                            TextSpan(text: lesMetiers.where((m) => m.id == controller.data[index].activite_principale).first.libelle,
+                                            TextSpan(text: lesMetiers.where((m) => m.id ==
+                                                currentData[index].activite_principale).first.libelle,
                                                 style: TextStyle(fontWeight: FontWeight.bold)
                                             )
                                           ]
@@ -164,8 +169,8 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
                                           text: 'Quartier siège : ',
                                           //style: TextStyle(fontWeight: FontWeight.bold),
                                           children: <TextSpan>[
-                                            TextSpan(text: controller.data[index].quartier_siege.trim().isNotEmpty ?
-                                            controller.data[index].quartier_siege : "---",
+                                            TextSpan(text: currentData[index].quartier_siege.trim().isNotEmpty ?
+                                            currentData[index].quartier_siege : "---",
                                                 style: TextStyle(fontWeight: FontWeight.bold)
                                             )
                                           ]
@@ -179,7 +184,7 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
                                       TextSpan(
                                           text: 'Commune résid. : ',
                                           children: <TextSpan>[
-                                            TextSpan(text: lesCommunes.where((c) => c.id == controller.data[index].commune_residence).first.libelle,
+                                            TextSpan(text: lesCommunes.where((c) => c.id == currentData[index].commune_residence).first.libelle,
                                                 style: TextStyle(fontWeight: FontWeight.bold)
                                             )
                                           ]

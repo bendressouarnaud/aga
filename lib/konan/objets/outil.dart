@@ -4,12 +4,14 @@ import 'package:cnmci/konan/model/crm.dart';
 import 'package:cnmci/konan/model/departement.dart';
 import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/niveau_etude.dart';
+import 'package:cnmci/konan/model/quartier.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
 import 'package:cnmci/konan/model/statut_matrimonial.dart';
 import 'package:cnmci/konan/model/type_compte_bancaire.dart';
 import 'package:cnmci/konan/model/user.dart';
 import 'package:cnmci/konan/repositories/apprenti_repository.dart';
 import 'package:cnmci/konan/repositories/compagnon_repository.dart';
+import 'package:cnmci/konan/repositories/quartier_repository.dart';
 import '../model/apprenti.dart';
 import '../model/classe.dart';
 import '../model/diplome.dart';
@@ -38,6 +40,7 @@ class Outil {
   late DepartementRepository _departementRepository;
   late SousPrefectureRepository _sousPrefectureRepository;
   late CommuneRepository _communeRepository;
+  late QuartierRepository _quartierRepository;
   late PaysRepository _paysRepository;
   late StatutMatrimonialRepository _statutMatrimonialRepository;
   late TypeCompteBancaireRepository _typeCompteBancaireRepository;
@@ -65,6 +68,7 @@ class Outil {
     _departementRepository = DepartementRepository();
     _sousPrefectureRepository = SousPrefectureRepository();
     _communeRepository = CommuneRepository();
+    _quartierRepository = QuartierRepository();
     _paysRepository = PaysRepository();
     _statutMatrimonialRepository = StatutMatrimonialRepository();
     _typeCompteBancaireRepository = TypeCompteBancaireRepository();
@@ -131,6 +135,13 @@ class Outil {
     List<Commune> data = await _communeRepository.findAll();
     return data;
   }
+
+  // QUARTIER
+  Future<List<Quartier>> findAllQuartier() async{
+    List<Quartier> data = await _quartierRepository.findAll();
+    return data;
+  }
+
   // STATUT MATRIMONIAL
   Future<List<StatutMatrimonial>> findAllStatutMatrimonial() async{
     List<StatutMatrimonial> data = await _statutMatrimonialRepository.findAll();

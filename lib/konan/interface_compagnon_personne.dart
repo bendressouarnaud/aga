@@ -93,6 +93,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
   TextEditingController villeCommuneController = TextEditingController();
   TextEditingController rccmCommuneController = TextEditingController();
   TextEditingController niveauEquipementController = TextEditingController();
+  TextEditingController numeroImmatriculationController = TextEditingController();
 
   TextEditingController menuCountryDepartController = TextEditingController();
   TextEditingController menuDepartController = TextEditingController();
@@ -158,6 +159,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
   late Metier lActiviteSecondaire;
   late Commune laVilleCommune;
   late NiveauEquipement leNiveauEquipement;
+  late GenericData leStatutCompagnon;
 
   int artisanId = 0;
 
@@ -165,6 +167,10 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
     'M',
     'Mme',
     'Mlle'
+  ];
+  final lesStatutCompagnon = [
+    GenericData(libelle: 'Nouveau', id: 0),
+    GenericData(libelle: 'Renouvellement', id: 1)
   ];
   // GenericData
   final lesGenericData = [
@@ -195,7 +201,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
         prenom: prenomController.text,
         civilite: laCivilite,
         date_naissance: dateNaissanceController.text,
-        numero_immatriculation: '',
+        numero_immatriculation: numeroImmatriculationController.text.trim(),
         lieu_naissance_autre: lieuNaissanceAutreController.text,
         lieu_naissance: laCommune.id,
         nationalite: laNationalite.id,
@@ -228,7 +234,8 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
         cmu: cmuController.text,
         artisan_id: widget.artisanId,
         entreprise_id:  widget.entrepriseId,
-      millisecondes: DateTime.now().millisecondsSinceEpoch
+      millisecondes: DateTime.now().millisecondsSinceEpoch,
+        statut_compagnon: leStatutCompagnon.id
     );
 
     final result = await Navigator.push(context,
@@ -259,7 +266,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
     laPieceDelivre = lesCommunes.first;
     laVilleResidence = lesCommunes.first;
     laCivilite = lesCivilites.first;
-    laNationalite = lesPays.first;
+    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
     leCentreFormation = lesGenericData.first;
     laFinFormation = lesGenericData.first;
     laSpecialite = lesMetiers.first;
@@ -273,6 +280,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
     lActivitePrincipale = lesMetiers.first;
     lActiviteSecondaire = lesMetiers.first;
     leNiveauEquipement = lesNiveauEquipement.first;
+    leStatutCompagnon = lesStatutCompagnon.first;
 
     _dateNaissanceController.clear();
     _datePieceDelivreController.clear();
@@ -288,6 +296,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
     emailController.text = "";
     cnpsController.text = "";
     cmuController.text = "";
+    numeroImmatriculationController.text = "";
 
     communeController.text = laCommune.libelle;
     villeResidenceController.text = laVilleResidence.libelle;
@@ -459,7 +468,9 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
               if(nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty
                   || dateNaissanceController.text.isEmpty || datePieceController.text.isEmpty ||
                   contact1Controller.text.trim().isEmpty || dateDebutCompagnonnageController.text.trim().isEmpty ||
-                  (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty)){
+                  (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty) ||
+                  (leStatutCompagnon.id == 1 && numeroImmatriculationController.text.trim().isEmpty)
+              ){
                 displayToast('Veuillez renseigner les champs principaux');
                 return;
               }
@@ -486,6 +497,76 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
           height: 5,
         ),
       ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<GenericData>(
+                  mode: Mode.form,
+                  onChanged: (GenericData? value) => {
+                    setState(() {
+                      leStatutCompagnon = value!;
+                    })
+                  },
+                  compareFn: (GenericData? a, GenericData? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: leStatutCompagnon,
+                  itemAsString: (statut) => statut.libelle,
+                  items: (filter, infiniteScrollProps) => lesStatutCompagnon,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Statut compagnon',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                    /*showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),*/
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 150,
+                          maxHeight: 200
+                      )
+                  ),
+                ),
+              ),
+              Visibility(
+                  visible: leStatutCompagnon.id == 1,
+                  child: SizedBox(
+                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                    child: TextField(
+                      keyboardType: TextInputType.text,
+                      controller: numeroImmatriculationController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Numéro Immatriculation',
+                      ),
+                      style: const TextStyle(
+                          height: 1.5
+                      ),
+                      textAlignVertical: TextAlignVertical.bottom,
+                      textAlign: TextAlign.center,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  )
+              )
+            ],
+          )
+      ),
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 13),

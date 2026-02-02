@@ -306,7 +306,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                             alignment: Alignment.topLeft,
                                             child: Text.rich(
                                               TextSpan(
-                                                  text: 'Mérier : ',
+                                                  text: 'Métier : ',
                                                   //style: TextStyle(fontWeight: FontWeight.bold),
                                                   children: <TextSpan>[
                                                     TextSpan(text: lesMetiers.where((m) => m.id == widget.artisan.specialite).first.libelle,
@@ -353,25 +353,69 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                           ),
                         ),
 
-                        Container(
-                          alignment: Alignment.topLeft,
-                          margin: EdgeInsets.only(right: 10, left: 10, top: 25),
-                          child: Text('Paiement',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold
-                            ),
-                          ),
+                        Visibility(
+                          visible: widget.artisan.statut_paiement < 2,
+                            child: Container(
+                              alignment: Alignment.topLeft,
+                              margin: EdgeInsets.only(right: 10, left: 10, top: 25),
+                              child: Text('Paiement',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            )
                         ),
 
-                        Container(
-                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                          child: Divider(
-                            height: 3,
-                          ),
+                        Visibility(
+                            visible: widget.artisan.statut_paiement < 2,
+                            child: Container(
+                              margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                              child: Divider(
+                                height: 3,
+                              ),
+                            )
                         ),
 
-                        Container(
+                        Visibility(
+                            visible: widget.artisan.statut_paiement < 2,
+                            child: Container(
+                                alignment: Alignment.topLeft,
+                                margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
+                                padding: EdgeInsets.all(5),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ElevatedButton.icon(
+                                        style: ButtonStyle(
+                                            backgroundColor: WidgetStateColor.resolveWith((states) => digiHmbColorDeep)
+                                        ),
+                                        label: Text("Payer",
+                                            style: const TextStyle(
+                                                color: Colors.white
+                                            )
+                                        ),
+                                        onPressed: () {
+                                          displayWaintingPayingInterface(sommeApayer.seul, 0);
+                                        },
+                                        icon: Icon(
+                                          Icons.money,
+                                          size: 20,
+                                          color: Colors.white,
+                                        )
+                                    ),
+                                    Text('${formatPrice(sommeApayer.seul)} F',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                    )
+                                  ],
+                                )
+                            )
+                        ),
+
+                        /*Container(
                             margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
                             padding: EdgeInsets.all(5),
                             height: 120,
@@ -448,7 +492,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                 )
                               ],
                             )
-                        ),
+                        ),*/
 
                         Container(
                           alignment: Alignment.topLeft,

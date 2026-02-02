@@ -48,6 +48,9 @@ class Compagnon {
   final int entreprise_id;
   final int millisecondes;
 
+  // 02/02/2026
+  final int statut_compagnon;
+
   // M e t h o d s  :
   Compagnon({required this.id, required this.nom, required this.prenom, required this.contact1,
     required this.contact2, required this.email, required this.numero_immatriculation, required this.lieu_naissance_autre,
@@ -59,7 +62,7 @@ class Compagnon {
     required this.photo_cni_recto, required this.photo_cni_verso, required this.photo_diplome,
     required this.statut_kyc, required this.statut_paiement, required this.longitude, required this.latitude,
     required this.cnps, required this.cmu, required this.artisan_id, required this.entreprise_id,
-    required this.millisecondes
+    required this.millisecondes, required this.statut_compagnon
   });
   factory Compagnon.fromDatabaseJson(Map<String, dynamic> data) => Compagnon(
       id: data['id'],
@@ -100,7 +103,8 @@ class Compagnon {
       artisan_id: data['artisan_id'],
       entreprise_id: data['entreprise_id'],
       apprentissage_metier: data['apprentissage_metier'],
-      millisecondes: data['millisecondes']
+      millisecondes: data['millisecondes'],
+      statut_compagnon: data['statut_compagnon']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -142,6 +146,7 @@ class Compagnon {
     "artisan_id": artisan_id,
     "entreprise_id": entreprise_id,
     "apprentissage_metier": apprentissage_metier,
-    "millisecondes": millisecondes
+    "millisecondes": millisecondes,
+    "statut_compagnon": statut_compagnon
   };
 }

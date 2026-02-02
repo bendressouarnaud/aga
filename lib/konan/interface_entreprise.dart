@@ -44,6 +44,7 @@ import 'model/crm.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
 as picker;
 
+import 'model/quartier.dart';
 import 'objets/amountseparator.dart';
 import 'objets/constants.dart';
 import 'package:money_formatter/money_formatter.dart';
@@ -199,6 +200,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   late Metier lActivitePrincipale;
   late Metier lActiviteSecondaire;
   late Commune laVilleCommune;
+  late Quartier leQuartierActivite;
+  late List<Quartier> lesQuartiersIndex;
   late NiveauEquipement leNiveauEquipement;
   // ENTREPRISE :
   late GenericData laFormeJuridique;
@@ -333,6 +336,9 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
           },
           body: jsonEncode(
               {
+                "crm_id": leCrm.id,
+                "departement_id": leDepartement.id,
+                "sous_prefecture_id": laSousPrefecture.id,
                 "gerant_id": 0,
                 "civilite": laCivilite,
                 "nom": nomController.text,
@@ -376,7 +382,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 "longitude": longitude,
                 "latitude": latitude,
                 "commune": laVilleCommune.id,
-                "quartier": quartierCommuneController.text
+                "quartier": leQuartierActivite.id
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -430,7 +436,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             statut_paiement: 0,
             longitude: longitude,
             latitude: latitude,
-          millisecondes: DateTime.now().millisecondsSinceEpoch
+          millisecondes: DateTime.now().millisecondsSinceEpoch,
+            quartier_siege_id: leQuartierActivite.id
         );
         entrepriseControllerX.addItem(entrepriseToManage);
         flagSendData = false;
@@ -462,8 +469,13 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     laVilleCommune = lesCommunes.first;
     laPieceDelivre = lesCommunes.first;
     laVilleResidence = lesCommunes.first;
+
+    // Init QUARTIERS :
+    lesQuartiersIndex = lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
+    leQuartierActivite = lesQuartiersIndex.first;
+
     laCivilite = lesCivilites.first;
-    laNationalite = lesPays.first;
+    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
     leStatutMatrimonial = lesStatutMatrimoniaux.first;
     leRegimeSocial = lesGenericData.first;
     leRegimetravailleur = lesGenericData.first;
@@ -660,6 +672,17 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
         fontSize: 16.0);
   }
 
+  void refreshVilleActivite(Commune commune) {
+    // Init QUARTIERS :
+    laVilleCommune = commune; // Refresh
+    setState(() {
+      lesQuartiersIndex = lesQuartiers.where((q) => q.idx == commune.id).toList();
+      if(lesQuartiersIndex.isNotEmpty) {
+        leQuartierActivite = lesQuartiersIndex.first;
+      }
+    });
+  }
+
   Widget lesEtapes(){
     return Container(
       margin: const EdgeInsets.only(top: 17, left: 10, right: 10, bottom: 10),
@@ -765,12 +788,12 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                           .isEmpty) ||
                       denominationController.text
                           .trim()
-                          .isEmpty || rccmController.text
+                          .isEmpty /*|| rccmController.text
                       .trim()
                       .isEmpty ||
                       compteContribuableController.text
                           .trim()
-                          .isEmpty) {
+                          .isEmpty*/) {
                     displayToast('Veuillez renseigner les champs principaux');
                     return;
                   }
@@ -1014,8 +1037,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                   initialSelection: laCivilite,
                   controller: civiliteController,
                   hintText: "Civilité",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
+                  requestFocusOnTap: false,
+                  enableSearch: false,
                   enableFilter: false,
                   label: const Text('Civilité'),
                   // Initial Value
@@ -1710,6 +1733,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
               SizedBox(
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
+                  autofocus: true,
                   onChanged: (value) {
                     setState(() {
                       denominationController.text = value;
@@ -1846,16 +1870,13 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
                   onChanged: (value) {
-                    setState(() {
-                      rccmController.text = value;
-                    });
+                    rccmController.text = value;
                   },
                   keyboardType: TextInputType.text,
                   controller: rccmController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: rccmController.text.trim().isEmpty ?
-                      Colors.red : Colors.black, width: 1.0),
+                      borderSide: BorderSide(color: Colors.black, width: 1.0),
                     ),
                     border: OutlineInputBorder(),
                     labelText: 'N° R.C.C.M.',
@@ -2057,16 +2078,13 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
                   onChanged: (value) {
-                    setState(() {
-                      compteContribuableController.text = value;
-                    });
+                    compteContribuableController.text = value;
                   },
                   keyboardType: TextInputType.text,
                   controller: compteContribuableController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: compteContribuableController.text.trim().isEmpty ?
-                      Colors.red : Colors.black, width: 1.0),
+                      borderSide: BorderSide(color: Colors.black, width: 1.0),
                     ),
                     border: OutlineInputBorder(),
                     labelText: 'N° Compte contribuable',
@@ -2124,7 +2142,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
                   onChanged: (Commune? value) => {
-                    laVilleCommune = value!
+                    refreshVilleActivite(value!)
                   },
                   compareFn: (Commune? a, Commune? b){
                     if(a == null || b == null){
@@ -2155,30 +2173,47 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                       )
                   ),
                 ),
-              )
-              /*DropdownMenu<Commune>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: laVilleCommune,
-                  controller: villeCommuneController,
-                  hintText: "Ville/Commune",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Ville/Commune'),
-                  // Initial Value
-                  onSelected: (Commune? value) {
-                    laVilleCommune = value!;
-                  },
-                  dropdownMenuEntries:
-                  lesCommunes.map<DropdownMenuEntry<Commune>>((Commune menu) {
-                    return DropdownMenuEntry<Commune>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.location_city));
-                  }).toList()
-              )*/,
+              ),
+
               SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<Quartier>(
+                  mode: Mode.form,
+                  onChanged: (Quartier? value) => {
+                    leQuartierActivite = value!
+                  },
+                  compareFn: (Quartier? a, Quartier? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: leQuartierActivite,
+                  itemAsString: (commune) => commune.libelle,
+                  items: (filter, infiniteScrollProps) => lesQuartiersIndex,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Quartier Activité',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 300,
+                          maxHeight: 400
+                      )
+                  ),
+                ),
+              ),
+
+              /*SizedBox(
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
                   keyboardType: TextInputType.text,
@@ -2194,7 +2229,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                   textAlign: TextAlign.center,
                   textInputAction: TextInputAction.next,
                 ),
-              )
+              )*/
             ],
           )
       ),

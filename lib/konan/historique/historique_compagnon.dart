@@ -88,20 +88,23 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
 
           // Filter :
           List<Compagnon> tampon = getList(controller.data);
+          // Reduce :
+          var currentData = tampon.isNotEmpty ? tampon.length > 10 ?
+          tampon.sublist(0, 9) : tampon : [];
 
-          return tampon.isNotEmpty ?
+          return currentData.isNotEmpty ?
           SingleChildScrollView(
             child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
-                itemCount: tampon.length, //listeChat.length,
+                itemCount: currentData.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                            return InterfaceViewCompagnon(compagnon: tampon[index]);
+                            return InterfaceViewCompagnon(compagnon: currentData[index]);
                           })
                       );
                     },
@@ -114,107 +117,96 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
                       },*/
                         child: Padding(
                           padding: const EdgeInsets.all(16),
-                          child: Row(
+                          child: Column(
                             children: [
-                              SizedBox(
-                                height: 120,
-                                width: 90,
-                                child: MesServices().displayFromLocalOrFirebase(tampon[index].photo),
-                              ),
-                              Expanded(
-                                  child: Column(
+                              Container(
+                                  margin: EdgeInsets.only(right: 10, left: 10),
+                                  alignment: Alignment.topLeft,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Container(
-                                          margin: EdgeInsets.only(right: 10, left: 10),
-                                          alignment: Alignment.topLeft,
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(MesServices().processEntityName('${tampon[index].nom} ${tampon[index].prenom}', limitCharacter),
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                ),
-                                              ),
-                                              Text(tampon[index].date_debut_compagnonnage)
-                                            ],
-                                          )
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                                        alignment: Alignment.topLeft,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(tampon[index].contact1),
-                                            Text(tampon[index].statut_paiement == 0 ? 'Non payé' :
-                                            tampon[index].statut_paiement == 1 ? 'En cours' : 'Payé',
-                                              style: TextStyle(
-                                                  color: tampon[index].statut_paiement == 0 ? Colors.red :
-                                                  tampon[index].statut_paiement == 1 ? Colors.blueGrey : Colors.green,
-                                                  fontWeight: FontWeight.bold
-                                              ),)
-                                          ],
+                                      Text(MesServices().processEntityName('${currentData[index].nom} ${currentData[index].prenom}', limitCharacterHisto),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold
                                         ),
                                       ),
-                                      Container(
-                                        margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                                        alignment: Alignment.topLeft,
-                                        child: Divider(
-                                          height: 3,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Container(
-                                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                                          alignment: Alignment.topLeft,
-                                          child: Text.rich(
-                                            TextSpan(
-                                                text: 'Métier : ',
-                                                //style: TextStyle(fontWeight: FontWeight.bold),
-                                                children: <TextSpan>[
-                                                  TextSpan(text: MesServices().processEntityName(
-                                                lesMetiers.where((m) => m.id == tampon[index].specialite).first.libelle,
-                                                limitCharacterMetier),
-                                                      style: TextStyle(fontWeight: FontWeight.bold)
-                                                  )
-                                                ]
-                                            ),
-                                          )
-                                      ),
-                                      Container(
-                                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                                          alignment: Alignment.topLeft,
-                                          child: Text.rich(
-                                            TextSpan(
-                                                text: 'Nationalité : ',
-                                                //style: TextStyle(fontWeight: FontWeight.bold),
-                                                children: <TextSpan>[
-                                                  TextSpan(text: lesPays.where((p) => p.id == tampon[index].nationalite).first.libelle,
-                                                      style: TextStyle(fontWeight: FontWeight.bold)
-                                                  )
-                                                ]
-                                            ),
-                                          )
-                                      ),
-                                      Container(
-                                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                                          alignment: Alignment.topLeft,
-                                          child: Text.rich(
-                                            TextSpan(
-                                                text: 'Commune résid. : ',
-                                                children: <TextSpan>[
-                                                  TextSpan(text: lesCommunes.where((c) => c.id == tampon[index].commune_residence).first.libelle,
-                                                      style: TextStyle(fontWeight: FontWeight.bold)
-                                                  )
-                                                ]
-                                            ),
-                                          )
-                                      )
+                                      Text(currentData[index].date_debut_compagnonnage)
                                     ],
+                                  )
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                alignment: Alignment.topLeft,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(currentData[index].contact1),
+                                    Text(currentData[index].statut_paiement == 0 ? 'Non payé' :
+                                    currentData[index].statut_paiement == 1 ? 'En cours' : 'Payé',
+                                      style: TextStyle(
+                                          color: currentData[index].statut_paiement == 0 ? Colors.red :
+                                          currentData[index].statut_paiement == 1 ? Colors.blueGrey : Colors.green,
+                                          fontWeight: FontWeight.bold
+                                      ),)
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                alignment: Alignment.topLeft,
+                                child: Divider(
+                                  height: 3,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Container(
+                                  margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                  alignment: Alignment.topLeft,
+                                  child: Text.rich(
+                                    TextSpan(
+                                        text: 'Métier : ',
+                                        //style: TextStyle(fontWeight: FontWeight.bold),
+                                        children: <TextSpan>[
+                                          TextSpan(text: MesServices().processEntityName(
+                                              lesMetiers.where((m) => m.id == currentData[index].specialite).first.libelle,
+                                              limitCharacterMetier),
+                                              style: TextStyle(fontWeight: FontWeight.bold)
+                                          )
+                                        ]
+                                    ),
+                                  )
+                              ),
+                              Container(
+                                  margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                  alignment: Alignment.topLeft,
+                                  child: Text.rich(
+                                    TextSpan(
+                                        text: 'Nationalité : ',
+                                        //style: TextStyle(fontWeight: FontWeight.bold),
+                                        children: <TextSpan>[
+                                          TextSpan(text: lesPays.where((p) => p.id == currentData[index].nationalite).first.libelle,
+                                              style: TextStyle(fontWeight: FontWeight.bold)
+                                          )
+                                        ]
+                                    ),
+                                  )
+                              ),
+                              Container(
+                                  margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                  alignment: Alignment.topLeft,
+                                  child: Text.rich(
+                                    TextSpan(
+                                        text: 'Commune résid. : ',
+                                        children: <TextSpan>[
+                                          TextSpan(text: lesCommunes.where((c) => c.id == currentData[index].commune_residence).first.libelle,
+                                              style: TextStyle(fontWeight: FontWeight.bold)
+                                          )
+                                        ]
+                                    ),
                                   )
                               )
                             ],
-                          ),
+                          )
                         ),
                       ),
                     ),

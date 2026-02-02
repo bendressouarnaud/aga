@@ -9,6 +9,7 @@ import 'package:cnmci/konan/model/diplome.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
 import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/pays.dart';
+import 'package:cnmci/konan/model/quartier.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
 import 'package:cnmci/konan/model/type_document.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -47,6 +48,7 @@ late List<Crm> lesCrms;
 late List<Departement> lesDepartements;
 late List<SousPrefecture> lesSousPrefectures;
 late List<Commune> lesCommunes;
+late List<Quartier> lesQuartiers;
 late List<StatutMatrimonial> lesStatutMatrimoniaux;
 late List<TypeCompteBancaire> lesTypeCompteBancaires;
 late List<TypeDocument> lesTypeDocuments;
@@ -111,6 +113,8 @@ Future<void> main() async {
   lesCommunes = await outil.findAllCommune();
   // Order :
   lesCommunes.sort((a,b) => a.libelle.compareTo(b.libelle));
+  lesQuartiers = await outil.findAllQuartier();
+  lesQuartiers.sort((a,b) => a.libelle.compareTo(b.libelle));
   lesStatutMatrimoniaux = await outil.findAllStatutMatrimonial();
   lesTypeCompteBancaires = await outil.findAllTypeCompteBancaire();
   lesTypeDocuments = await outil.findAllTypeDocument();

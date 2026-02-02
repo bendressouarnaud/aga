@@ -21,12 +21,14 @@ class ArtisanControllerX extends GetxController {
   Future<void> refreshData() async{
     // Clear FIRST :
     var tmp = await _repository.findAll();
+    tmp.sort((a,b) => b.id.compareTo(a.id)); // Reversed
     data.addAll(tmp);
     update();
   }
 
   void addItem(Artisan data) async{
     this.data.add(data);
+    this.data.sort((a,b) => b.id.compareTo(a.id)); // Reversed
     await _repository.insert(data);
     update();
   }

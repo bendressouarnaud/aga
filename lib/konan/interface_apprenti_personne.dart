@@ -115,6 +115,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   TextEditingController villeCommuneController = TextEditingController();
   TextEditingController rccmCommuneController = TextEditingController();
   TextEditingController niveauEquipementController = TextEditingController();
+  TextEditingController numeroImmatriculationController = TextEditingController();
 
   TextEditingController menuCountryDepartController = TextEditingController();
   TextEditingController menuDepartController = TextEditingController();
@@ -180,6 +181,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   late Metier lActiviteSecondaire;
   late Commune laVilleCommune;
   late NiveauEquipement leNiveauEquipement;
+  late GenericData leStatutApprenti;
 
   int artisanId = 0;
 
@@ -187,6 +189,10 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     'M',
     'Mme',
     'Mlle'
+  ];
+  final lesStatutApprenti = [
+    GenericData(libelle: 'Nouveau', id: 0),
+    GenericData(libelle: 'Renouvellement', id: 1)
   ];
   // GenericData
   final lesGenericData = [
@@ -217,7 +223,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         prenom: prenomController.text,
         civilite: laCivilite,
         date_naissance: dateNaissanceController.text,
-        numero_immatriculation: '',
+        numero_immatriculation: numeroImmatriculationController.text.trim(),
         lieu_naissance_autre: lieuNaissanceAutreController.text,
         lieu_naissance: laCommune.id,
         nationalite: laNationalite.id,
@@ -253,7 +259,8 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         cmu: cmuController.text,
         artisan_id: widget.artisanId,
         entreprise_id:  widget.entrepriseId,
-      millisecondes: DateTime.now().millisecondsSinceEpoch
+      millisecondes: DateTime.now().millisecondsSinceEpoch,
+        statut_apprenti: leStatutApprenti.id
     );
 
     final result = await Navigator.push(context,
@@ -284,7 +291,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     laPieceDelivre = lesCommunes.first;
     laVilleResidence = lesCommunes.first;
     laCivilite = lesCivilites.first;
-    laNationalite = lesPays.first;
+    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
     leCentreFormation = lesGenericData.first;
     laFinFormation = lesGenericData.first;
     laSpecialite = lesMetiers.first;
@@ -299,6 +306,8 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     lActivitePrincipale = lesMetiers.first;
     lActiviteSecondaire = lesMetiers.first;
     leNiveauEquipement = lesNiveauEquipement.first;
+    //
+    leStatutApprenti = lesStatutApprenti.first;
 
     _dateNaissanceController.clear();
     _datePieceDelivreController.clear();
@@ -317,6 +326,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     diplomeController.text = "";
     cnpsController.text = "";
     cmuController.text = "";
+    numeroImmatriculationController.text = "";
 
     communeController.text = laCommune.libelle;
     villeResidenceController.text = laVilleResidence.libelle;
@@ -485,7 +495,9 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
               if(nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty
                   || dateNaissanceController.text.isEmpty || datePieceController.text.isEmpty ||
                   contact1Controller.text.trim().isEmpty || dateDebutApprentissageController.text.isEmpty ||
-                  (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty)){
+                  (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty) ||
+                  (leStatutApprenti.id == 1 && numeroImmatriculationController.text.trim().isEmpty)
+              ){
                 displayToast('Veuillez renseigner les champs principaux');
                 return;
               }
@@ -512,6 +524,76 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
           height: 5,
         ),
       ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<GenericData>(
+                  mode: Mode.form,
+                  onChanged: (GenericData? value) => {
+                    setState(() {
+                      leStatutApprenti = value!;
+                    })
+                  },
+                  compareFn: (GenericData? a, GenericData? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: leStatutApprenti,
+                  itemAsString: (statut) => statut.libelle,
+                  items: (filter, infiniteScrollProps) => lesStatutApprenti,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Statut apprenti',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                    /*showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),*/
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 150,
+                          maxHeight: 200
+                      )
+                  ),
+                ),
+              ),
+              Visibility(
+                  visible: leStatutApprenti.id == 1,
+                  child: SizedBox(
+                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                    child: TextField(
+                      keyboardType: TextInputType.text,
+                      controller: numeroImmatriculationController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Numéro Immatriculation',
+                      ),
+                      style: const TextStyle(
+                          height: 1.5
+                      ),
+                      textAlignVertical: TextAlignVertical.bottom,
+                      textAlign: TextAlign.center,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  )
+              )
+            ],
+          )
+      ),
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 13),

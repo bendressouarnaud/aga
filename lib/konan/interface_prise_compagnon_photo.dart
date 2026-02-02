@@ -206,6 +206,8 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                 onPressed: () async {
                   try {
                     await _cameraController!.pausePreview();
+                    cameraOnPause = true;
+                    // Reset :
                     setState(() {
                       stepForPhoto = 0;
                     });
@@ -777,7 +779,9 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             "classe" : compagnonToManage.classe,
             "diplome" : compagnonToManage.diplome,
             "cnps" : compagnonToManage.cnps,
-            "cmu" : compagnonToManage.cmu
+            "cmu" : compagnonToManage.cmu,
+            "statut_compagnon" : compagnonToManage.statut_compagnon,
+            "numero_immatriculation" : compagnonToManage.numero_immatriculation,
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -790,7 +794,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             prenom: compagnonToManage.prenom,
             civilite: compagnonToManage.civilite,
             date_naissance: compagnonToManage.date_naissance,
-            numero_immatriculation: '',
+            numero_immatriculation: compagnonToManage.numero_immatriculation,
             lieu_naissance_autre: compagnonToManage.lieu_naissance_autre,
             lieu_naissance: compagnonToManage.lieu_naissance,
             nationalite: compagnonToManage.nationalite,
@@ -823,7 +827,8 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             cmu: compagnonToManage.cmu,
             artisan_id: compagnonToManage.artisan_id,
             entreprise_id: compagnonToManage.entreprise_id,
-          millisecondes: compagnonToManage.millisecondes
+          millisecondes: compagnonToManage.millisecondes,
+            statut_compagnon: compagnonToManage.statut_compagnon
         );
         compagnonControllerX.addItem(compagnon);
         flagSendData = false;

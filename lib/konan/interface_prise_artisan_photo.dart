@@ -214,9 +214,16 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                 onPressed: () async {
                   try {
                     await _cameraController!.pausePreview();
+                    cameraOnPause = true;
+                    // Reset :
                     setState(() {
                       stepForPhoto = 0;
                     });
+                    /*
+                    await _cameraController!.pausePreview();
+                    setState(() {
+                      stepForPhoto = 0;
+                    });*/
                   } catch (e) {
                     // Nothing
                   }
@@ -642,7 +649,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                                             precisionGps < _currentDiscreteSliderValue) {
                                           // Reset this :
                                           positionStream.cancel();
-
                                           // Send DATA :
                                           displayDataSending();
                                         }
@@ -812,7 +818,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "sigle" : artisanToManage.sigle,
             "date_creation" : artisanToManage.date_creation,
             "ville_commune" : artisanToManage.commune_activite.toString(),
-            "quartier" : artisanToManage.quartier_activite,
+            "quartier" : artisanToManage.quartier_activite_id,
             "niveau_equipement" : artisanToManage.niveau_equipement.toString(),
             "rccm" : artisanToManage.rccm,
             "salarie_homme" : 0,
@@ -820,7 +826,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "auxiliaire_homme" : 0,
             "auxiliaire_femme" : 0,
             "apprenti_homme" : 0,
-            "apprenti_femme" : 0
+            "apprenti_femme" : 0,
+            "statut_artisan" : artisanToManage.statut_artisan,
+            "numero_registre" : artisanToManage.numero_registre
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -833,7 +841,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             prenom: artisanToManage.prenom,
             civilite: artisanToManage.civilite,
             date_naissance: artisanToManage.date_naissance,
-            numero_registre: '',
+            numero_registre: artisanToManage.numero_registre,
             lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
             lieu_naissance: artisanToManage.lieu_naissance,
             nationalite: artisanToManage.nationalite,
@@ -888,7 +896,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             quartier_activite: artisanToManage.quartier_activite,
             rccm: artisanToManage.rccm,
             niveau_equipement: artisanToManage.niveau_equipement,
-          millisecondes: artisanToManage.millisecondes
+          millisecondes: artisanToManage.millisecondes,
+            quartier_activite_id: artisanToManage.quartier_activite_id,
+            statut_artisan: artisanToManage.statut_artisan
         );
         artisanControllerX.addItem(artisan);
         //_artisanRepository.insert(artisan);

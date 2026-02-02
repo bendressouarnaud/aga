@@ -172,7 +172,7 @@ class _WidgetAccueil extends State<WidgetAccueil> {
                         children: [
                           Icon(Icons.warehouse,
                             size: 60,),
-                          Text('Entreprise Art.',
+                          Text('Entreprise',
                             style: TextStyle(
                                 fontSize: 25
                             ),),

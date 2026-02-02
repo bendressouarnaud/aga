@@ -14,6 +14,7 @@ import 'package:cnmci/konan/model/diplome.dart';
 import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/niveau_etude.dart';
 import 'package:cnmci/konan/model/pays.dart';
+import 'package:cnmci/konan/model/quartier.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
 import 'package:cnmci/konan/model/statut_matrimonial.dart';
 import 'package:cnmci/konan/model/type_compte_bancaire.dart';
@@ -68,6 +69,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   TextEditingController prenomController = TextEditingController();
   TextEditingController quartierResidenceController = TextEditingController();
   TextEditingController quartierCommuneController = TextEditingController();
+  TextEditingController numeroRegistreController = TextEditingController();
   TextEditingController numeroPieceIdentiteController = TextEditingController();
   TextEditingController civiliteController = TextEditingController();
   TextEditingController communeController = TextEditingController();
@@ -154,9 +156,13 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   late Pays laNationalite;
   late Commune laCommune;
   late Commune laVilleResidence;
+  late Quartier leQuartierActivite;
+  late Quartier leQuartierSiege;
+  late List<Quartier> lesQuartiersIndex;
   late StatutMatrimonial leStatutMatrimonial;
   late String laCivilite;
   late GenericData leRegimeSocial;
+  late GenericData leStatutArtisan;
   late GenericData leRegimetravailleur;
   late GenericData leRegimeImpositionCommunale;
   late GenericData leRegimeImpositionEntreprise;
@@ -186,6 +192,10 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     'Mlle'
   ];
   // GenericData
+  final lesStatutArtisan = [
+    GenericData(libelle: 'Nouveau', id: 0),
+    GenericData(libelle: 'Renouvellement', id: 1)
+  ];
   final lesGenericData = [
     GenericData(libelle: 'Oui', id: 1),
     GenericData(libelle: 'Non', id: 0)
@@ -214,7 +224,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         prenom: prenomController.text,
         civilite: laCivilite,
         date_naissance: dateNaissanceController.text,
-        numero_registre: '',
+        numero_registre: numeroRegistreController.text.trim(),
         lieu_naissance_autre: lieuNaissanceAutreController.text,
         lieu_naissance: laCommune.id,
         nationalite: laNationalite.id,
@@ -266,10 +276,12 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         sigle: sigleController.text,
         date_creation: dateDebutActiviteController.text,
         commune_activite: laVilleCommune.id,
-        quartier_activite: quartierCommuneController.text,
+        quartier_activite: '',// quartierCommuneController.text,
         rccm: rccmCommuneController.text,
         niveau_equipement: leNiveauEquipement.id,
-      millisecondes: DateTime.now().millisecondsSinceEpoch
+      millisecondes: DateTime.now().millisecondsSinceEpoch,
+        quartier_activite_id: leQuartierActivite.id,
+        statut_artisan: leStatutArtisan.id
     );
 
     final result = await Navigator.push(context,
@@ -297,10 +309,16 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     laSousPrefecture = lesSousPrefectures.first;
     laCommune = lesCommunes.first;
     laVilleCommune = lesCommunes.first;
+    leQuartierSiege = lesQuartiers.first;
     laPieceDelivre = lesCommunes.first;
     laVilleResidence = lesCommunes.first;
+    
+    // Init QUARTIERS :
+    lesQuartiersIndex = lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
+    leQuartierActivite = lesQuartiersIndex.first;
+    
     laCivilite = lesCivilites.first;
-    laNationalite = lesPays.first;
+    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
     leStatutMatrimonial = lesStatutMatrimoniaux.first;
     leRegimeSocial = lesGenericData.first;
     leRegimetravailleur = lesGenericData.first;
@@ -318,6 +336,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     lActivitePrincipale = lesMetiers.first;
     lActiviteSecondaire = lesMetiers.first;
     leNiveauEquipement = lesNiveauEquipement.first;
+    leStatutArtisan = lesStatutArtisan.first;
 
     _dateNaissanceController.clear();
     _datePieceDelivreController.clear();
@@ -344,6 +363,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     sigleController.text = "";
     quartierCommuneController.text = "";
     rccmCommuneController.text = "";
+    numeroRegistreController.text = "";
 
     // INIT DROPDOWN's Controller text fields
     communeController.text = laCommune.libelle;
@@ -356,6 +376,17 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
     // Call this to INITIALIZE :
     filtrerDepartement();
+  }
+
+  void refreshVilleActivite(Commune commune) {
+    // Init QUARTIERS :
+    laVilleCommune = commune; // Refresh
+    setState(() {
+      lesQuartiersIndex = lesQuartiers.where((q) => q.idx == commune.id).toList();
+      if(lesQuartiersIndex.isNotEmpty) {
+        leQuartierActivite = lesQuartiersIndex.first;
+      }
+    });
   }
 
   void filtrerDepartement(){
@@ -434,7 +465,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
   Future<void> _selectDateDebutActivite() async {
     choixDate = 1;
-    final now = DateTime(1965, 1, 2, 00, 00);
+    final now = DateTime(1950, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -544,7 +575,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 if(nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty
                     || dateNaissanceController.text.isEmpty || datePieceController.text.isEmpty ||
                     contact1Controller.text.trim().isEmpty || chiffreAffaireController.text.trim().isEmpty ||
-                    (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty)){
+                    (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty) ||
+                    (leStatutArtisan.id == 1 && numeroRegistreController.text.trim().isEmpty)
+                ){
                   displayToast('Veuillez renseigner les champs principaux');
                   return;
                 }
@@ -670,6 +703,76 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
           height: 5,
         ),
       ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<GenericData>(
+                  mode: Mode.form,
+                  onChanged: (GenericData? value) => {
+                    setState(() {
+                      leStatutArtisan = value!;
+                    })
+                  },
+                  compareFn: (GenericData? a, GenericData? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: leStatutArtisan,
+                  itemAsString: (statut) => statut.libelle,
+                  items: (filter, infiniteScrollProps) => lesStatutArtisan,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Statut artisan',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      /*showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),*/
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 150,
+                          maxHeight: 200
+                      )
+                  ),
+                ),
+              ),
+              Visibility(
+                  visible: leStatutArtisan.id == 1,
+                  child: SizedBox(
+                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                    child: TextField(
+                      keyboardType: TextInputType.text,
+                      controller: numeroRegistreController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Numéro registre',
+                      ),
+                      style: const TextStyle(
+                          height: 1.5
+                      ),
+                      textAlignVertical: TextAlignVertical.bottom,
+                      textAlign: TextAlign.center,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  )
+              )
+            ],
+          )
+      ),
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
@@ -743,8 +846,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   initialSelection: laCivilite,
                   controller: civiliteController,
                   hintText: "Civilité",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
+                  requestFocusOnTap: false,
+                  enableSearch: false,
                   enableFilter: false,
                   label: const Text('Civilité'),
                   // Initial Value
@@ -1004,28 +1107,6 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   ),
                 ),
               ),
-              /*DropdownMenu<Commune>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: laVilleResidence,
-                  controller: villeResidenceController,
-                  hintText: "Ville résidence",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Ville résidence'),
-                  // Initial Value
-                  onSelected: (Commune? value) {
-                    laVilleResidence = value!;
-                  },
-                  dropdownMenuEntries:
-                  lesCommunes.map<DropdownMenuEntry<Commune>>((Commune menu) {
-                    return DropdownMenuEntry<Commune>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.location_city));
-                  }).toList()
-              ),*/
               SizedBox(
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
@@ -1917,16 +1998,13 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
                   onChanged: (value) {
-                    setState(() {
-                      denominationController.text = value;
-                    });
+                    denominationController.text = value;
                   },
                   keyboardType: TextInputType.text,
                   controller: denominationController,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: denominationController.text.trim().isEmpty ?
-                      Colors.red : Colors.black, width: 1.0),
+                      borderSide: BorderSide(color: Colors.black, width: 1.0),
                     ),
                     border: OutlineInputBorder(),
                     labelText: 'Dénomination',
@@ -2021,9 +2099,10 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   mode: Mode.form,
                   onChanged: (Commune? value) => {
                     //laCommune = value!
-                    setState(() {
+                    refreshVilleActivite(value!)
+                    /*setState(() {
                       laVilleCommune = value!;
-                    })
+                    })*/
                   },
                   compareFn: (Commune? a, Commune? b){
                     if(a == null || b == null){
@@ -2057,6 +2136,44 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               ),
               SizedBox(
                 width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<Quartier>(
+                  mode: Mode.form,
+                  onChanged: (Quartier? value) => {
+                    leQuartierActivite = value!
+                  },
+                  compareFn: (Quartier? a, Quartier? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: leQuartierActivite,
+                  itemAsString: (commune) => commune.libelle,
+                  items: (filter, infiniteScrollProps) => lesQuartiersIndex,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Quartier Activité',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 300,
+                          maxHeight: 400
+                      )
+                  ),
+                ),
+              ),
+
+              /*SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: TextField(
                   keyboardType: TextInputType.text,
                   controller: quartierCommuneController,
@@ -2071,7 +2188,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   textAlign: TextAlign.center,
                   textInputAction: TextInputAction.next,
                 ),
-              )
+              )*/
             ],
           )
       ),
