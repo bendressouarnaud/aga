@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cnmci/konan/historique/historique_apprenti.dart';
 import 'package:cnmci/konan/historique/historique_compagnon.dart';
 import 'package:cnmci/konan/historique/historique_entreprise.dart';
+import 'package:cnmci/konan/interface_gestion_utilisateur.dart';
 import 'package:cnmci/konan/search_entity.dart';
 import 'package:cnmci/konan/widget_accueil.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -105,6 +106,20 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
               )
           ),
           actions: [
+            Visibility(
+                visible: globalUser!.profil == "ROLE_SUPER_ADMIN",
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return InterfaceGestionUtilisateur();
+                          })
+                      );
+                    },
+                    icon: const Icon(Icons.people_alt, color: Colors.brown)
+                )
+            )
+            ,
             Visibility(
                 visible: globalUser!.profil == "ROLE_ADMINISTRATEUR_CONTROLE_MANAGER" ||
                     globalUser!.profil == "ROLE_SUPER_ADMIN" ||

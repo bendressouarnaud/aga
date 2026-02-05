@@ -279,7 +279,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         quartier_activite: '',// quartierCommuneController.text,
         rccm: rccmCommuneController.text,
         niveau_equipement: leNiveauEquipement.id,
-      millisecondes: DateTime.now().millisecondsSinceEpoch,
+        millisecondes: DateTime.now().millisecondsSinceEpoch,
         quartier_activite_id: leQuartierActivite.id,
         statut_artisan: leStatutArtisan.id
     );
@@ -364,6 +364,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     quartierCommuneController.text = "";
     rccmCommuneController.text = "";
     numeroRegistreController.text = "";
+    datePieceController.text = "";
 
     // INIT DROPDOWN's Controller text fields
     communeController.text = laCommune.libelle;
@@ -573,7 +574,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               //
               if(currentStep == 1){
                 if(nomController.text.trim().isEmpty || prenomController.text.trim().isEmpty
-                    || dateNaissanceController.text.isEmpty || datePieceController.text.isEmpty ||
+                    || dateNaissanceController.text.isEmpty || (leTypeDocument.id != 7 &&
+                    (datePieceController.text.isEmpty || numeroPieceIdentiteController.text.isEmpty)) ||
                     contact1Controller.text.trim().isEmpty || chiffreAffaireController.text.trim().isEmpty ||
                     (laCommune.id == 1 && lieuNaissanceAutreController.text.trim().isEmpty) ||
                     (leStatutArtisan.id == 1 && numeroRegistreController.text.trim().isEmpty)
@@ -1485,7 +1487,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   label: const Text('Type document'),
                   // Initial Value
                   onSelected: (TypeDocument? value) {
-                    leTypeDocument = value!;
+                    setState(() {
+                      leTypeDocument = value!;
+                    });
                   },
                   dropdownMenuEntries:
                   lesTypeDocuments.map<DropdownMenuEntry<TypeDocument>>((TypeDocument menu) {
@@ -1495,138 +1499,134 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                         leadingIcon: Icon(Icons.person_outline));
                   }).toList()
               ),
-              SizedBox(
-                width: (MediaQuery.of(context).size.width / 2) - 20,
-                child: TextField(
-                  keyboardType: TextInputType.text,
-                  controller: numeroPieceIdentiteController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Pièce identité',
+              Visibility(
+                visible: leTypeDocument.id != 7,
+                child: SizedBox(
+                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        numeroPieceIdentiteController.text = value;
+                      });
+                    },
+                    keyboardType: TextInputType.text,
+                    controller: numeroPieceIdentiteController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: numeroPieceIdentiteController.text.trim().isEmpty ?
+                        Colors.red : Colors.black, width: 1.0),
+                      ),
+                      border: OutlineInputBorder(),
+                      labelText: 'Pièce identité',
+                    ),
+                    style: const TextStyle(
+                        height: 1.5
+                    ),
+                    textAlignVertical: TextAlignVertical.bottom,
+                    textAlign: TextAlign.center,
+                    textInputAction: TextInputAction.next,
                   ),
-                  style: const TextStyle(
-                      height: 1.5
-                  ),
-                  textAlignVertical: TextAlignVertical.bottom,
-                  textAlign: TextAlign.center,
-                  textInputAction: TextInputAction.next,
-                ),
+                )
               )
             ],
           )
       ),
-      Container(
-        alignment: Alignment.topLeft,
-        margin: EdgeInsets.only(top: 20, left: 10),
-        width: MediaQuery.of(context).size.width,
-        child: SizedBox(
-          width: (MediaQuery.of(context).size.width / 2) - 20,
-          child: DropdownSearch<Commune>(
-            mode: Mode.form,
-            onChanged: (Commune? value) => {
-              laPieceDelivre = value!
-            },
-            compareFn: (Commune? a, Commune? b){
-              if(a == null || b == null){
-                return false;
-              }
-              return a.id == b.id;
-            },
-            selectedItem: laPieceDelivre,
-            itemAsString: (commune) => commune.libelle,
-            items: (filter, infiniteScrollProps) => lesCommunes,
-            decoratorProps: DropDownDecoratorProps(
-              decoration: InputDecoration(
-                labelText: 'Pièce délivrée à',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            popupProps: PopupProps.menu(
-                showSearchBox: true,
-                searchFieldProps: TextFieldProps(
-                    decoration: InputDecoration(
-                        hintText: 'Rechercher'
+      Visibility(
+        visible: leTypeDocument.id != 7,
+        child: Container(
+            alignment: Alignment.topLeft,
+            margin: EdgeInsets.only(top: 20, left: 10),
+            width: MediaQuery.of(context).size.width,
+            child: SizedBox(
+              width: (MediaQuery.of(context).size.width / 2) - 20,
+              child: DropdownSearch<Commune>(
+                mode: Mode.form,
+                onChanged: (Commune? value) => {
+                  laPieceDelivre = value!
+                },
+                compareFn: (Commune? a, Commune? b){
+                  if(a == null || b == null){
+                    return false;
+                  }
+                  return a.id == b.id;
+                },
+                selectedItem: laPieceDelivre,
+                itemAsString: (commune) => commune.libelle,
+                items: (filter, infiniteScrollProps) => lesCommunes,
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
+                    labelText: 'Pièce délivrée à',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                            hintText: 'Rechercher'
+                        )
+                    ),
+                    fit: FlexFit.loose,
+                    constraints: BoxConstraints(
+                        minHeight: 300,
+                        maxHeight: 400
                     )
                 ),
-                fit: FlexFit.loose,
-                constraints: BoxConstraints(
-                    minHeight: 300,
-                    maxHeight: 400
-                )
-            ),
-          ),
+              ),
+            )
         )
-        /*DropdownMenu<Commune>(
-            width: (MediaQuery.of(context).size.width / 2) - 20,
-            menuHeight: 250,
-            initialSelection: laPieceDelivre,
-            controller: pieceDelivreController,
-            hintText: "Pièce délivrée à",
-            requestFocusOnTap: true,
-            enableSearch: true,
-            enableFilter: false,
-            label: const Text('Pièce délivrée à'),
-            // Initial Value
-            onSelected: (Commune? value) {
-              laPieceDelivre = value!;
-            },
-            dropdownMenuEntries:
-            lesCommunes.map<DropdownMenuEntry<Commune>>((Commune menu) {
-              return DropdownMenuEntry<Commune>(
-                  value: menu,
-                  label: menu.libelle,
-                  leadingIcon: Icon(Icons.location_city));
-            }).toList()
-        ),*/
       ),
-      Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: (MediaQuery.of(context).size.width / 2) - 20,
-                child: ElevatedButton.icon(
-                  style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
+      Visibility(
+          visible: leTypeDocument.id != 7,
+          child: Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                    child: ElevatedButton.icon(
+                      style: ButtonStyle(
+                          backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
+                      ),
+                      label: const Text("Délivrée le",
+                          style: TextStyle(
+                              color: Colors.white
+                          )
+                      ),
+                      onPressed: () {
+                        _selectDateDelivre();
+                      },
+                      icon: const Icon(
+                        Icons.access_time_outlined,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                  label: const Text("Délivrée le",
-                      style: TextStyle(
-                          color: Colors.white
-                      )
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                    child: GetBuilder<DateDelivreGetController>(
+                        builder: (DateDelivreGetController controller) {
+                          return TextField(
+                            enabled: false,
+                            controller: processDataDelivre(controller),
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Date...',
+                            ),
+                            style: TextStyle(
+                                height: 0.8
+                            ),
+                            textAlignVertical: TextAlignVertical.bottom,
+                            textAlign: TextAlign.right,
+                          );
+                        }
+                    ),
                   ),
-                  onPressed: () {
-                    _selectDateDelivre();
-                  },
-                  icon: const Icon(
-                    Icons.access_time_outlined,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: (MediaQuery.of(context).size.width / 2) - 20,
-                child: GetBuilder<DateDelivreGetController>(
-                    builder: (DateDelivreGetController controller) {
-                      return TextField(
-                        enabled: false,
-                        controller: processDataDelivre(controller),
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Date...',
-                        ),
-                        style: TextStyle(
-                            height: 0.8
-                        ),
-                        textAlignVertical: TextAlignVertical.bottom,
-                        textAlign: TextAlign.right,
-                      );
-                    }
-                ),
-              ),
-            ],
+                ],
+              )
           )
       ),
       Container(

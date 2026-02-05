@@ -12,6 +12,7 @@ import 'package:http/http.dart';
 import '../main.dart';
 import 'beans/generic_data.dart';
 import 'beans/stats_bean_manager.dart';
+import 'beans/stats_bean_quartier.dart';
 import 'interface_view_data_assermente.dart';
 import 'model/commune.dart';
 import 'model/quartier.dart';
@@ -45,6 +46,8 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
   bool flagServerResponse = false;
   bool closeAlertDialog = false;
   List<StatsBeanManager> liste = [];
+  List<StatsBeanQuartier> listeQuartier = [];
+  List<StatsBeanQuartier> listeQuartierCopie = [];
 
 
   // METHODS :
@@ -64,6 +67,31 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
     var month = temp.month < 10 ? '0${temp.month}' : '${temp.month}';
     dateDebutController.text = '${temp.year}-$month-$day';
     dateFinController.text = '${temp.year}-$month-$day';
+  }
+
+  Future<void> requestForData(int idCommune) async {
+    listeQuartier = [];
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND_STAT']}get-entities-from-quartier-ville/$idCommune');
+      var response = await get(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          }
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        final List result = json.decode(response.body);
+        listeQuartier = result.map((e) => StatsBeanQuartier.fromJson(e)).toList();
+        flagSendData = false;
+      }
+    }
+    catch(e){
+      // Nothing to do :
+    }
+    finally {
+      flagServerResponse = false;
+    }
   }
 
   Future<void> sendControlRequest() async {
@@ -90,10 +118,6 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
       if (response.statusCode == 200) {
         final List result = json.decode(response.body);
         liste = result.map((e) => StatsBeanManager.fromJson(e)).toList();
-        /*setState(() {
-          liste = result.map((e) => StatsBeanManager.fromJson(e)).toList();
-        });*/
-        //_artisanRepository.insert(artisan);
         flagSendData = false;
       } else {
         displayToast("Impossible de récupérer les données de références");
@@ -103,6 +127,72 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
     } finally {
       flagServerResponse = false;
     }
+  }
+
+  void displayDataFetching(int idCommune){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        });
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    requestForData(idCommune);
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (!flagSendData) {
+
+            if(listeQuartier.isNotEmpty){
+              setState(() {
+                listeQuartierCopie = listeQuartier.length > 30 ? listeQuartier.sublist(0, 29) : listeQuartier;
+                listeQuartierCopie.sort((a,b) => b.total.compareTo(a.total));
+              });
+            }
+            else{
+              displayToast("Aucune donnée");
+            }
+          } else {
+            displayToast('Traitement impossible');
+          }
+        }
+      },
+    );
   }
 
   void displayDataSending(){
@@ -221,7 +311,9 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
     laVilleActivite = commune; // Refresh
     setState(() {
       lesQuartiersIndex = lesQuartiers.where((q) => q.idx == commune.id).toList();
-      leQuartierActivite = lesQuartiersIndex.first;
+      if(lesQuartiersIndex.isNotEmpty) {
+        leQuartierActivite = lesQuartiersIndex.first;
+      }
     });
   }
 
@@ -440,7 +532,34 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                     )
                 ),
                 SizedBox(
-                  height: 40,
+                  height: 20,
+                ),
+
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 2,
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                    ),
+                    label: const Text("Afficher",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
+                    ),
+                    onPressed: () {
+                      if(listeQuartierCopie.isNotEmpty) {
+                        setState(() {
+                          listeQuartierCopie = [];
+                        });
+                      }
+                      displayDataFetching(laVilleActivite.id);
+                    },
+                    icon: const Icon(
+                      Icons.display_settings,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
 
                 Visibility(
@@ -465,6 +584,41 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                           color: Colors.white,
                         ),
                       ),
+                    )
+                ),
+                SizedBox(
+                  height: 40
+                ),
+                Visibility(
+                    visible: listeQuartierCopie.isNotEmpty,
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: listeQuartierCopie.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Card(
+                          color: Colors.brown[50],
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              //mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(listeQuartierCopie[index].quartier),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(listeQuartierCopie[index].date),
+                                    Text('${listeQuartierCopie[index].total}')
+                                  ],
+                                )
+                              ],
+                            )
+                          )
+                        );
+                      },
                     )
                 )
               ],

@@ -5,6 +5,7 @@ import 'dart:io' as io;
 import 'package:camera/camera.dart';
 import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -39,6 +40,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   bool flagSendData = false;
   bool flagServerResponse = false;
   bool closeAlertDialog = false;
+  bool switchUploadFile = false;
 
   CameraController? _cameraController;
   late Future<void> _initializeControllerFuture;
@@ -48,6 +50,13 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   XFile? photoDiplome;
   XFile? photoRecto;
   XFile? photoVerso;
+  //
+  bool uploadPhotoArtisan = false;
+  bool uploadPhotoDiplome = false;
+  bool uploadPhotoRecto = false;
+  bool uploadPhotoVerso = false;
+
+  io.File? fileUploadPhotoArtisan;
 
   // Gps Permission
   bool gpsPermission = true;
@@ -257,26 +266,39 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
+                      if(!switchUploadFile) {
+                        if (stepForPhoto == 0) {
+                          setState(() {
+                            if (cameraOnPause) {
+                              cameraOnPause = false;
+                              _cameraController!.resumePreview();
+                            }
+                            stepForPhoto++;
+                          });
+                        }
+                        else {
+                          final image = await _cameraController!.takePicture();
+                          photoArtisan = image;
+                          photoArtisanController.text = photoArtisan!.name;
+                          await _cameraController!.pausePreview();
+                          cameraOnPause = true;
+                          uploadPhotoArtisan = false;
+                          // Reset :
+                          setState(() {
+                            stepForPhoto = 0;
+                          });
+                        }
                       }
                       else{
-                        final image = await _cameraController!.takePicture();
-                        photoArtisan = image;
-                        photoArtisanController.text = photoArtisan!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoArtisan = io.File(result.files.single.path!);
+                          photoArtisanController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoArtisan = true;
+                          });
+                        }
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -595,7 +617,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               ),
             ),
             Visibility(
-              visible: photoArtisan != null && gpsPermission,
+              visible: (photoArtisan != null || fileUploadPhotoArtisan != null) && gpsPermission,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
                       iconAlignment: IconAlignment.end,
@@ -755,6 +777,12 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
     return img64;
   }
 
+  String convertUploadedFile(io.File file){
+    final bytes = file.readAsBytesSync();
+    String img64 = base64Encode(bytes);
+    return img64;
+  }
+
   Future<void> sendArtisanData() async {
     // First Call this :
     var localToken = await MesServices().checkJwtExpiration();
@@ -802,7 +830,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "contact2" : artisanToManage.contact2,
             "email" : artisanToManage.email,
 
-            "photo_artisan" : photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
+            "photo_artisan" : uploadPhotoArtisan ? convertUploadedFile(fileUploadPhotoArtisan!) :
+            photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
             "photo_cni_recto" : photoRecto != null ? convertPhotoToString(photoRecto!) : "",
             "photo_cni_verso" : photoVerso != null ? convertPhotoToString(photoVerso!) : "",
             "photo_diplome" : photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
@@ -863,7 +892,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             contact1: artisanToManage.contact1,
             contact2: artisanToManage.contact2,
             email: artisanToManage.email,
-            photo_artisan: photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
+            photo_artisan: uploadPhotoArtisan ? convertUploadedFile(fileUploadPhotoArtisan!) :
+              photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
             photo_cni_recto: photoRecto != null ? convertPhotoToString(photoRecto!) : "",
             photo_cni_verso: photoVerso != null ? convertPhotoToString(photoVerso!) : "",
             photo_diplome: photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
@@ -948,6 +978,19 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(artisanToManage.id == 0 ? 'Nouvel Artisan' : 'Modification Artisan'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    switchUploadFile = !switchUploadFile;
+                    // Reset :
+                    fileUploadPhotoArtisan = null;
+                    uploadPhotoArtisan = false;
+                  });
+                },
+                icon: Icon(switchUploadFile ? Icons.file_upload : Icons.file_upload_outlined, color: Colors.brown)
+            )
+          ],
         ),
         body: _buildUI()
     );
