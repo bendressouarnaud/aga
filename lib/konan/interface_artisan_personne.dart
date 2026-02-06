@@ -432,7 +432,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
   Future<void> _selectDate() async {
     choixDate = 0;
-    final now = DateTime(1965, 1, 1, 00, 00);
+    final now = DateTime(1940, 1, 1, 00, 00);
     final initialDate = DateTime(2000, 1, 1, 00, 00);
 
     // Sélection de la date
@@ -441,7 +441,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       context: context,
       initialDate: initialDate,
       firstDate: now,
-      lastDate: DateTime(2007, 12, 31, 00, 00)// DateTime.fromMillisecondsSinceEpoch(globalReservation!.fin),
+      lastDate: DateTime(2008, 12, 31, 00, 00)// DateTime.fromMillisecondsSinceEpoch(globalReservation!.fin),
     );
     if (selectedDate == null) return;
     _dateNaissanceController.addData(selectedDate);

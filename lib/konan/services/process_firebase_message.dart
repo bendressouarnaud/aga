@@ -2,6 +2,7 @@ import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
 import 'package:cnmci/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../model/apprenti.dart';
 import '../model/compagnon.dart';
@@ -255,6 +256,10 @@ class FirebaseProcessMessage{
           );
           entrepriseControllerX.updateData(updateEntreprise);
         }
+        break;
+
+      default:
+        print("Contenu : ${message.data['message']}");
         break;
     }
   }
