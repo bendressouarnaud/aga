@@ -21,11 +21,11 @@ import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
+import 'interface_artisan_personne.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewArtisan extends StatefulWidget{
-  final Artisan artisan;
-  const InterfaceViewArtisan({Key? key, required this.artisan}) : super(key: key);
+  const InterfaceViewArtisan({Key? key}) : super(key: key);
 
   @override
   State<InterfaceViewArtisan> createState() => _InterfaceViewArtisan();
@@ -62,13 +62,13 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
 
   // Total APPRENTis
   Future<int> getTotalApprenti() async{
-    var total = await outil.findAllApprentiByArtisan(widget.artisan.id);
+    var total = await outil.findAllApprentiByArtisan(artisanToManage.id);
     return total;
   }
 
   // Total COMPAGNONs
   Future<int> getTotalCompagnon() async{
-    var total = await outil.findAllCompagnonByArtisan(widget.artisan.id);
+    var total = await outil.findAllCompagnonByArtisan(artisanToManage.id);
     return total;
   }
 
@@ -82,7 +82,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             'Authorization': 'Bearer $localToken'
           },
           body: jsonEncode({
-            "id": widget.artisan.id,
+            "id": artisanToManage.id,
             "requester": "ART",
           })
       ).timeout(const Duration(seconds: timeOutValue));
@@ -112,7 +112,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             'Authorization': 'Bearer $localToken'
           },
           body: jsonEncode({
-            "id": widget.artisan.id,
+            "id": artisanToManage.id,
             "requester": "ART",
             "amount": montant,
             "choix": choix,
@@ -189,7 +189,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               localLink();
               /*Navigator.push(context,
                 MaterialPageRoute(builder: (context) {
-                  return WebviewPaymentWave(url: paymentUrl, client: widget.artisan.nom);
+                  return WebviewPaymentWave(url: paymentUrl, client: artisanToManage.nom);
                 })
             );*/
             } else {
@@ -213,7 +213,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(widget.artisan.nom),
+          title: Text(artisanToManage.nom),
         ),
         body: FutureBuilder(
             future: Future.wait([getAmountToPay(), getTotalApprenti(), getTotalCompagnon()]),
@@ -241,7 +241,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                 SizedBox(
                                   height: 120,
                                   width: 90,
-                                  child: MesServices().displayFromLocalOrFirebase(widget.artisan.photo_artisan),
+                                  child: MesServices().displayFromLocalOrFirebase(artisanToManage.photo_artisan),
                                 ),
                                 Expanded(
                                     child: Column(
@@ -253,12 +253,12 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 Text(
-                                                  MesServices().processEntityName('${widget.artisan.nom} ${widget.artisan.prenom}', limitCharacter),
+                                                  MesServices().processEntityName('${artisanToManage.nom} ${artisanToManage.prenom}', limitCharacter),
                                                   style: TextStyle(
                                                       fontWeight: FontWeight.bold
                                                   ),
                                                 ),
-                                                Text(widget.artisan.date_creation)
+                                                Text(artisanToManage.date_creation)
                                               ],
                                             )
                                         ),
@@ -269,7 +269,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                               builder: (ArtisanControllerX controllerX) {
                                                 // Process :
                                                 var currentArtisan = controllerX.data.where(
-                                                        (a) => a.id == widget.artisan.id
+                                                        (a) => a.id == artisanToManage.id
                                                 ).first;
 
                                                 if(currentArtisan.statut_paiement == 2){
@@ -280,7 +280,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                                 return Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        Text(widget.artisan.contact1),
+                                                        Text(artisanToManage.contact1),
                                                         Text(currentArtisan.statut_paiement == 0 ? 'Non payé' :
                                                         currentArtisan.statut_paiement == 1 ? 'En cours' : 'Payé',
                                                           style: TextStyle(
@@ -309,7 +309,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                                   text: 'Métier : ',
                                                   //style: TextStyle(fontWeight: FontWeight.bold),
                                                   children: <TextSpan>[
-                                                    TextSpan(text: lesMetiers.where((m) => m.id == widget.artisan.specialite).first.libelle,
+                                                    TextSpan(text: lesMetiers.where((m) => m.id == artisanToManage.specialite).first.libelle,
                                                         style: TextStyle(fontWeight: FontWeight.bold)
                                                     )
                                                   ]
@@ -324,7 +324,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                                   text: 'Nationalité : ',
                                                   //style: TextStyle(fontWeight: FontWeight.bold),
                                                   children: <TextSpan>[
-                                                    TextSpan(text: lesPays.where((p) => p.id == widget.artisan.nationalite).first.libelle,
+                                                    TextSpan(text: lesPays.where((p) => p.id == artisanToManage.nationalite).first.libelle,
                                                         style: TextStyle(fontWeight: FontWeight.bold)
                                                     )
                                                   ]
@@ -338,7 +338,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                               TextSpan(
                                                   text: 'Commune résid. : ',
                                                   children: <TextSpan>[
-                                                    TextSpan(text: lesCommunes.where((c) => c.id == widget.artisan.commune_residence).first.libelle,
+                                                    TextSpan(text: lesCommunes.where((c) => c.id == artisanToManage.commune_residence).first.libelle,
                                                         style: TextStyle(fontWeight: FontWeight.bold)
                                                     )
                                                   ]
@@ -353,8 +353,73 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                           ),
                         ),
 
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: EdgeInsets.only(right: 10, left: 10, top: 25),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrange)
+                                  ),
+                                  label: Text("Modifier",
+                                      style: const TextStyle(
+                                          color: Colors.white
+                                      )
+                                  ),
+                                  onPressed: () async {
+                                    setOriginFromCallArtisan = 0;
+                                    final result = await Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                          return InterfaceArtisanPersonne(lArtisan: artisanToManage);
+                                        })
+                                    );
+
+                                    // Close the DOORS :
+                                    if (result != null) {
+                                      // Refresh :
+                                      setState(() {});
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                              ),
+                              ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                                  ),
+                                  label: Text("Appeler",
+                                      style: const TextStyle(
+                                          color: Colors.white
+                                      )
+                                  ),
+                                  onPressed: () async {
+                                    if(artisanToManage.contact1.isNotEmpty) {
+                                      var url = Uri.parse(
+                                          'tel:${artisanToManage.contact1}');
+                                      if (!await launchUrl(url, mode: LaunchMode
+                                          .externalApplication)) {
+                                        throw Exception(
+                                            'Could not launch $url');
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.call,
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                              )
+                            ],
+                          ),
+                        ),
+
                         Visibility(
-                          visible: widget.artisan.statut_paiement < 2,
+                          visible: artisanToManage.statut_paiement < 2,
                             child: Container(
                               alignment: Alignment.topLeft,
                               margin: EdgeInsets.only(right: 10, left: 10, top: 25),
@@ -368,7 +433,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                            visible: widget.artisan.statut_paiement < 2,
+                            visible: artisanToManage.statut_paiement < 2,
                             child: Container(
                               margin: EdgeInsets.only(right: 10, left: 10, top: 5),
                               child: Divider(
@@ -378,7 +443,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                            visible: widget.artisan.statut_paiement < 2,
+                            visible: artisanToManage.statut_paiement < 2,
                             child: Container(
                                 alignment: Alignment.topLeft,
                                 margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
@@ -519,7 +584,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                               onTap: (){
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
-                                      return  HistoriqueApprenti(artisan: widget.artisan);
+                                      return  HistoriqueApprenti(artisan: artisanToManage);
                                     })
                                 );
                               },
@@ -552,7 +617,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                                     builder: (ApprentiControllerX apprentiControllerX) {
                                                       // Process :
                                                       var totApprenti = apprentiControllerX.data.where(
-                                                              (a) => a.artisan_id == widget.artisan.id
+                                                              (a) => a.artisan_id == artisanToManage.id
                                                       ).toList().length;
 
                                                       return Text('   ($totApprenti)',
@@ -583,7 +648,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                               onTap: (){
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
-                                      return  HistoriqueCompagnon(artisan: widget.artisan);
+                                      return  HistoriqueCompagnon(artisan: artisanToManage);
                                     })
                                 );
                               },
@@ -617,7 +682,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
 
                                                       // Process :
                                                       var totCompagnon = compagnonControllerX.data.where(
-                                                              (a) => a.artisan_id == widget.artisan.id
+                                                              (a) => a.artisan_id == artisanToManage.id
                                                       ).toList().length;
 
                                                       return Text('   ($totCompagnon)',

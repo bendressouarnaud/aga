@@ -11,8 +11,8 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val flutterVersionCode = 14
-val flutterVersionName = "1.0.14"
+val flutterVersionCode = 16
+val flutterVersionName = "1.0.16"
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")

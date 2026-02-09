@@ -7,16 +7,10 @@ import 'package:cnmci/konan/model/apprenti.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
 import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:http/http.dart';
 
 import '../../getxcontroller/apprenti_controller_x.dart';
-import '../../getxcontroller/artisan_controller_x.dart';
-import '../interface_artisan_personne.dart';
-import '../interface_view_artisan.dart';
 import '../model/artisan.dart';
 import '../objets/constants.dart';
 import '../services.dart';
@@ -35,6 +29,7 @@ class _HistoriqueApprenti extends State<HistoriqueApprenti> {
   // ATTRIBUTES :
   final ApprentiControllerX _apprentiControllerX = Get.put(ApprentiControllerX());
   late BuildContext dialogContext;
+  final int limitBlocs = 30;
 
 
   // METHODS :
@@ -97,8 +92,8 @@ class _HistoriqueApprenti extends State<HistoriqueApprenti> {
           // Filter :
           List<Apprenti> tampon = getList(controller.data);
           // Reduce :
-          var currentData = tampon.isNotEmpty ? tampon.length > 10 ?
-          tampon.sublist(0, 9) : tampon : [];
+          var currentData = tampon.isNotEmpty ? tampon.length > limitBlocs ?
+          tampon.sublist(0, (limitBlocs - 1)) : tampon : [];
 
           return currentData.isNotEmpty ?
           SingleChildScrollView(

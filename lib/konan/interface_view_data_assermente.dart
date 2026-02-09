@@ -182,11 +182,10 @@ class _InterfaceViewDataAssermente extends State<InterfaceViewDataAssermente> {
                       //print('Data : $index');
                       try {
                         if(_filteredList.isNotEmpty) {
+                          statsBeanManager = _filteredList[index];
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                                return InterfaceViewEntity(
-                                    data: _filteredList[index]
-                                );
+                                return InterfaceViewEntity();
                               })
                           );
                         }

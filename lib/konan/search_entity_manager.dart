@@ -176,11 +176,10 @@ class _SearchEntityManager extends State<SearchEntityManager> {
                           //print('Data : $index');
                           try {
                             if(liste.isNotEmpty) {
+                              statsBeanManager = liste[index];
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return InterfaceViewEntity(
-                                        data: liste[index]
-                                    );
+                                    return InterfaceViewEntity();
                                   })
                               );
                             }

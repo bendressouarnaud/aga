@@ -6,6 +6,8 @@
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+        <string>The user should be able to pick up files in order to fill interface</string>
 		<key>CFBundleDisplayName</key>
 		<string>Agaci</string>
 		<key>CFBundleExecutable</key>

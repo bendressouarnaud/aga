@@ -49,7 +49,8 @@ import 'package:flutter/services.dart';
 
 
 class InterfaceArtisanPersonne extends StatefulWidget {
-  const InterfaceArtisanPersonne({Key? key}) : super(key: key);
+  final Artisan? lArtisan;
+  const InterfaceArtisanPersonne({Key? key, required this.lArtisan}) : super(key: key);
 
   @override
   State<InterfaceArtisanPersonne> createState() => _InterfaceArtisanPersonne();
@@ -219,7 +220,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   // M E T H O D S
   void feedArtisan() async{
     artisanToManage = Artisan(
-        id: 0,
+        id: widget.lArtisan == null ? 0 : widget.lArtisan!.id,
         nom: nomController.text,
         prenom: prenomController.text,
         civilite: laCivilite,
@@ -251,10 +252,10 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         photo_cni_verso: "",
         photo_diplome: "",
         date_expiration_carte: '',
-        statut_kyc: 0,
-        statut_paiement: 0,
-        longitude: 0.0,
-        latitude: 0.0,
+        statut_kyc: widget.lArtisan == null ? 0 : widget.lArtisan!.statut_kyc,
+        statut_paiement: widget.lArtisan == null ? 0 : widget.lArtisan!.statut_paiement,
+        longitude: widget.lArtisan == null ? 0.0 : widget.lArtisan!.longitude,
+        latitude: widget.lArtisan == null ? 0.0 : widget.lArtisan!.latitude,
         regime_social: leRegimeSocial.id,
         regime_travailleur: leRegimetravailleur.id,
         regime_imposition_taxe_communale: leRegimeImpositionCommunale.id,
@@ -298,84 +299,175 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
   // Leave :
   void forceLeave(){
-    Navigator.pop(context);
+    if(widget.lArtisan != null){
+      Navigator.pop(context, 1);
+    }
+    else{
+      Navigator.pop(context);
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    leCrm = lesCrms.first;
-    leDepartement = lesDepartements.first;
-    laSousPrefecture = lesSousPrefectures.first;
-    laCommune = lesCommunes.first;
-    laVilleCommune = lesCommunes.first;
-    leQuartierSiege = lesQuartiers.first;
-    laPieceDelivre = lesCommunes.first;
-    laVilleResidence = lesCommunes.first;
-    
-    // Init QUARTIERS :
-    lesQuartiersIndex = lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
-    leQuartierActivite = lesQuartiersIndex.first;
-    
-    laCivilite = lesCivilites.first;
-    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
-    leStatutMatrimonial = lesStatutMatrimoniaux.first;
-    leRegimeSocial = lesGenericData.first;
-    leRegimetravailleur = lesGenericData.first;
-    leRegimeImpositionCommunale = lesGenericData.first;
-    leRegimeImpositionEntreprise = lesGenericData.first;
-    leCompteBancaire = lesGenericData.first;
-    laComptabilite = lesGenericComptabilite.first;
-    leTypeDeCompte = lesTypeCompteBancaires.first;
-    leTypeDocument = lesTypeDocuments.first;
-    leNiveauEtude = lesNiveauEtudes.first;
-    laClasse = lesClasses.first;
-    leDiplome = lesDiplomes.first;
-    lApprentissageMetier = lesGenericApprentissagea.first;
-    leMetier = lesMetiers.first;
-    lActivitePrincipale = lesMetiers.first;
-    lActiviteSecondaire = lesMetiers.first;
-    leNiveauEquipement = lesNiveauEquipement.first;
-    leStatutArtisan = lesStatutArtisan.first;
 
-    _dateNaissanceController.clear();
-    _datePieceDelivreController.clear();
-    _dateDebutActiviteController.clear();
+    if(widget.lArtisan != null){
+      leCrm = lesCrms.where((c) => c.id == widget.lArtisan!.crm).first;
+      //leDepartement = lesDepartements.where((c) => c.id == widget.lArtisan!.departement).first;
+      //laSousPrefecture = lesSousPrefectures.where((c) => c.id == widget.lArtisan!.sous_prefecture).first;
 
-    // INITIALIZATION for CAMERA
-    //setUpCameraController();
+      laCommune = lesCommunes.where((c) => c.id == widget.lArtisan!.lieu_naissance).first;
+      laVilleCommune = lesCommunes.where((c) => c.id == widget.lArtisan!.commune_activite).first;
+      leQuartierSiege = lesQuartiers.where((c) => c.id == widget.lArtisan!.quartier_activite_id).first;
+      // Sometimes 'piece_delivre' not belongs to 'lesCommunes' :
+      var tampPieceDelivre = lesCommunes.where((c) => c.id == widget.lArtisan!.piece_delivre).firstOrNull;
+      laPieceDelivre = tampPieceDelivre ?? lesCommunes.first;
+      laVilleResidence = lesCommunes.where((c) => c.id == widget.lArtisan!.commune_residence).first;
 
-    lesDepartementsFiltre = lesDepartements;
-    lesSousPrefectureFiltre = lesSousPrefectures;
+      // Pick 'QUARTIERS' from ACTIVITE ville
+      lesQuartiersIndex = lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
+      leQuartierActivite = lesQuartiers.where((q) => q.id == widget.lArtisan!.quartier_activite_id).first;
 
-    // INIT fields:
-    lieuNaissanceAutreController.text = "";
-    numeroPieceIdentiteController.text = "";
-    quartierResidenceController.text = "";
-    adressePostaleController.text = "";
-    contact1Controller.text = "";
-    contact2Controller.text = "";
-    emailController.text = "";
-    chiffreAffaireController.text = "0";
-    cnpsController.text = "";
-    cmuController.text = "";
-    denominationController.text = "";
-    sigleController.text = "";
-    quartierCommuneController.text = "";
-    rccmCommuneController.text = "";
-    numeroRegistreController.text = "";
-    datePieceController.text = "";
+      nomController.text = widget.lArtisan!.nom;
+      prenomController.text = widget.lArtisan!.prenom;
+      dateNaissanceController.text = widget.lArtisan!.date_naissance;
 
-    // INIT DROPDOWN's Controller text fields
-    communeController.text = laCommune.libelle;
-    villeResidenceController.text = laVilleResidence.libelle;
-    pieceDelivreController.text = laPieceDelivre.libelle;
-    metierController.text = leMetier.libelle;
-    activitePrincipaleController.text = lActivitePrincipale.libelle;
-    activiteSecondaireController.text = lActiviteSecondaire.libelle;
-    villeCommuneController.text = laVilleCommune.libelle;
+      laCivilite = widget.lArtisan!.civilite;
+      laNationalite = lesPays.where((p) => p.id == widget.lArtisan!.nationalite).first;
+      leStatutMatrimonial = lesStatutMatrimoniaux.where((p) => p.id == widget.lArtisan!.statut_matrimonial).first;
+      leRegimeSocial = lesGenericData.where((p) => p.id == widget.lArtisan!.regime_social).first;
+      leRegimetravailleur = lesGenericData.where((p) => p.id == widget.lArtisan!.regime_travailleur).first;
+      leRegimeImpositionCommunale = lesGenericData.where((p) => p.id == widget.lArtisan!.regime_imposition_taxe_communale).first;
+      leRegimeImpositionEntreprise = lesGenericData.where((p) => p.id == widget.lArtisan!.regime_imposition_micro_entreprise).first;
+      leCompteBancaire = lesGenericData.where((p) => p.id == widget.lArtisan!.presence_compte_bancaire).first;
+      laComptabilite = lesGenericComptabilite.where((p) => p.id == widget.lArtisan!.comptabilite).first;
+      leTypeDeCompte = lesTypeCompteBancaires.where((p) => p.id == widget.lArtisan!.type_compte_bancaire).first;
+      leTypeDocument = lesTypeDocuments.where((p) => p.id == widget.lArtisan!.type_document).first;
+      leNiveauEtude = lesNiveauEtudes.where((p) => p.id == widget.lArtisan!.niveau_etude).first;
+      laClasse = lesClasses.where((p) => p.id == widget.lArtisan!.classe).first;
+      leDiplome = lesDiplomes.where((p) => p.id == widget.lArtisan!.diplome).first;
+      lApprentissageMetier = lesGenericApprentissagea.where((p) => p.id == widget.lArtisan!.formation).first;
+      leMetier = lesMetiers.where((p) => p.id == widget.lArtisan!.metier).first;
+      lActivitePrincipale = lesMetiers.where((p) => p.id == widget.lArtisan!.activite_principale).first;
+      lActiviteSecondaire = lesMetiers.where((p) => p.id == widget.lArtisan!.activite_secondaire).first;
+      leNiveauEquipement = lesNiveauEquipement.where((p) => p.id == widget.lArtisan!.niveau_equipement).first;
+      leStatutArtisan = widget.lArtisan!.statut_artisan == 3 ? lesStatutArtisan.last : lesStatutArtisan.first;
+
+      _dateNaissanceController.clear();
+      _datePieceDelivreController.clear();
+      _dateDebutActiviteController.clear();
+
+      lesDepartementsFiltre = lesDepartements;
+      lesSousPrefectureFiltre = lesSousPrefectures;
+
+      // INIT fields:
+      lieuNaissanceAutreController.text = widget.lArtisan!.lieu_naissance_autre;
+      numeroPieceIdentiteController.text = widget.lArtisan!.numero_piece;
+      quartierResidenceController.text = widget.lArtisan!.quartier_residence;
+      adressePostaleController.text = widget.lArtisan!.adresse_postal;
+      contact1Controller.text = widget.lArtisan!.contact1;
+      contact2Controller.text = widget.lArtisan!.contact2;
+      emailController.text = widget.lArtisan!.email;
+      chiffreAffaireController.text = '${widget.lArtisan!.chiffre_affaire}';
+      cnpsController.text = widget.lArtisan!.cnps;
+      cmuController.text = widget.lArtisan!.cmu;
+      denominationController.text = widget.lArtisan!.raison_social;
+      sigleController.text = widget.lArtisan!.sigle;
+      quartierCommuneController.text = widget.lArtisan!.quartier_activite;
+      rccmCommuneController.text = widget.lArtisan!.rccm;
+      numeroRegistreController.text = widget.lArtisan!.numero_registre;
+      datePieceController.text = widget.lArtisan!.date_emission_piece;
+
+      // INIT DROPDOWN's Controller text fields
+      communeController.text = laCommune.libelle;
+      villeResidenceController.text = laVilleResidence.libelle;
+      pieceDelivreController.text = laPieceDelivre.libelle;
+      metierController.text = leMetier.libelle;
+      activitePrincipaleController.text = lActivitePrincipale.libelle;
+      activiteSecondaireController.text = lActiviteSecondaire.libelle;
+      villeCommuneController.text = laVilleCommune.libelle;
+    }
+    else {
+      leCrm = lesCrms.first;
+      leDepartement = lesDepartements.first;
+      laSousPrefecture = lesSousPrefectures.first;
+      laCommune = lesCommunes.first;
+      laVilleCommune = lesCommunes.first;
+      leQuartierSiege = lesQuartiers.first;
+      laPieceDelivre = lesCommunes.first;
+      laVilleResidence = lesCommunes.first;
+
+      // Init QUARTIERS :
+      lesQuartiersIndex =
+          lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
+      leQuartierActivite = lesQuartiersIndex.first;
+
+      laCivilite = lesCivilites.first;
+      laNationalite = lesPays
+          .where((p) => p.id == 1)
+          .first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
+      leStatutMatrimonial = lesStatutMatrimoniaux.first;
+      leRegimeSocial = lesGenericData.first;
+      leRegimetravailleur = lesGenericData.first;
+      leRegimeImpositionCommunale = lesGenericData.first;
+      leRegimeImpositionEntreprise = lesGenericData.first;
+      leCompteBancaire = lesGenericData.first;
+      laComptabilite = lesGenericComptabilite.first;
+      leTypeDeCompte = lesTypeCompteBancaires.first;
+      leTypeDocument = lesTypeDocuments.first;
+      leNiveauEtude = lesNiveauEtudes.first;
+      laClasse = lesClasses.first;
+      leDiplome = lesDiplomes.first;
+      lApprentissageMetier = lesGenericApprentissagea.first;
+      leMetier = lesMetiers.first;
+      lActivitePrincipale = lesMetiers.first;
+      lActiviteSecondaire = lesMetiers.first;
+      leNiveauEquipement = lesNiveauEquipement.first;
+      leStatutArtisan = lesStatutArtisan.first;
+
+      _dateNaissanceController.clear();
+      _datePieceDelivreController.clear();
+      _dateDebutActiviteController.clear();
+
+      // INITIALIZATION for CAMERA
+      //setUpCameraController();
+
+      lesDepartementsFiltre = lesDepartements;
+      lesSousPrefectureFiltre = lesSousPrefectures;
+
+      // INIT fields:
+      lieuNaissanceAutreController.text = "";
+      numeroPieceIdentiteController.text = "";
+      quartierResidenceController.text = "";
+      adressePostaleController.text = "";
+      contact1Controller.text = "";
+      contact2Controller.text = "";
+      emailController.text = "";
+      chiffreAffaireController.text = "0";
+      cnpsController.text = "";
+      cmuController.text = "";
+      denominationController.text = "";
+      sigleController.text = "";
+      quartierCommuneController.text = "";
+      rccmCommuneController.text = "";
+      numeroRegistreController.text = "";
+      datePieceController.text = "";
+
+      // INIT DROPDOWN's Controller text fields
+      communeController.text = laCommune.libelle;
+      villeResidenceController.text = laVilleResidence.libelle;
+      pieceDelivreController.text = laPieceDelivre.libelle;
+      metierController.text = leMetier.libelle;
+      activitePrincipaleController.text = lActivitePrincipale.libelle;
+      activiteSecondaireController.text = lActiviteSecondaire.libelle;
+      villeCommuneController.text = laVilleCommune.libelle;
+    }
 
     // Call this to INITIALIZE :
+    /*if(widget.lArtisan == null) {
+      filtrerDepartement();
+    }*/
+
     filtrerDepartement();
   }
 
@@ -393,7 +485,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   void filtrerDepartement(){
     setState(() {
       lesDepartementsFiltre = lesDepartements.where((d) => d.idx == leCrm.id).toList();
-      leDepartement = lesDepartementsFiltre.first;
+      leDepartement = widget.lArtisan == null ? lesDepartementsFiltre.first :
+        lesDepartementsFiltre.where((c) => c.id == widget.lArtisan!.departement).first;
       filtrerSousPrefecture();
     });
   }
@@ -401,7 +494,13 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   void filtrerSousPrefecture(){
     setState(() {
       lesSousPrefectureFiltre = lesSousPrefectures.where((d) => d.idx == leDepartement.id).toList();
-      laSousPrefecture = lesSousPrefectureFiltre.first;
+      SousPrefecture? tempSousPrefecture;
+      if(widget.lArtisan != null){
+        tempSousPrefecture = lesSousPrefectureFiltre.where((c) => c.id == widget.lArtisan!.sous_prefecture)
+            .firstOrNull;
+      }
+      laSousPrefecture = (widget.lArtisan == null || tempSousPrefecture == null) ? lesSousPrefectureFiltre.first :
+        tempSousPrefecture;
     });
   }
 
@@ -414,19 +513,22 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
   TextEditingController processData(DateGetController controller){
     dateNaissanceController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.lArtisan != null ? widget.lArtisan!.date_naissance : '');
     return dateNaissanceController;
   }
 
   TextEditingController processDataDelivre(DateDelivreGetController controller){
     datePieceController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.lArtisan != null ? widget.lArtisan!.date_emission_piece : '');
     return datePieceController;
   }
 
   TextEditingController processDateDebutActivite(DateDebutActiviteGetController controller){
     dateDebutActiviteController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.lArtisan != null ? widget.lArtisan!.date_creation : '');
     return dateDebutActiviteController;
   }
 

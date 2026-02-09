@@ -6,16 +6,8 @@ import 'package:cnmci/konan/interface_entreprise.dart';
 import 'package:cnmci/konan/interface_view_entreprise.dart';
 import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:http/http.dart';
-
-import '../../getxcontroller/apprenti_controller_x.dart';
-import '../../getxcontroller/artisan_controller_x.dart';
-import '../interface_artisan_personne.dart';
-import '../interface_view_artisan.dart';
 import '../objets/constants.dart';
 import '../services.dart';
 
@@ -31,6 +23,7 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
   // ATTRIBUTES :
   final EntrepriseControllerX _entrepriseControllerX = Get.put(EntrepriseControllerX());
   late BuildContext dialogContext;
+  final int limitBlocs = 30;
 
 
   // METHODS :
@@ -75,8 +68,8 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
         builder: (EntrepriseControllerX controller){
 
           var currentData = controller.data.isNotEmpty ?
-          controller.data.length > 10 ?
-          controller.data.sublist(0, 9) : controller.data : [];
+          controller.data.length > limitBlocs ?
+          controller.data.sublist(0, (limitBlocs - 1)) : controller.data : [];
 
           return currentData.isNotEmpty ?
           SingleChildScrollView(

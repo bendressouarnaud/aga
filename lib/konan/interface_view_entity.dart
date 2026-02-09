@@ -1,30 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cnmci/getxcontroller/entreprise_controller_x.dart';
-import 'package:cnmci/konan/historique/historique_artisan.dart';
-import 'package:cnmci/konan/interface_entreprise.dart';
-import 'package:cnmci/konan/interface_view_apprenti.dart';
-import 'package:cnmci/konan/interface_view_artisan.dart';
-import 'package:cnmci/konan/interface_view_compagnon.dart';
-import 'package:cnmci/konan/interface_view_entreprise.dart';
+import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
-import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 
+import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/stats_bean_manager.dart';
 import 'beans/wave_payment_response.dart';
+import 'interface_artisan_personne.dart';
 import 'interface_manage_amende.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewEntity extends StatefulWidget {
-  final StatsBeanManager data;
-  const InterfaceViewEntity({super.key, required this.data});
+  //final StatsBeanManager data;
+  const InterfaceViewEntity({super.key});
 
   @override
   State<InterfaceViewEntity> createState() => _InterfaceViewEntity();
@@ -47,7 +42,109 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   void initState() {
     super.initState();
 
-    localAmende = widget.data.amende;
+    localAmende = statsBeanManager.amende;
+  }
+
+  void displayToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  void displayEntityRequesting(int id){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        });
+
+    flagSendData = true;
+    flagServerResponse = true;
+    getArtisanData(id);
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) async {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (!flagSendData) {
+            setOriginFromCallArtisan = 1;
+            final result = await Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return InterfaceArtisanPersonne(lArtisan: artisanToManage);
+                })
+            );
+
+            // Close the DOORS :
+            if (result != null) {
+              // Refresh :
+              setState(() {});
+            }
+          }
+          else{
+            displayToast('Impossible d\'accéder aux données !');
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> getArtisanData(int id) async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}get-artisan-from-mobile/$id');
+      var response = await get(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          }
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        artisanToManage = Artisan.fromDatabaseJson(json.decode(response.body));
+        flagSendData = false;
+      }
+    }
+    catch(e){
+      // Connexion PROBLEM :
+    }
+    finally{
+      flagServerResponse = false;
+    }
   }
 
   void displayDataRequesting(){
@@ -116,8 +213,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
             'Authorization': 'Bearer $localToken'
           },
           body: jsonEncode({
-            "id": widget.data.id,
-            "requester": getAppropriatePrefix(widget.data.type),
+            "id": statsBeanManager.id,
+            "requester": getAppropriatePrefix(statsBeanManager.type),
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
@@ -150,8 +247,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
             'Authorization': 'Bearer $localToken'
           },
           body: jsonEncode({
-            "id": widget.data.id,
-            "requester": getAppropriatePrefix(widget.data.type),
+            "id": statsBeanManager.id,
+            "requester": getAppropriatePrefix(statsBeanManager.type),
             "amount": montant,
             "choix": 0,
           })
@@ -238,8 +335,18 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           centerTitle: true,
-          title: Text('Visualisation'
-          )
+          title: Text('Visualisation'),
+          actions: [
+            Visibility(
+              visible: statsBeanManager.type == 'Artisans',
+              child: IconButton(
+                  onPressed: () {
+                    displayEntityRequesting(statsBeanManager.id);
+                  },
+                  icon: Icon(Icons.edit, color: Colors.brown)
+              ),
+            )
+          ]
       ),
         body: SingleChildScrollView(
           child: Column(
@@ -251,7 +358,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                 child: SizedBox(
                   height: 230,
                   width: 180,
-                  child: MesServices().displayFromLocalOrFirebase(widget.data.image),
+                  child: MesServices().displayFromLocalOrFirebase(statsBeanManager.image),
                 )
               ),
               Container(
@@ -271,7 +378,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     text: 'Nom : ',
                       //style: TextStyle(fontWeight: FontWeight.bold),
                       children: <TextSpan>[
-                        TextSpan(text: MesServices().processEntityName(widget.data.nom.toUpperCase(), limitCharacterEntity),
+                        TextSpan(text: MesServices().processEntityName(statsBeanManager.nom.toUpperCase(), limitCharacterEntity),
                             style: TextStyle(fontWeight: FontWeight.bold)
                         )
                       ]
@@ -285,7 +392,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   TextSpan(
                     text: 'Contact : ',
                       children: <TextSpan>[
-                        TextSpan(text: widget.data.contact,
+                        TextSpan(text: statsBeanManager.contact,
                             style: TextStyle(fontWeight: FontWeight.bold)
                         )
                       ]
@@ -299,7 +406,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   TextSpan(
                     text: 'Date naissance : ',
                       children: <TextSpan>[
-                        TextSpan(text: widget.data.datenaissance,
+                        TextSpan(text: statsBeanManager.datenaissance,
                             style: TextStyle(fontWeight: FontWeight.bold)
                         )
                       ]
@@ -316,13 +423,13 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                       TextSpan(
                           text: 'Date enrôlement : ',
                           children: <TextSpan>[
-                            TextSpan(text: widget.data.datenrolement,
+                            TextSpan(text: statsBeanManager.datenrolement,
                                 style: TextStyle(fontWeight: FontWeight.bold)
                             )
                           ]
                       ),
                     ),
-                    processIconToShow(widget.data.datenrolement, widget.data.paiement)
+                    processIconToShow(statsBeanManager.datenrolement, statsBeanManager.paiement)
                   ],
                 )
               ),
@@ -333,7 +440,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     TextSpan(
                         text: 'Métier : ',
                         children: <TextSpan>[
-                          TextSpan(text: widget.data.metier,
+                          TextSpan(text: statsBeanManager.metier,
                               style: TextStyle(fontWeight: FontWeight.bold)
                           )
                         ]
@@ -354,7 +461,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     TextSpan(
                         text: 'Commune : ',
                         children: <TextSpan>[
-                          TextSpan(text: widget.data.commune,
+                          TextSpan(text: statsBeanManager.commune,
                               style: TextStyle(fontWeight: FontWeight.bold)
                           )
                         ]
@@ -368,7 +475,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     TextSpan(
                         text: 'Quartier : ',
                         children: <TextSpan>[
-                          TextSpan(text: widget.data.quartier,
+                          TextSpan(text: statsBeanManager.quartier,
                               style: TextStyle(fontWeight: FontWeight.bold)
                           )
                         ]
@@ -383,7 +490,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     children: [
                       Row(
                         children: [
-                          Text(widget.data.type,
+                          Text(statsBeanManager.type,
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold
@@ -392,14 +499,14 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                           SizedBox(
                             width: 10,
                           ),
-                          getAppropriateIcon(widget.data.type)
+                          getAppropriateIcon(statsBeanManager.type)
                         ],
                       ),
-                      Text(widget.data.paiement == 0 ? 'Non payé' :
-                      widget.data.paiement == 1 ? 'En cours' : 'Soldé',
+                      Text(statsBeanManager.paiement == 0 ? 'Non payé' :
+                      statsBeanManager.paiement == 1 ? 'En cours' : 'Soldé',
                         style: TextStyle(
-                            color: widget.data.paiement == 0 ? Colors.red :
-                            widget.data.paiement == 1 ? Colors.brown : Colors.green
+                            color: statsBeanManager.paiement == 0 ? Colors.red :
+                            statsBeanManager.paiement == 1 ? Colors.brown : Colors.green
                         ),)
                     ],
                   )
@@ -408,7 +515,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   alignment: Alignment.center,
                   child: Visibility(
-                      visible: widget.data.paiement != 2,
+                      visible: statsBeanManager.paiement != 2,
                       child: ElevatedButton.icon(
                         style: ButtonStyle(
                             backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
@@ -442,7 +549,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Visibility(
-                        visible: widget.data.paiement != 2,
+                        visible: statsBeanManager.paiement != 2,
                           child: ElevatedButton.icon(
                             style: ButtonStyle(
                                 backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blueGrey)
@@ -455,7 +562,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                               final result = await Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                     return InterfaceManageAmende(
-                                        data: widget.data
+                                        data: statsBeanManager
                                     );
                                   })
                               );
@@ -476,7 +583,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                           )
                       ),
                       Visibility(
-                        visible: widget.data.latitude > 0,
+                        visible: statsBeanManager.latitude > 0,
                           child: ElevatedButton.icon(
                             style: ButtonStyle(
                                 iconAlignment: IconAlignment.end,
@@ -488,8 +595,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                                 )
                             ),
                             onPressed: () async {
-                              MapsLauncher.launchCoordinates(widget.data.latitude, widget.data.longitude,
-                              widget.data.nom);
+                              MapsLauncher.launchCoordinates(statsBeanManager.latitude, statsBeanManager.longitude,
+                              statsBeanManager.nom);
                             },
                             icon: Icon(
                               Icons.gps_fixed,

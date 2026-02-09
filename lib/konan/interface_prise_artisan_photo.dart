@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
+import 'package:cnmci/konan/beans/stats_bean_manager.dart';
 import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:file_picker/file_picker.dart';
@@ -617,7 +618,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               ),
             ),
             Visibility(
-              visible: (photoArtisan != null || fileUploadPhotoArtisan != null) && gpsPermission,
+              visible: ((photoArtisan != null || fileUploadPhotoArtisan != null) && gpsPermission) ||
+                artisanToManage.id != 0,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
                       iconAlignment: IconAlignment.end,
@@ -629,65 +631,71 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                       )
                   ),
                   onPressed: () async {
+                    if(artisanToManage.id == 0) {
+                      if (!streamGps) {
+                        // check on ville :
+                        if (photoArtisanController.text.isEmpty) {
+                          displayToast(
+                              'Veuillez prendre obligatoirement une PHOTO de l\'artisan !');
+                          return;
+                        }
 
-                    print('Valeur de streamGps : $streamGps');
+                        // Get GPS POSITION :
+                        try {
+                          var getstreamGpsData = await MesServices()
+                              .determinePositionStream();
 
-                    if(!streamGps) {
-                      // check on ville :
-                      if (photoArtisanController.text.isEmpty) {
-                        displayToast(
-                            'Veuillez prendre obligatoirement une PHOTO de l\'artisan !');
-                        return;
-                      }
+                          print(
+                              'Valeur de getstreamGpsData : $getstreamGpsData');
 
-                      // Get GPS POSITION :
-                      try {
-                        var getstreamGpsData = await MesServices()
-                            .determinePositionStream();
+                          if (getstreamGpsData) {
+                            setState(() {
+                              streamGps = getstreamGpsData;
+                            });
 
-                        print('Valeur de getstreamGpsData : $getstreamGpsData');
+                            final LocationSettings locationSettings = LocationSettings(
+                              accuracy: LocationAccuracy.high,
+                            );
 
-                        if (getstreamGpsData) {
-                          setState(() {
-                            streamGps = getstreamGpsData;
-                          });
-
-                          final LocationSettings locationSettings = LocationSettings(
-                            accuracy: LocationAccuracy.high,
-                          );
-
-                          positionStream =
-                              Geolocator.getPositionStream(
-                                  locationSettings: locationSettings).listen(
-                                      (Position? position) {
-                                    if (position != null) {
-                                      setState(() {
-                                        latitude = position.latitude;
-                                        longitude = position.longitude;
-                                        precisionGps = double.parse(
-                                            position.accuracy.toStringAsFixed(
-                                                2));
-                                        if (precisionGps < gpsPrecisionAccuracy ||
-                                            precisionGps < _currentDiscreteSliderValue) {
-                                          // Reset this :
-                                          positionStream.cancel();
-                                          // Send DATA :
-                                          displayDataSending();
-                                        }
-                                      });
+                            positionStream =
+                                Geolocator.getPositionStream(
+                                    locationSettings: locationSettings).listen(
+                                        (Position? position) {
+                                      if (position != null) {
+                                        setState(() {
+                                          latitude = position.latitude;
+                                          longitude = position.longitude;
+                                          precisionGps = double.parse(
+                                              position.accuracy.toStringAsFixed(
+                                                  2));
+                                          if (precisionGps <
+                                              gpsPrecisionAccuracy ||
+                                              precisionGps <
+                                                  _currentDiscreteSliderValue) {
+                                            // Reset this :
+                                            positionStream.cancel();
+                                            // Send DATA :
+                                            displayDataSending();
+                                          }
+                                        });
+                                      }
                                     }
-                                  }
-                              );
+                                );
+                          }
+                          else {
+                            displayToast('Veuillez autoriser le GPS !');
+                          }
+                        } catch (e) {
+                          displayToast('Le GPS est obligatoire !');
+                          setState(() {
+                            gpsPermission = false;
+                          });
                         }
-                        else {
-                          displayToast('Veuillez autoriser le GPS !');
-                        }
-                      } catch (e) {
-                        displayToast('Le GPS est obligatoire !');
-                        setState(() {
-                          gpsPermission = false;
-                        });
                       }
+                    }
+                    else{
+                      //
+                      displayDataSending();
                     }
                   },
                   icon: Icon(
@@ -794,7 +802,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             'Authorization': 'Bearer $localToken'
           },
           body: jsonEncode({
-            "id" : artisanId,
+            "id" : artisanToManage.id,
             "civilite" : artisanToManage.civilite,
             "nom" : artisanToManage.nom,
             "prenom" : artisanToManage.prenom,
@@ -836,8 +844,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "photo_cni_verso" : photoVerso != null ? convertPhotoToString(photoVerso!) : "",
             "photo_diplome" : photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
 
-            "longitude" : longitude.toString(),
-            "latitude" : latitude.toString(),
+            "longitude" : artisanToManage.id == 0 ? longitude.toString() : artisanToManage.longitude.toString(),
+            "latitude" : artisanToManage.id == 0 ? latitude.toString() : artisanToManage.latitude.toString(),
             "crm" : artisanToManage.crm,
             "departement" : artisanToManage.departement,
             "sous_pref" : artisanToManage.sous_prefecture,
@@ -865,7 +873,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         MessageResponse reponse = MessageResponse.fromJson(
             json.decode(response.body));
         Artisan artisan = Artisan(
-            id: reponse.id,
+            id: artisanToManage.id == 0 ? reponse.id : artisanToManage.id,
             nom: artisanToManage.nom,
             prenom: artisanToManage.prenom,
             civilite: artisanToManage.civilite,
@@ -898,10 +906,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             photo_cni_verso: photoVerso != null ? convertPhotoToString(photoVerso!) : "",
             photo_diplome: photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
             date_expiration_carte: '',
-            statut_kyc: 0,
-            statut_paiement: 0,
-            longitude: 0.0,
-            latitude: 0.0,
+            statut_kyc: artisanToManage.statut_kyc,
+            statut_paiement: artisanToManage.statut_paiement,
+            longitude: artisanToManage.id == 0 ? longitude : artisanToManage.longitude,
+            latitude: artisanToManage.id == 0 ? latitude : artisanToManage.latitude,
             regime_social: artisanToManage.regime_social,
             regime_travailleur: artisanToManage.regime_travailleur,
             regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
@@ -930,8 +938,34 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             quartier_activite_id: artisanToManage.quartier_activite_id,
             statut_artisan: artisanToManage.statut_artisan
         );
-        artisanControllerX.addItem(artisan);
-        //_artisanRepository.insert(artisan);
+        if(setOriginFromCallArtisan == 0) {
+          artisanToManage.id == 0
+              ? artisanControllerX.addItem(artisan)
+              : artisanControllerX.updateData(artisan);
+        }
+        else{
+          // Update StatsBeanManager :
+          var tampStats = statsBeanManager;
+          statsBeanManager = StatsBeanManager(
+              id: artisan.id,
+              nom: '${artisan.nom} ${artisan.prenom}',
+              contact: artisan.contact1,
+              datenaissance: artisan.date_naissance,
+              metier: lesMetiers.where((l) => l.id == artisan.metier).first.libelle,
+              paiement: tampStats.paiement,
+              commune: lesCommunes.where((c) => c.id == artisan.commune_residence).first.libelle,
+              type: tampStats.type,
+              image: tampStats.image,
+              datenrolement: tampStats.datenrolement,
+              quartier: artisan.quartier_residence,
+              amende: tampStats.amende,
+              latitude: tampStats.latitude,
+              longitude: tampStats.longitude);
+          // Reset :
+          setOriginFromCallArtisan = 0;
+        }
+        // Refresh :
+        artisanToManage = artisan;
         flagSendData = false;
       } else {
         displayToast("Impossible de récupérer les données de références");

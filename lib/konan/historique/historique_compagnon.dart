@@ -27,6 +27,7 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
   // ATTRIBUTES :
   final CompagnonControllerX _compagnonControllerX = Get.put(CompagnonControllerX());
   late BuildContext dialogContext;
+  final int limitBlocs = 30;
 
 
   // METHODS :
@@ -89,8 +90,8 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
           // Filter :
           List<Compagnon> tampon = getList(controller.data);
           // Reduce :
-          var currentData = tampon.isNotEmpty ? tampon.length > 10 ?
-          tampon.sublist(0, 9) : tampon : [];
+          var currentData = tampon.isNotEmpty ? tampon.length > limitBlocs ?
+          tampon.sublist(0, (limitBlocs - 1)) : tampon : [];
 
           return currentData.isNotEmpty ?
           SingleChildScrollView(

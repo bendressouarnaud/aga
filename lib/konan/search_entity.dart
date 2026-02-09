@@ -163,8 +163,8 @@ class _SearchEntity extends State<SearchEntity> {
                               MaterialPageRoute(builder: (context) {
                                 if(widget.screen == 1){
                                   // ARTISAN
-                                  return InterfaceViewArtisan(
-                                      artisan: artisanControllerX.data.where((a) => a.id == liste[index].id).first);
+                                  artisanToManage = artisanControllerX.data.where((a) => a.id == liste[index].id).first;
+                                  return InterfaceViewArtisan();
                                 }
                                 else if(widget.screen == 2){
                                   // APPRENTI

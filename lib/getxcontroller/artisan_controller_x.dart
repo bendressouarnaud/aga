@@ -52,6 +52,7 @@ class ArtisanControllerX extends GetxController {
     this.data.removeWhere((d) => d.id == data.id);
     // Add it :
     this.data.add(data);
+    this.data.sort((a,b) => b.id.compareTo(a.id));
     await _repository.update(data);
     update();
   }

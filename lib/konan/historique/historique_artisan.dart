@@ -28,6 +28,7 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
   // ATTRIBUTES :
   final ArtisanControllerX _artisanControllerX = Get.put(ArtisanControllerX());
   late BuildContext dialogContext;
+  final int limitBlocs = 30;
 
 
   // METHODS :
@@ -44,10 +45,11 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
       ),*/
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          // Send DATA :
+          // Open :
+          setOriginFromCallArtisan = 0;
           final result = await Navigator.push(context,
               MaterialPageRoute(builder: (context) {
-                return const InterfaceArtisanPersonne();
+                return const InterfaceArtisanPersonne(lArtisan: null,);
               })
           );
         },
@@ -72,8 +74,8 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
         builder: (ArtisanControllerX controller){
 
           var currentData = controller.data.isNotEmpty ?
-          controller.data.length > 10 ?
-          controller.data.sublist(0, 9) : controller.data : [];
+          controller.data.length > limitBlocs ?
+          controller.data.sublist(0, (limitBlocs - 1)) : controller.data : [];
 
           return currentData.isNotEmpty ?
           SingleChildScrollView(
@@ -87,7 +89,9 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                            return InterfaceViewArtisan(artisan: currentData[index]);
+                            // Update this :
+                            artisanToManage = currentData[index];
+                            return InterfaceViewArtisan();
                           })
                       );
                     },
