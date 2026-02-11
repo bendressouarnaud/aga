@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 3;
+  static final _databaseVersion = 5;
 
 
   // Make this a singleton class.
@@ -54,15 +54,27 @@ class DatabaseHelper {
 
   _performDbOperationsVersionWise(Database db, int version) async {
     switch (version) {
+
       case 1:
         await _createDatabase(db);
         break;
-    case 2:
+
+      case 2:
         await _addQuartierTable(db);
         break;
+
       case 3:
         await _addStatutColumn(db);
         break;
+
+      case 4:
+        await _addParametreTable(db);
+        break;
+
+      case 5:
+        await _addLivraisonCarteColumn(db);
+        break;
+
       default:
         // todo
         break;
@@ -85,6 +97,26 @@ class DatabaseHelper {
     await db.execute('update apprenti set statut_apprenti = 0');
     await db.execute('ALTER TABLE compagnon ADD COLUMN statut_compagnon integer');
     await db.execute('update compagnon set statut_compagnon = 0');
+  }
+
+  Future _addParametreTable(Database db) async {
+    await db.execute('CREATE TABLE parametre (id INTEGER PRIMARY KEY, topic_subscription integer, param1 integer,'
+        'param2 integer, param3 TEXT)');
+  }
+
+  Future _addLivraisonCarteColumn(Database db) async {
+    // ARTISAN
+    await db.execute('ALTER TABLE artisan ADD COLUMN livraison_carte integer');
+    await db.execute('update artisan set livraison_carte = 0');
+    // APPRENTI
+    await db.execute('ALTER TABLE apprenti ADD COLUMN livraison_carte integer');
+    await db.execute('update apprenti set livraison_carte = 0');
+    // COMPAGNON
+    await db.execute('ALTER TABLE compagnon ADD COLUMN livraison_carte integer');
+    await db.execute('update compagnon set livraison_carte = 0');
+    // ENTREPRISE
+    await db.execute('ALTER TABLE entreprise ADD COLUMN livraison_carte integer');
+    await db.execute('update entreprise set livraison_carte = 0');
   }
 
   Future _createDatabase(Database db) async {

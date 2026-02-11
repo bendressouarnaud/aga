@@ -711,7 +711,8 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             "cnps" : apprentiToManage.cnps,
             "cmu" : apprentiToManage.cmu,
             "statut_apprenti" : apprentiToManage.statut_apprenti,
-            "numero_immatriculation" : apprentiToManage.numero_immatriculation
+            "numero_immatriculation" : apprentiToManage.numero_immatriculation,
+            "livraison_carte" : apprentiToManage.livraisonCarte
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -761,7 +762,8 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             artisan_id: apprentiToManage.artisan_id,
             entreprise_id: apprentiToManage.entreprise_id,
             millisecondes: apprentiToManage.millisecondes,
-            statut_apprenti: apprentiToManage.statut_apprenti
+            statut_apprenti: apprentiToManage.statut_apprenti,
+            livraisonCarte: apprentiToManage.livraisonCarte
         );
         apprentiControllerX.addItem(apprenti);
         flagSendData = false;

@@ -81,6 +81,12 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   @override
   void initState() {
     super.initState();
+
+    // init :
+    photoArtisanController.text = "";
+    photoDiplomeController.text = "";
+    photoRectoController.text = "";
+    photoVersoController.text = "";
     setUpCameraController();
   }
 
@@ -791,6 +797,34 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
     return img64;
   }
 
+  // Check if PHOTO ARTISAN has been taken :
+  String checkPhotoArtisan(){
+    if(photoArtisanController.text.isNotEmpty) {
+      if (uploadPhotoArtisan) {
+        return convertUploadedFile(fileUploadPhotoArtisan!);
+      }
+      else if (photoArtisan != null) {
+        return convertPhotoToString(photoArtisan!);
+      }
+      else {
+        // This BLOCK is not necessary :
+        return "";
+      }
+    }
+    else{
+      return artisanToManage.photo_artisan;
+    }
+  }
+
+  String checkOtherPhotoType(XFile? picture, String photo, String libPhoto){
+    if(libPhoto.isNotEmpty) {
+      return convertPhotoToString(picture!);
+    }
+    else{
+      return photo;
+    }
+  }
+
   Future<void> sendArtisanData() async {
     // First Call this :
     var localToken = await MesServices().checkJwtExpiration();
@@ -865,7 +899,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "apprenti_homme" : 0,
             "apprenti_femme" : 0,
             "statut_artisan" : artisanToManage.statut_artisan,
-            "numero_registre" : artisanToManage.numero_registre
+            "numero_registre" : artisanToManage.numero_registre,
+            "livraison_carte" : artisanToManage.livraisonCarte == 1 ? true : false
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -900,11 +935,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             contact1: artisanToManage.contact1,
             contact2: artisanToManage.contact2,
             email: artisanToManage.email,
-            photo_artisan: uploadPhotoArtisan ? convertUploadedFile(fileUploadPhotoArtisan!) :
-              photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
-            photo_cni_recto: photoRecto != null ? convertPhotoToString(photoRecto!) : "",
-            photo_cni_verso: photoVerso != null ? convertPhotoToString(photoVerso!) : "",
-            photo_diplome: photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
+            photo_artisan: checkPhotoArtisan(),
+            photo_cni_recto: checkOtherPhotoType(photoRecto, artisanToManage.photo_cni_recto, photoRectoController.text),
+            photo_cni_verso: checkOtherPhotoType(photoVerso, artisanToManage.photo_cni_verso, photoVersoController.text),
+            photo_diplome: checkOtherPhotoType(photoDiplome, artisanToManage.photo_diplome, photoDiplomeController.text),
             date_expiration_carte: '',
             statut_kyc: artisanToManage.statut_kyc,
             statut_paiement: artisanToManage.statut_paiement,
@@ -936,7 +970,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             niveau_equipement: artisanToManage.niveau_equipement,
           millisecondes: artisanToManage.millisecondes,
             quartier_activite_id: artisanToManage.quartier_activite_id,
-            statut_artisan: artisanToManage.statut_artisan
+            statut_artisan: artisanToManage.statut_artisan,
+            livraisonCarte: artisanToManage.livraisonCarte
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage.id == 0

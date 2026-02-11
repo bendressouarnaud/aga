@@ -37,6 +37,7 @@ import '../getxcontroller/date_delivre_controller.dart';
 import '../getxcontroller/datecontroller.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
+import 'beans/stats_bean_manager.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -127,6 +128,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   //final _userRepository = UserRepository();
   late BuildContext dialogContext;
   bool flagSendData = false;
+  bool flagServerResponse = false;
   bool closeAlertDialog = false;
   int retour = 0;
   //
@@ -164,6 +166,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   late String laCivilite;
   late GenericData leRegimeSocial;
   late GenericData leStatutArtisan;
+  late GenericData laLivraison;
   late GenericData leRegimetravailleur;
   late GenericData leRegimeImpositionCommunale;
   late GenericData leRegimeImpositionEntreprise;
@@ -193,6 +196,10 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     'Mlle'
   ];
   // GenericData
+  final lesGenericLivraisons = [
+    GenericData(libelle: 'Non', id: 0),
+    GenericData(libelle: 'Oui', id: 1)
+  ];
   final lesStatutArtisan = [
     GenericData(libelle: 'Nouveau', id: 0),
     GenericData(libelle: 'Renouvellement', id: 1)
@@ -217,7 +224,260 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     NiveauEquipement(libelle: 'Bon', id: 2)
   ];
 
+  int checkChiffreAffaire(){
+    int tamp = 0;
+    try{
+      tamp = int.parse(chiffreAffaireController.text.replaceAll(',', ''));
+    }
+    finally{
+      tamp = 0;
+    }
+    return tamp;
+  }
+
   // M E T H O D S
+  void displayDataSending(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        });
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    sendArtisanData();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (!flagSendData) {
+            Navigator.pop(context, 1);
+          } else {
+            displayToast('Traitement impossible');
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> sendArtisanData() async
+  {
+    // First Call this :
+    var localToken = await MesServices().checkJwtExpiration();
+    final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-artisanmobile');
+    try {
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id" : widget.lArtisan!.id,
+            "civilite" : laCivilite,
+            "nom" : nomController.text,
+            "prenom" : prenomController.text,
+            "date_naissance" : dateNaissanceController.text,
+            "lieu_naissance" : laCommune.id.toString(),
+            "lieu_naissance_autre" : lieuNaissanceAutreController.text,
+            "nationalite" : laNationalite.id.toString(),
+            "cnps" : cnpsController.text,
+            "cmu" : cmuController.text,
+            "chiffre_affaire" : checkChiffreAffaire(),
+            "presence_compte_bancaire" : leCompteBancaire.id,
+            "type_compte_bancaire" : leTypeDeCompte.id,
+            "regime_social" : leRegimeSocial.id,
+            "regime_travailleur" : leRegimetravailleur.id,
+            "regime_imposition_taxe_communale" : leRegimeImpositionCommunale.id,
+            "regime_imposition_micro_entreprise" : leRegimeImpositionEntreprise.id,
+            "comptabilite" : laComptabilite.id,
+            "sexe" : "",
+            "statut_matrimonial" : leStatutMatrimonial.id.toString(),
+            "type_document" : leTypeDocument.id.toString(),
+            "numero_piece" : numeroPieceIdentiteController.text,
+            "piece_delivre" : laPieceDelivre.id.toString(),
+            "date_emission_piece" : datePieceController.text,
+            "niveau_etude" : leNiveauEtude.id.toString(),
+            "formation" : lApprentissageMetier.id.toString(),
+            "specialite" : leMetier.id.toString(),
+            "classe" : laClasse.id.toString(),
+            "diplome" : leDiplome.id.toString(),
+            "ville_residence" : laVilleResidence.id.toString(),
+            "quartier_residence" : quartierResidenceController.text,
+            "adresse_postal" : adressePostaleController.text,
+            "contact1" : contact1Controller.text,
+            "contact2" : contact2Controller.text,
+            "email" : emailController.text,
+
+            "photo_artisan" : widget.lArtisan!.photo_artisan,
+            "photo_cni_recto" : widget.lArtisan!.photo_cni_verso,
+            "photo_cni_verso" : widget.lArtisan!.photo_cni_verso,
+            "photo_diplome" : widget.lArtisan!.photo_diplome,
+
+            "longitude" : widget.lArtisan!.longitude.toString(),
+            "latitude" : widget.lArtisan!.latitude.toString(),
+            "crm" : leCrm.id,
+            "departement" : leDepartement.id,
+            "sous_pref" : laSousPrefecture.id,
+            "activite_principale" : lActivitePrincipale.id,
+            "activite_secondaire" : lActiviteSecondaire.id,
+            "raison_social" : denominationController.text,
+            "sigle" : sigleController.text,
+            "date_creation" : dateDebutActiviteController.text,
+            "ville_commune" : laVilleCommune.id.toString(),
+            "quartier" : leQuartierActivite.id,
+            "niveau_equipement" : leNiveauEquipement.id.toString(),
+            "rccm" : rccmCommuneController.text,
+            "salarie_homme" : 0,
+            "salarie_femme" : 0,
+            "auxiliaire_homme" : 0,
+            "auxiliaire_femme" : 0,
+            "apprenti_homme" : 0,
+            "apprenti_femme" : 0,
+            "statut_artisan" : leStatutArtisan.id,
+            "numero_registre" : numeroRegistreController.text.trim(),
+            "livraison_carte" : laLivraison.id == 1 ? true : false
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+
+      if (response.statusCode == 200) {
+        MessageResponse reponse = MessageResponse.fromJson(
+            json.decode(response.body));
+        Artisan artisan = Artisan(
+            id: widget.lArtisan!.id,
+            nom: nomController.text,
+            prenom: prenomController.text,
+            civilite: laCivilite,
+            date_naissance: dateNaissanceController.text,
+            numero_registre: numeroRegistreController.text.trim(),
+            lieu_naissance_autre: lieuNaissanceAutreController.text,
+            lieu_naissance: laCommune.id,
+            nationalite: laNationalite.id,
+            statut_matrimonial: leStatutMatrimonial.id,
+            type_document: leTypeDocument.id,
+            niveau_etude: leNiveauEtude.id,
+            formation: lApprentissageMetier.id,
+            classe: laClasse.id,
+            diplome: leDiplome.id,
+            commune_residence: laVilleResidence.id,
+            activite: leMetier.id,
+            sexe: '',
+            numero_piece: numeroPieceIdentiteController.text,
+            piece_delivre: laPieceDelivre.id,
+            date_emission_piece: datePieceController.text,
+            metier: leMetier.id,
+            quartier_residence: quartierResidenceController.text,
+            adresse_postal: adressePostaleController.text,
+            contact1: contact1Controller.text,
+            contact2: contact2Controller.text,
+            email: emailController.text,
+            photo_artisan: widget.lArtisan!.photo_artisan,
+            photo_cni_recto: widget.lArtisan!.photo_cni_recto,
+            photo_cni_verso: widget.lArtisan!.photo_cni_verso,
+            photo_diplome: widget.lArtisan!.photo_diplome,
+            date_expiration_carte: widget.lArtisan!.date_expiration_carte,
+            statut_kyc: widget.lArtisan!.statut_kyc,
+            statut_paiement: widget.lArtisan!.statut_paiement,
+            longitude: widget.lArtisan!.longitude,
+            latitude: widget.lArtisan!.latitude,
+            regime_social: leRegimeSocial.id,
+            regime_travailleur: leRegimetravailleur.id,
+            regime_imposition_taxe_communale: leRegimeImpositionCommunale.id,
+            regime_imposition_micro_entreprise: leRegimeImpositionEntreprise.id,
+            comptabilite: laComptabilite.id,
+            chiffre_affaire: checkChiffreAffaire(),
+            cnps: cnpsController.text,
+            cmu: cmuController.text,
+            presence_compte_bancaire: leCompteBancaire.id,
+            type_compte_bancaire: leTypeDeCompte.id,
+            crm: leCrm.id,
+            departement: leDepartement.id,
+            sous_prefecture: laSousPrefecture.id,
+            specialite: leMetier.id,
+            activite_principale: lActivitePrincipale.id,
+            activite_secondaire: lActiviteSecondaire.id,
+
+            raison_social: denominationController.text,
+            sigle: sigleController.text,
+            date_creation: dateDebutActiviteController.text,
+            commune_activite: laVilleCommune.id,
+            quartier_activite: '',// quartierCommuneController.text,
+            rccm: rccmCommuneController.text,
+            niveau_equipement: leNiveauEquipement.id,
+            millisecondes: DateTime.now().millisecondsSinceEpoch,
+            quartier_activite_id: leQuartierActivite.id,
+            statut_artisan: leStatutArtisan.id,
+            livraisonCarte: laLivraison.id
+        );
+        if(setOriginFromCallArtisan == 0) {
+          artisanToManage = artisan;
+          artisanControllerX.updateData(artisan);
+        }
+        else{
+          // Update StatsBeanManager :
+          var tampStats = statsBeanManager;
+          statsBeanManager = StatsBeanManager(
+              id: artisan.id,
+              nom: '${artisan.nom} ${artisan.prenom}',
+              contact: artisan.contact1,
+              datenaissance: artisan.date_naissance,
+              metier: lesMetiers.where((l) => l.id == artisan.metier).first.libelle,
+              paiement: tampStats.paiement,
+              commune: lesCommunes.where((c) => c.id == artisan.commune_residence).first.libelle,
+              type: tampStats.type,
+              image: tampStats.image,
+              datenrolement: tampStats.datenrolement,
+              quartier: artisan.quartier_residence,
+              amende: tampStats.amende,
+              latitude: tampStats.latitude,
+              longitude: tampStats.longitude);
+          // Reset :
+          setOriginFromCallArtisan = 0;
+        }
+        flagSendData = false;
+      } else {
+        displayToast("Impossible de récupérer les données de références");
+      }
+    } catch (e) {
+      displayToast("Impossible de traiter les données de référence : $e");
+    } finally {
+      flagServerResponse = false;
+    }
+  }
+
+
   void feedArtisan() async{
     artisanToManage = Artisan(
         id: widget.lArtisan == null ? 0 : widget.lArtisan!.id,
@@ -282,7 +542,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         niveau_equipement: leNiveauEquipement.id,
         millisecondes: DateTime.now().millisecondsSinceEpoch,
         quartier_activite_id: leQuartierActivite.id,
-        statut_artisan: leStatutArtisan.id
+        statut_artisan: leStatutArtisan.id,
+        livraisonCarte: laLivraison.id
     );
 
     final result = await Navigator.push(context,
@@ -352,6 +613,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       lActiviteSecondaire = lesMetiers.where((p) => p.id == widget.lArtisan!.activite_secondaire).first;
       leNiveauEquipement = lesNiveauEquipement.where((p) => p.id == widget.lArtisan!.niveau_equipement).first;
       leStatutArtisan = widget.lArtisan!.statut_artisan == 3 ? lesStatutArtisan.last : lesStatutArtisan.first;
+      laLivraison = lesGenericLivraisons.where((l) => l.id == widget.lArtisan!.livraisonCarte).first;
 
       _dateNaissanceController.clear();
       _datePieceDelivreController.clear();
@@ -377,6 +639,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       rccmCommuneController.text = widget.lArtisan!.rccm;
       numeroRegistreController.text = widget.lArtisan!.numero_registre;
       datePieceController.text = widget.lArtisan!.date_emission_piece;
+      dateDebutActiviteController.text = widget.lArtisan!.date_creation;
 
       // INIT DROPDOWN's Controller text fields
       communeController.text = laCommune.libelle;
@@ -424,6 +687,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       lActiviteSecondaire = lesMetiers.first;
       leNiveauEquipement = lesNiveauEquipement.first;
       leStatutArtisan = lesStatutArtisan.first;
+      laLivraison = lesGenericLivraisons.first;
 
       _dateNaissanceController.clear();
       _datePieceDelivreController.clear();
@@ -880,6 +1144,63 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<GenericData>(
+                  mode: Mode.form,
+                  onChanged: (GenericData? value) => {
+                    setState(() {
+                      laLivraison = value!;
+                    })
+                  },
+                  compareFn: (GenericData? a, GenericData? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: laLivraison,
+                  itemAsString: (statut) => statut.libelle,
+                  items: (filter, infiniteScrollProps) => lesGenericLivraisons,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Livraison des documents',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                    /*showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),*/
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 150,
+                          maxHeight: 200
+                      )
+                  ),
+                ),
+              )
+            ],
+          )
+      ),
+      Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+        child: Divider(
+          color: Colors.black,
+          height: 5,
+        ),
+      ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 25),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -2352,6 +2673,17 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(idpub == 0 ? 'Nouvel Artisan' : 'Modification Artisan'),
+          actions: [
+            Visibility(
+              visible: widget.lArtisan != null,
+              child: IconButton(
+                  onPressed: () {
+                    displayDataSending();
+                  },
+                  icon: Icon(Icons.save_as_outlined, color: Colors.brown)
+              )
+            )
+          ]
         ),
         body: SingleChildScrollView(
           child: Column(

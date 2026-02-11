@@ -1,11 +1,14 @@
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
+import 'package:cnmci/konan/model/quartier.dart';
+import 'package:cnmci/konan/repositories/quartier_repository.dart';
 import 'package:cnmci/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../model/apprenti.dart';
 import '../model/compagnon.dart';
+import '../repositories/parametre_repository.dart';
 
 class FirebaseProcessMessage{
 
@@ -91,7 +94,8 @@ class FirebaseProcessMessage{
                 niveau_equipement: artisan.niveau_equipement,
                 millisecondes: artisan.millisecondes,
                 quartier_activite_id: artisan.quartier_activite_id,
-                statut_artisan: artisan.statut_artisan
+                statut_artisan: artisan.statut_artisan,
+              livraisonCarte: artisan.livraisonCarte
             );
             //
             artisanControllerX.updateData(updateArtisan);
@@ -145,7 +149,8 @@ class FirebaseProcessMessage{
                 artisan_id: apprenti.artisan_id,
                 entreprise_id: apprenti.entreprise_id,
                 millisecondes: apprenti.millisecondes,
-                statut_apprenti: apprenti.statut_apprenti
+                statut_apprenti: apprenti.statut_apprenti,
+                livraisonCarte: apprenti.livraisonCarte
             );
             apprentiControllerX.updateData(updateApprenti);
           }
@@ -195,7 +200,8 @@ class FirebaseProcessMessage{
                 artisan_id: compagnon.artisan_id,
                 entreprise_id: compagnon.entreprise_id,
                 millisecondes: compagnon.millisecondes,
-                statut_compagnon: compagnon.statut_compagnon
+                statut_compagnon: compagnon.statut_compagnon,
+                livraisonCarte: compagnon.livraisonCarte
             );
             compagnonControllerX.updateData(updateCompagnon);
           }
@@ -252,14 +258,34 @@ class FirebaseProcessMessage{
               longitude: entreprise.longitude,
               latitude: entreprise.latitude,
               millisecondes: entreprise.millisecondes,
-              quartier_siege_id: entreprise.quartier_siege_id
+              quartier_siege_id: entreprise.quartier_siege_id,
+              livraisonCarte: entreprise.livraisonCarte
           );
           entrepriseControllerX.updateData(updateEntreprise);
         }
         break;
 
+      case 2:
+        // Add new 'QUARTIER' :
+        try{
+          Quartier newQ = Quartier(id: int.parse(message.data['idQuartier']),
+              libelle: message.data['libQuartier'], idx: int.parse(message.data['idCommune']));
+          final quartierRepository = QuartierRepository();
+          // Check PRESENCE first :
+          Quartier? checkQuart = await quartierRepository.findOne(newQ.id);
+          if(checkQuart == null) {
+            quartierRepository.insert(newQ);
+            lesQuartiers.add(newQ);
+          }
+          else{
+            quartierRepository.update(newQ);
+          }
+        }
+        catch(e){}
+        break;
+
       default:
-        print("Contenu : ${message.data['message']}");
+        //print("Contenu : ${message.data['message']}");
         break;
     }
   }

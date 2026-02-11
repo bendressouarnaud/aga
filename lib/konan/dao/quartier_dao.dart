@@ -31,4 +31,11 @@ class QuartierDao {
     final List<Map<String, Object?>> results = await db.query('quartier');
     return results.isNotEmpty ? results.map((c) => Quartier.DatabaseToObject(c)).toList() : [];
   }
+
+  Future<int> update(Quartier data) async {
+    final db = await dbProvider.database;
+    var result = await db.update("quartier", data.toDatabaseJson(),
+        where: "id = ?", whereArgs: [data.id]);
+    return result;
+  }
 }

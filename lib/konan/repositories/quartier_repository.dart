@@ -8,4 +8,5 @@ class QuartierRepository {
   Future<Quartier?> findOne(int id) => dao.findOne(id);
   Future<List<Quartier>> findAll() => dao.findAll();
   Future<List<Quartier>> findAllByCommuneId(int index) => dao.findAllByCommuneId(index);
+  Future<int> update(Quartier data) => dao.update(data);
 }

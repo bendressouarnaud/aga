@@ -70,6 +70,8 @@ class Artisan {
 
   // 02/02/2026
   final int statut_artisan;
+  // 11/02/2026
+  final int livraisonCarte;
 
   // M e t h o d s  :
   Artisan({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance, required this.numero_registre,
@@ -87,7 +89,7 @@ class Artisan {
     required this.raison_social, required this.sigle, required this.date_creation,
     required this.commune_activite, required this.quartier_activite, required this.rccm,
     required this.niveau_equipement, required this.millisecondes, required this.quartier_activite_id,
-    required this.statut_artisan
+    required this.statut_artisan, required this.livraisonCarte
   });
   factory Artisan.fromDatabaseJson(Map<String, dynamic> data) => Artisan(
     id: data['id'],
@@ -153,7 +155,8 @@ class Artisan {
     niveau_equipement: data['niveau_equipement'],
     millisecondes: data['millisecondes'],
     quartier_activite_id: data['quartier_activite_id'],
-    statut_artisan: data['statut_artisan']
+    statut_artisan: data['statut_artisan'],
+    livraisonCarte: data['livraison_carte']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -220,6 +223,7 @@ class Artisan {
     "niveau_equipement": niveau_equipement,
     "millisecondes": millisecondes,
     "quartier_activite_id": quartier_activite_id,
-    "statut_artisan": statut_artisan
+    "statut_artisan": statut_artisan,
+    "livraison_carte": livraisonCarte
   };
 }

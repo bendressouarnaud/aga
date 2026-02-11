@@ -1,23 +1,22 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cnmci/konan/historique/historique_apprenti.dart';
 import 'package:cnmci/konan/historique/historique_compagnon.dart';
 import 'package:cnmci/konan/historique/historique_entreprise.dart';
 import 'package:cnmci/konan/interface_gestion_utilisateur.dart';
+import 'package:cnmci/konan/repositories/parametre_repository.dart';
 import 'package:cnmci/konan/search_entity.dart';
 import 'package:cnmci/konan/widget_accueil.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:http/http.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
-import '../getxcontroller/internet_access_controller_x.dart';
 import '../main.dart';
 import 'historique/historique_artisan.dart';
 import 'interface_controle_manager.dart';
+import 'model/parametre.dart';
 
 class InterfaceAccueil extends StatefulWidget {
   const InterfaceAccueil({Key? key}) : super(key: key);
@@ -29,18 +28,54 @@ class InterfaceAccueil extends StatefulWidget {
 class _InterfaceAccueil extends State<InterfaceAccueil> {
 
   // A t t r i b u t e s  :
+  late final StreamSubscription<InternetStatus> internetCheck;
   int currentPageIndex = 0;
+  final parametreRepository = ParametreRepository();
 
 
+  // M E T H O D S  :
   @override
   void initState() {
     super.initState();
+
+    internetCheck = InternetConnection().onStatusChange.listen((status) {
+      // Handle internet status changes :
+      switch(status){
+        case InternetStatus.connected:
+          if(defaultTargetPlatform == TargetPlatform.android){
+            // Check if 'INITIALIZATION has been done :
+            checkParametreInitialization();
+          }
+          break;
+
+        case InternetStatus.disconnected:
+          break;
+      }
+      setState(() {
+      });
+    });
+  }
+
+  void checkParametreInitialization() async{
+    try {
+      Parametre? parametre = await parametreRepository.findUnique(1);
+      if(parametre == null){
+        await FirebaseMessaging.instance.subscribeToTopic('${dotenv.env['SIGA_TOPIC']}');
+        // Persist :
+        Parametre newParam = Parametre(id: 1,
+            topicSubscription: 1, param1: 0, param2: 0, param3: '');
+        parametreRepository.insert(newParam);
+        print('TOPIC créé');
+      }
+    }
+    catch(e){}
   }
 
   @override
   void dispose() {
     super.dispose();
 
+    internetCheck.cancel();
     // Dispose of the controller when the widget is disposed.
     artisanControllerX.dispose();
     apprentiControllerX.dispose();

@@ -54,6 +54,8 @@ class Apprenti {
 
   // 02/02/2026
   final int statut_apprenti;
+  // 11/02/2026
+  final int livraisonCarte;
 
 
   // M e t h o d s  :
@@ -68,7 +70,7 @@ class Apprenti {
     required this.a_suivi_formation, required this.centre_formation_metier, required this.intitule_formation_metier,
     required this.formation_metier_terminee, required this.diplome_obtenu_metier,
     required this.cnps, required this.cmu, required this.artisan_id, required this.entreprise_id,
-    required this.millisecondes, required this.statut_apprenti
+    required this.millisecondes, required this.statut_apprenti, required this.livraisonCarte
   });
   factory Apprenti.fromDatabaseJson(Map<String, dynamic> data) => Apprenti(
     id: data['id'],
@@ -114,7 +116,8 @@ class Apprenti {
     artisan_id: data['artisan_id'],
       entreprise_id: data['entreprise_id'],
     millisecondes: data['millisecondes'],
-      statut_apprenti: data['statut_apprenti']
+      statut_apprenti: data['statut_apprenti'],
+      livraisonCarte: data['livraison_carte']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -161,6 +164,7 @@ class Apprenti {
     "artisan_id": artisan_id,
     "entreprise_id": entreprise_id,
     "millisecondes": millisecondes,
-    "statut_apprenti": statut_apprenti
+    "statut_apprenti": statut_apprenti,
+    "livraison_carte": livraisonCarte
   };
 }

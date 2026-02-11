@@ -3,22 +3,15 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
-import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart';
-
-import '../getxcontroller/artisan_controller_x.dart';
-import '../getxcontroller/compagnon_controller_x.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
 import 'model/compagnon.dart';
-import 'model/artisan.dart';
 import 'objets/constants.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -782,6 +775,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             "cmu" : compagnonToManage.cmu,
             "statut_compagnon" : compagnonToManage.statut_compagnon,
             "numero_immatriculation" : compagnonToManage.numero_immatriculation,
+            "livraison_carte" : compagnonToManage.livraisonCarte
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -828,7 +822,8 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             artisan_id: compagnonToManage.artisan_id,
             entreprise_id: compagnonToManage.entreprise_id,
           millisecondes: compagnonToManage.millisecondes,
-            statut_compagnon: compagnonToManage.statut_compagnon
+            statut_compagnon: compagnonToManage.statut_compagnon,
+            livraisonCarte: compagnonToManage.livraisonCarte
         );
         compagnonControllerX.addItem(compagnon);
         flagSendData = false;

@@ -182,9 +182,14 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   late Commune laVilleCommune;
   late NiveauEquipement leNiveauEquipement;
   late GenericData leStatutApprenti;
+  late GenericData laLivraison;
 
   int artisanId = 0;
 
+  final lesGenericLivraisons = [
+    GenericData(libelle: 'Non', id: 0),
+    GenericData(libelle: 'Oui', id: 1)
+  ];
   final lesCivilites = [
     'M',
     'Mme',
@@ -260,7 +265,8 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         artisan_id: widget.artisanId,
         entreprise_id:  widget.entrepriseId,
       millisecondes: DateTime.now().millisecondsSinceEpoch,
-        statut_apprenti: leStatutApprenti.id
+        statut_apprenti: leStatutApprenti.id,
+        livraisonCarte: laLivraison.id
     );
 
     final result = await Navigator.push(context,
@@ -308,6 +314,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     leNiveauEquipement = lesNiveauEquipement.first;
     //
     leStatutApprenti = lesStatutApprenti.first;
+    laLivraison = lesGenericLivraisons.first;
 
     _dateNaissanceController.clear();
     _datePieceDelivreController.clear();
@@ -597,6 +604,63 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<GenericData>(
+                  mode: Mode.form,
+                  onChanged: (GenericData? value) => {
+                    setState(() {
+                      laLivraison = value!;
+                    })
+                  },
+                  compareFn: (GenericData? a, GenericData? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: laLivraison,
+                  itemAsString: (statut) => statut.libelle,
+                  items: (filter, infiniteScrollProps) => lesGenericLivraisons,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Livraison des documents',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                    /*showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),*/
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 150,
+                          maxHeight: 200
+                      )
+                  ),
+                ),
+              )
+            ],
+          )
+      ),
+      Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+        child: Divider(
+          color: Colors.black,
+          height: 5,
+        ),
+      ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 25),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

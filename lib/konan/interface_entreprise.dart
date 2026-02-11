@@ -2,12 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as io;
-import 'dart:typed_data';
-import 'package:camera/camera.dart';
 import 'package:cnmci/konan/beans/generic_data.dart';
-import 'package:cnmci/konan/interface_prise_artisan_photo.dart';
 import 'package:cnmci/konan/local_data/niveau_equipement.dart';
-import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/commune.dart';
 import 'package:cnmci/konan/model/departement.dart';
 import 'package:cnmci/konan/model/diplome.dart';
@@ -209,9 +205,14 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   //
   late List<Departement> lesDepartementsFiltre;
   late List<SousPrefecture> lesSousPrefectureFiltre;
+  late GenericData laLivraison;
 
   int artisanId = 0;
 
+  final lesGenericLivraisons = [
+    GenericData(libelle: 'Non', id: 0),
+    GenericData(libelle: 'Oui', id: 1)
+  ];
   final lesCivilites = [
     'M',
     'Mme',
@@ -382,7 +383,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 "longitude": longitude,
                 "latitude": latitude,
                 "commune": laVilleCommune.id,
-                "quartier": leQuartierActivite.id
+                "quartier": leQuartierActivite.id,
+                "livraison_carte": laLivraison.id
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -437,7 +439,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             longitude: longitude,
             latitude: latitude,
           millisecondes: DateTime.now().millisecondsSinceEpoch,
-            quartier_siege_id: leQuartierActivite.id
+            quartier_siege_id: leQuartierActivite.id,
+            livraisonCarte: laLivraison.id
         );
         entrepriseControllerX.addItem(entrepriseToManage);
         flagSendData = false;
@@ -493,6 +496,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     lActivitePrincipale = lesMetiers.first;
     lActiviteSecondaire = lesMetiers.first;
     leNiveauEquipement = lesNiveauEquipement.first;
+    laLivraison = lesGenericLivraisons.first;
 
     // ENTREPRISE
     laFormeJuridique = lesFormesJuridiques.first;
@@ -964,6 +968,64 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
           height: 5,
         ),
       ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: DropdownSearch<GenericData>(
+                  mode: Mode.form,
+                  onChanged: (GenericData? value) => {
+                    setState(() {
+                      laLivraison = value!;
+                    })
+                  },
+                  compareFn: (GenericData? a, GenericData? b){
+                    if(a == null || b == null){
+                      return false;
+                    }
+                    return a.id == b.id;
+                  },
+                  selectedItem: laLivraison,
+                  itemAsString: (statut) => statut.libelle,
+                  items: (filter, infiniteScrollProps) => lesGenericLivraisons,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: InputDecoration(
+                      labelText: 'Livraison des documents',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  popupProps: PopupProps.menu(
+                    /*showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                              hintText: 'Rechercher'
+                          )
+                      ),*/
+                      fit: FlexFit.loose,
+                      constraints: BoxConstraints(
+                          minHeight: 150,
+                          maxHeight: 200
+                      )
+                  ),
+                ),
+              )
+            ],
+          )
+      ),
+      Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+        child: Divider(
+          color: Colors.black,
+          height: 5,
+        ),
+      ),
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 13),

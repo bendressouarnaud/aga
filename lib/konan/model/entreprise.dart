@@ -52,6 +52,7 @@ class Entreprise {
   final double latitude;
   final int millisecondes;
   final int quartier_siege_id;
+  final int livraisonCarte;
 
 
   // M e t h o d s  :
@@ -68,7 +69,7 @@ class Entreprise {
     required this.compte_contribuable, required this.total_associe, required this.commune_siege,
     required this.quartier_siege, required this.lot, required this.telephone, required this.statut_kyc,
     required this.statut_paiement, required this.longitude, required this.latitude, required this.millisecondes,
-    required this.quartier_siege_id
+    required this.quartier_siege_id, required this.livraisonCarte
   });
   factory Entreprise.fromDatabaseJson(Map<String, dynamic> data) => Entreprise(
       id: data['id'],
@@ -118,6 +119,7 @@ class Entreprise {
       latitude: data['latitude'],
     millisecondes: data['millisecondes'],
     quartier_siege_id: data['quartier_siege_id'],
+      livraisonCarte: data['livraison_carte']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -168,5 +170,6 @@ class Entreprise {
     "latitude": latitude,
     "millisecondes": millisecondes,
     "quartier_siege_id": quartier_siege_id,
+    "livraison_carte": livraisonCarte,
   };
 }
