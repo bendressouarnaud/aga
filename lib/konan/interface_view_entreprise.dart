@@ -128,7 +128,7 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
     }
     catch(e){
       // Connexion PROBLEM :
-      print('Exception **** : ${e.toString()}');
+      //print('Exception **** : ${e.toString()}');
     }
     finally{
       flagServerResponse = false;

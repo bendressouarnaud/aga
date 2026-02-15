@@ -107,7 +107,7 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
     }
     catch(e){
       // Connexion PROBLEM :
-      print('Exception **** : ${e.toString()}');
+      //print('Exception **** : ${e.toString()}');
     }
     finally{
       flagServerResponse = false;

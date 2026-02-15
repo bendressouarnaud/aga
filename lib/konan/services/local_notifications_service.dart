@@ -58,7 +58,7 @@ class LocalNotificationsService{
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response){
         // Handle notification in forground
-        print('Foreground notification LOCAL : ${response.payload}');
+        //print('Foreground notification LOCAL : ${response.payload}');
       }
     );
 

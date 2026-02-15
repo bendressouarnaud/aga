@@ -765,6 +765,18 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       }
       laSousPrefecture = (widget.lArtisan == null || tempSousPrefecture == null) ? lesSousPrefectureFiltre.first :
         tempSousPrefecture;
+      // UPDATE 'Ville Naissance'
+      /*laCommune = (widget.lArtisan == null || tempSousPrefecture == null) ?
+        lesCommunes.where((l) => l.idx == laSousPrefecture.id).first :
+        lesCommunes.where((c) => c.id == widget.lArtisan!.lieu_naissance).first;
+      // 'Ville délivrance Pièce'
+      laPieceDelivre = (widget.lArtisan == null) ?
+        lesCommunes.where((l) => l.idx == laSousPrefecture.id).first :
+        lesCommunes.where((c) => c.id == widget.lArtisan!.piece_delivre).first;
+      // 'Ville Activité'
+      laVilleCommune = (widget.lArtisan == null) ?
+        lesCommunes.where((l) => l.idx == laSousPrefecture.id).first :
+        lesCommunes.where((c) => c.id == widget.lArtisan!.commune_activite).first;*/
     });
   }
 
@@ -1327,31 +1339,6 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   ),
                 ),
               )
-
-              /*DropdownMenu<Commune>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: laCommune,
-                  controller: communeController,
-                  hintText: "Lieu naissance",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Lieu naissance'),
-                  // Initial Value
-                  onSelected: (Commune? value) {
-                    setState(() {
-                      laCommune = value!;
-                    });
-                  },
-                  dropdownMenuEntries:
-                  lesCommunes.map<DropdownMenuEntry<Commune>>((Commune menu) {
-                    return DropdownMenuEntry<Commune>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.location_city));
-                  }).toList()
-              )*/
             ],
           )
       ),

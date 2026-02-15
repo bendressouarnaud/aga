@@ -18,6 +18,9 @@ const Color digiHmbColor = Color(0xFF0b94bf);
 const Color digiHmbColorDeep = Color(0xFF032F56);
 const Color digiHmbColorBienvenue = Color(0xFFCFF6FF);
 
+// Photo
+const Color photoIdentite = Color(0xffba8b62);
+
 const double defaultPadding = 16.0;
 
 const int timeOutValue = 15;

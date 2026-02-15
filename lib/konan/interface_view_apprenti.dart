@@ -107,7 +107,7 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
     }
     catch(e){
       // Connexion PROBLEM :
-      print('Exception **** : ${e.toString()}');
+      //print('Exception **** : ${e.toString()}');
     }
     finally{
       flagServerResponse = false;

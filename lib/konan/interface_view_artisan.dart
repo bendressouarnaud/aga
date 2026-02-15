@@ -40,6 +40,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   String paymentUrl = "";
   bool displayQr = false;
   int montantArtisan = 0;
+  int statutPaiement = 0;
 
 
   // M E T H O D S :
@@ -70,6 +71,162 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   Future<int> getTotalCompagnon() async{
     var total = await outil.findAllCompagnonByArtisan(artisanToManage.id);
     return total;
+  }
+
+  void displayWaintingForStatusPayment(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        }
+    );
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    getStatusPayment();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (flagSendData) {
+            // Open WEBVIEW :
+            displayToast('Impossible d\'obtenir le statut');
+          }
+        }
+      },
+    );
+  }
+
+  // Pick PAYMENT STATUS :
+  Future<void> getStatusPayment() async {
+    // Reset :
+    statutPaiement = 0;
+
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}get-status-payment');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id": artisanToManage.id,
+            "requester": "ART",
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        statutPaiement = json.decode(response.body);
+        if(statutPaiement != artisanToManage.statut_paiement){
+          // Update this :
+          Artisan updateArtisan = Artisan(
+              id: artisanToManage.id,
+              nom: artisanToManage.nom,
+              prenom: artisanToManage.prenom,
+              civilite: artisanToManage.civilite,
+              date_naissance: artisanToManage.date_naissance,
+              numero_registre: artisanToManage.numero_registre,
+              lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
+              lieu_naissance: artisanToManage.lieu_naissance,
+              nationalite: artisanToManage.nationalite,
+              statut_matrimonial: artisanToManage.statut_matrimonial,
+              type_document: artisanToManage.type_document,
+              niveau_etude: artisanToManage.niveau_etude,
+              formation: artisanToManage.formation,
+              classe: artisanToManage.classe,
+              diplome: artisanToManage.diplome,
+              commune_residence: artisanToManage.commune_residence,
+              activite: artisanToManage.activite,
+              sexe: '',
+              numero_piece: artisanToManage.numero_piece,
+              piece_delivre: artisanToManage.piece_delivre,
+              date_emission_piece: artisanToManage.date_emission_piece,
+              metier: artisanToManage.metier,
+              quartier_residence: artisanToManage.quartier_residence,
+              adresse_postal: artisanToManage.adresse_postal,
+              contact1: artisanToManage.contact1,
+              contact2: artisanToManage.contact2,
+              email: artisanToManage.email,
+              photo_artisan: artisanToManage.photo_artisan,
+              photo_cni_recto: artisanToManage.photo_cni_recto,
+              photo_cni_verso: artisanToManage.photo_cni_verso,
+              photo_diplome: artisanToManage.photo_diplome,
+              date_expiration_carte: artisanToManage.date_expiration_carte,
+              statut_kyc: artisanToManage.statut_kyc,
+              statut_paiement: statutPaiement,
+              longitude: artisanToManage.longitude,
+              latitude: artisanToManage.latitude,
+              regime_social: artisanToManage.regime_social,
+              regime_travailleur: artisanToManage.regime_travailleur,
+              regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
+              regime_imposition_micro_entreprise: artisanToManage.regime_imposition_micro_entreprise,
+              comptabilite: artisanToManage.comptabilite,
+              chiffre_affaire: artisanToManage.chiffre_affaire,
+              cnps: artisanToManage.cnps,
+              cmu: artisanToManage.cmu,
+              presence_compte_bancaire: artisanToManage.presence_compte_bancaire,
+              type_compte_bancaire: artisanToManage.type_compte_bancaire,
+              crm: artisanToManage.crm,
+              departement: artisanToManage.departement,
+              sous_prefecture: artisanToManage.sous_prefecture,
+
+              specialite: artisanToManage.specialite,
+              activite_principale: artisanToManage.activite_principale,
+              activite_secondaire: artisanToManage.activite_secondaire,
+              raison_social: artisanToManage.raison_social,
+              sigle: artisanToManage.sigle,
+              date_creation: artisanToManage.date_creation,
+              commune_activite: artisanToManage.commune_activite,
+              quartier_activite: artisanToManage.quartier_activite,
+              rccm: artisanToManage.rccm,
+              niveau_equipement: artisanToManage.niveau_equipement,
+              millisecondes: artisanToManage.millisecondes,
+              quartier_activite_id: artisanToManage.quartier_activite_id,
+              statut_artisan: artisanToManage.statut_artisan,
+              livraisonCarte: artisanToManage.livraisonCarte
+          );
+          artisanControllerX.updateData(updateArtisan);
+        }
+        flagSendData = false;
+      }
+    }
+    catch(e){}
+    finally{
+      flagServerResponse = false;
+    }
   }
 
   Future<EnrolementAmountToPay> getAmountToPay() async {
@@ -128,7 +285,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
     }
     catch(e){
       // Connexion PROBLEM :
-      print('Exception **** : ${e.toString()}');
+      // print('Exception **** : ${e.toString()}');
     }
     finally{
       flagServerResponse = false;
@@ -214,6 +371,20 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(artisanToManage.nom),
+          actions: [
+            Visibility(
+                visible: artisanToManage.statut_paiement != 2,
+                child: IconButton(
+                    onPressed: () {
+                      displayWaintingForStatusPayment();
+                    },
+                    icon: Icon(Icons.sync
+                        , color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    )
+                )
+            )
+          ],
         ),
         body: FutureBuilder(
             future: Future.wait([getAmountToPay(), getTotalApprenti(), getTotalCompagnon()]),

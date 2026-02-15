@@ -4,6 +4,7 @@ import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
 import 'package:cnmci/konan/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -43,6 +44,16 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
   XFile? photoDiplome;
   XFile? photoRecto;
   XFile? photoVerso;
+
+  bool uploadPhoto = false;
+  bool uploadPhotoDiplome = false;
+  bool uploadPhotoRecto = false;
+  bool uploadPhotoVerso = false;
+
+  io.File? fileUploadPhoto;
+  io.File? fileUploadPhotoDiplome;
+  io.File? fileUploadPhotoRecto;
+  io.File? fileUploadPhotoVerso;
 
   // Gps Permission
   bool gpsPermission = true;
@@ -218,8 +229,28 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
       ),
 
       Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Photo Compagnon',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -229,7 +260,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   style: ButtonStyle(
                       backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
                   ),
-                  label: const Text("Photo Compagnon",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -237,26 +268,15 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photo = image;
-                        photoController.text = photo!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(1);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -264,7 +284,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                     }
                   },
                   icon: const Icon(
-                    Icons.person_pin,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -272,18 +292,36 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Compagnon...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhoto = io.File(result.files.single.path!);
+                          photoController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhoto = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
@@ -291,7 +329,48 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
       ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Photo Compagnon...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Diplôme',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -301,7 +380,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   style: ButtonStyle(
                       backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey)
                   ),
-                  label: const Text("Photo Diplôme",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -309,26 +388,15 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photoDiplome = image;
-                        photoDiplomeController.text = photoDiplome!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(2);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -336,7 +404,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                     }
                   },
                   icon: const Icon(
-                    Icons.school,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -344,18 +412,36 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoDiplomeController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Diplôme...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoDiplome = io.File(result.files.single.path!);
+                          photoDiplomeController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoDiplome = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
@@ -363,7 +449,48 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
       ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoDiplomeController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Photo Diplôme...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pièce Recto',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -371,9 +498,9 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orangeAccent)
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrangeAccent)
                   ),
-                  label: const Text("Pièce Recto",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -381,26 +508,15 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photoRecto = image;
-                        photoRectoController.text = photoRecto!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(3);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -408,7 +524,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                     }
                   },
                   icon: const Icon(
-                    Icons.person,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -416,18 +532,36 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoRectoController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Recto...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoRecto = io.File(result.files.single.path!);
+                          photoRectoController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoRecto = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
@@ -435,7 +569,48 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
       ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoRectoController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fichier Recto...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pièce Verso',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -443,9 +618,9 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.cyan)
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blue)
                   ),
-                  label: const Text("Pièce Verso",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -453,26 +628,15 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photoVerso = image;
-                        photoVersoController.text = photoVerso!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(4);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -480,7 +644,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                     }
                   },
                   icon: const Icon(
-                    Icons.person_outline,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -488,23 +652,62 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoVersoController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Recto...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoVerso = io.File(result.files.single.path!);
+                          photoVersoController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoVerso = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
           )
       ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoVersoController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fichier Verso...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
       SizedBox(
         height: 40,
       ),
@@ -574,7 +777,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
               ),
             ),
             Visibility(
-                visible: photo != null && gpsPermission,
+                visible: (photo != null || fileUploadPhoto != null) && gpsPermission,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
                       iconAlignment: IconAlignment.end,
@@ -652,6 +855,128 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
         ),
       )
     ];
+  }
+
+  void displayCameraDialog(int step){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Prendre photo'),
+                  content: Container(
+                    padding: const EdgeInsets.only(left: 5, right: 5, top: 5),
+                    height: MediaQuery.sizeOf(context).height * 0.50,
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 5, bottom: 15),
+                          height: MediaQuery.sizeOf(context).height * 0.40,
+                          width: MediaQuery.sizeOf(context).width * 0.90,
+                          child: CameraPreview(_cameraController!),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton.icon(
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateColor.resolveWith((states) => Colors.redAccent)
+                              ),
+                              label: const Text("Annuler",
+                                  style: TextStyle(
+                                      color: Colors.white
+                                  )
+                              ),
+                              onPressed: () async {
+                                cancelCameraDialog();
+                              },
+                              icon: const Icon(
+                                Icons.upload_file,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
+                              ),
+                              label: const Text("Capturer",
+                                  style: TextStyle(
+                                      color: Colors.white
+                                  )
+                              ),
+                              onPressed: () async {
+                                try {
+                                  final image = await _cameraController!.takePicture();
+                                  switch(step){
+                                    case 1:
+                                      photo = image;
+                                      photoController.text = image.name;
+                                      uploadPhoto = false;
+                                      break;
+
+                                    case 2:
+                                      photoDiplome = image;
+                                      photoDiplomeController.text = image.name;
+                                      uploadPhotoDiplome = false;
+                                      break;
+
+                                    case 3:
+                                      photoRecto = image;
+                                      photoRectoController.text = image.name;
+                                      uploadPhotoRecto = false;
+                                      break;
+
+                                    default:
+                                      photoVerso = image;
+                                      photoVersoController.text = image.name;
+                                      uploadPhotoVerso = false;
+                                      break;
+                                  }
+                                  await _cameraController!.pausePreview();
+                                  cameraOnPause = true;
+                                  // Reset :
+                                  closeCameraDialog();
+                                } catch (e) {
+                                  // If an error occurs, log the error to the console.
+                                  //print('Erreur ....$e');
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.upload_file,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+              )
+          );
+        }
+    );
+  }
+
+  void cancelCameraDialog() async{
+    Navigator.pop(dialogContext);
+    await _cameraController!.pausePreview();
+    cameraOnPause = true;
+    // Reset :
+    setState(() {
+      stepForPhoto = 0;
+    });
+  }
+
+  void closeCameraDialog(){
+    Navigator.pop(dialogContext);
+    setState(() {
+      stepForPhoto = 0;
+    });
   }
 
   void displayDataSending(){

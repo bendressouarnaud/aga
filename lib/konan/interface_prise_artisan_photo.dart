@@ -58,6 +58,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   bool uploadPhotoVerso = false;
 
   io.File? fileUploadPhotoArtisan;
+  io.File? fileUploadPhotoDiplome;
+  io.File? fileUploadPhotoRecto;
+  io.File? fileUploadPhotoVerso;
 
   // Gps Permission
   bool gpsPermission = true;
@@ -204,7 +207,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
     return [
       lesEtapes(),
       Visibility(
-          visible: stepForPhoto > 0,
+          visible: stepForPhoto > 7,
           child: Container(
             padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
             height: MediaQuery.sizeOf(context).height * 0.50,
@@ -214,7 +217,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
       ),
 
       Visibility(
-          visible: stepForPhoto > 0,
+          visible: stepForPhoto == 7,
           child: Container(
               margin: EdgeInsets.only(top: 15, right: 10, left: 10, bottom: 15),
               child: ElevatedButton.icon(
@@ -252,10 +255,30 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               )
           )
       ),
-
+      
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Photo Artisan',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -265,7 +288,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   style: ButtonStyle(
                       backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
                   ),
-                  label: const Text("Photo Artisan",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -273,30 +296,53 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      if(!switchUploadFile) {
-                        if (stepForPhoto == 0) {
-                          setState(() {
-                            if (cameraOnPause) {
-                              cameraOnPause = false;
-                              _cameraController!.resumePreview();
-                            }
-                            stepForPhoto++;
-                          });
-                        }
-                        else {
-                          final image = await _cameraController!.takePicture();
-                          photoArtisan = image;
-                          photoArtisanController.text = photoArtisan!.name;
-                          await _cameraController!.pausePreview();
-                          cameraOnPause = true;
-                          uploadPhotoArtisan = false;
-                          // Reset :
-                          setState(() {
-                            stepForPhoto = 0;
-                          });
-                        }
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                          if (cameraOnPause) {
+                            cameraOnPause = false;
+                            _cameraController!.resumePreview();
+                          }
+                          stepForPhoto++;
+                        //});
+                          displayCameraDialog(1);
                       }
-                      else{
+                      else {
+                        final image = await _cameraController!.takePicture();
+                        photoArtisan = image;
+                        photoArtisanController.text = photoArtisan!.name;
+                        await _cameraController!.pausePreview();
+                        cameraOnPause = true;
+                        uploadPhotoArtisan = false;
+                        // Reset :
+                        setState(() {
+                          stepForPhoto = 0;
+                        });
+                      }
+                    } catch (e) {
+                      // If an error occurs, log the error to the console.
+                      //print('Erreur ....$e');
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.camera_alt_outlined,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
+                    ),
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
+                    ),
+                    onPressed: () async {
+                      try {
                         // Try to pick files :
                         FilePickerResult? result = await FilePicker.platform.pickFiles();
                         if (result != null) {
@@ -306,33 +352,16 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                             uploadPhotoArtisan = true;
                           });
                         }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
                       }
-                    } catch (e) {
-                      // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.person_pin,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoArtisanController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Artisan...',
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
                     ),
-                    style: TextStyle(
-                        height: 0.8
-                    ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
                   )
               ),
             ],
@@ -340,7 +369,48 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
       ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoArtisanController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Photo Artisan...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Diplôme',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -350,7 +420,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   style: ButtonStyle(
                       backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey)
                   ),
-                  label: const Text("Photo Diplôme",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -358,26 +428,15 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photoDiplome = image;
-                        photoDiplomeController.text = photoDiplome!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(2);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -385,7 +444,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     }
                   },
                   icon: const Icon(
-                    Icons.school,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -393,18 +452,36 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoDiplomeController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Diplôme...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoDiplome = io.File(result.files.single.path!);
+                          photoDiplomeController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoDiplome = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
@@ -412,7 +489,48 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
       ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoDiplomeController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Photo Diplôme...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pièce Recto',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -420,9 +538,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orangeAccent)
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrangeAccent)
                   ),
-                  label: const Text("Pièce Recto",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -430,26 +548,15 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photoRecto = image;
-                        photoRectoController.text = photoRecto!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(3);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -457,7 +564,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     }
                   },
                   icon: const Icon(
-                    Icons.person,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -465,18 +572,36 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoRectoController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Recto...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoRecto = io.File(result.files.single.path!);
+                          photoRectoController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoRecto = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
@@ -484,7 +609,48 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
       ),
       Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoRectoController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fichier Recto...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pièce Verso',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -492,9 +658,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.cyan)
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blue)
                   ),
-                  label: const Text("Pièce Verso",
+                  label: const Text("Appareil photo",
                       style: TextStyle(
                           color: Colors.white
                       )
@@ -502,26 +668,15 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                   onPressed: () async {
                     try {
                       // Ensure that the camera is initialized.
-                      //await _initializeControllerFuture;
-                      if(stepForPhoto == 0){
-                        setState(() {
-                          if(cameraOnPause){
-                            cameraOnPause = false;
-                            _cameraController!.resumePreview();
-                          }
-                          stepForPhoto++;
-                        });
-                      }
-                      else{
-                        final image = await _cameraController!.takePicture();
-                        photoVerso = image;
-                        photoVersoController.text = photoVerso!.name;
-                        await _cameraController!.pausePreview();
-                        cameraOnPause = true;
-                        // Reset :
-                        setState(() {
-                          stepForPhoto = 0;
-                        });
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(4);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -529,7 +684,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     }
                   },
                   icon: const Icon(
-                    Icons.person_outline,
+                    Icons.camera_alt_outlined,
                     size: 20,
                     color: Colors.white,
                   ),
@@ -537,23 +692,62 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: TextField(
-                    enabled: false,
-                    controller: photoVersoController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Photo Recto...',
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
                     ),
-                    style: TextStyle(
-                        height: 0.8
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
                     ),
-                    textAlignVertical: TextAlignVertical.bottom,
-                    textAlign: TextAlign.right,
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoVerso = io.File(result.files.single.path!);
+                          photoVersoController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoVerso = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   )
               ),
             ],
           )
       ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoVersoController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fichier Verso...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
       SizedBox(
         height: 40,
       ),
@@ -717,6 +911,128 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
     ];
   }
 
+  void displayCameraDialog(int step){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Prendre photo'),
+                  content: Container(
+                    padding: const EdgeInsets.only(left: 5, right: 5, top: 5),
+                    height: MediaQuery.sizeOf(context).height * 0.50,
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 5, bottom: 15),
+                          height: MediaQuery.sizeOf(context).height * 0.40,
+                          width: MediaQuery.sizeOf(context).width * 0.90,
+                          child: CameraPreview(_cameraController!),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton.icon(
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateColor.resolveWith((states) => Colors.redAccent)
+                              ),
+                              label: const Text("Annuler",
+                                  style: TextStyle(
+                                      color: Colors.white
+                                  )
+                              ),
+                              onPressed: () async {
+                                cancelCameraDialog();
+                              },
+                              icon: const Icon(
+                                Icons.upload_file,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
+                              ),
+                              label: const Text("Capturer",
+                                  style: TextStyle(
+                                      color: Colors.white
+                                  )
+                              ),
+                              onPressed: () async {
+                                try {
+                                  final image = await _cameraController!.takePicture();
+                                  switch(step){
+                                    case 1:
+                                      photoArtisan = image;
+                                      photoArtisanController.text = image.name;
+                                      uploadPhotoArtisan = false;
+                                      break;
+
+                                    case 2:
+                                      photoDiplome = image;
+                                      photoDiplomeController.text = image.name;
+                                      uploadPhotoDiplome = false;
+                                      break;
+
+                                    case 3:
+                                      photoRecto = image;
+                                      photoRectoController.text = image.name;
+                                      uploadPhotoRecto = false;
+                                      break;
+
+                                    default:
+                                      photoVerso = image;
+                                      photoVersoController.text = image.name;
+                                      uploadPhotoVerso = false;
+                                      break;
+                                  }
+                                  await _cameraController!.pausePreview();
+                                  cameraOnPause = true;
+                                  // Reset :
+                                  closeCameraDialog();
+                                } catch (e) {
+                                  // If an error occurs, log the error to the console.
+                                  //print('Erreur ....$e');
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.upload_file,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+              )
+          );
+        }
+        );
+  }
+
+  void cancelCameraDialog() async{
+    Navigator.pop(dialogContext);
+    await _cameraController!.pausePreview();
+    cameraOnPause = true;
+    // Reset :
+    setState(() {
+      stepForPhoto = 0;
+    });
+  }
+
+  void closeCameraDialog(){
+    Navigator.pop(dialogContext);
+    setState(() {
+      stepForPhoto = 0;
+    });
+  }
+
   void displayDataSending(){
     showDialog(
         barrierDismissible: false,
@@ -816,6 +1132,35 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
     }
   }
 
+  String factoriseDocumentProcessing(TextEditingController editingController, bool uploadPhoto, io.File? fileUpload, XFile? photoEntite, int choice){
+    if(editingController.text.isNotEmpty) {
+      if (uploadPhoto) {
+        return convertUploadedFile(fileUpload!);
+      }
+      else if (photoEntite != null) {
+        return convertPhotoToString(photoEntite);
+      }
+      else {
+        // This BLOCK is not necessary :
+        return "";
+      }
+    }
+    else{
+      if(choice == 1){
+        return artisanToManage.photo_artisan;
+      }
+      else if(choice == 2){
+        return artisanToManage.photo_diplome;
+      }
+      else if(choice == 3){
+        return artisanToManage.photo_cni_recto;
+      }
+      else{
+        return artisanToManage.photo_cni_verso;
+      }
+    }
+  }
+
   String checkOtherPhotoType(XFile? picture, String photo, String libPhoto){
     if(libPhoto.isNotEmpty) {
       return convertPhotoToString(picture!);
@@ -873,10 +1218,13 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "email" : artisanToManage.email,
 
             "photo_artisan" : uploadPhotoArtisan ? convertUploadedFile(fileUploadPhotoArtisan!) :
-            photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
-            "photo_cni_recto" : photoRecto != null ? convertPhotoToString(photoRecto!) : "",
-            "photo_cni_verso" : photoVerso != null ? convertPhotoToString(photoVerso!) : "",
-            "photo_diplome" : photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
+              photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
+            "photo_cni_recto" : uploadPhotoRecto ? convertUploadedFile(fileUploadPhotoRecto!) :
+              photoRecto != null ? convertPhotoToString(photoRecto!) : "",
+            "photo_cni_verso" : uploadPhotoVerso ? convertUploadedFile(fileUploadPhotoVerso!) :
+              photoVerso != null ? convertPhotoToString(photoVerso!) : "",
+            "photo_diplome" : uploadPhotoDiplome ? convertUploadedFile(fileUploadPhotoDiplome!) :
+              photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
 
             "longitude" : artisanToManage.id == 0 ? longitude.toString() : artisanToManage.longitude.toString(),
             "latitude" : artisanToManage.id == 0 ? latitude.toString() : artisanToManage.latitude.toString(),
@@ -936,9 +1284,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             contact2: artisanToManage.contact2,
             email: artisanToManage.email,
             photo_artisan: checkPhotoArtisan(),
-            photo_cni_recto: checkOtherPhotoType(photoRecto, artisanToManage.photo_cni_recto, photoRectoController.text),
-            photo_cni_verso: checkOtherPhotoType(photoVerso, artisanToManage.photo_cni_verso, photoVersoController.text),
-            photo_diplome: checkOtherPhotoType(photoDiplome, artisanToManage.photo_diplome, photoDiplomeController.text),
+            photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 3),
+            photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 4),
+            photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 2),
             date_expiration_carte: '',
             statut_kyc: artisanToManage.statut_kyc,
             statut_paiement: artisanToManage.statut_paiement,
@@ -1047,7 +1395,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(artisanToManage.id == 0 ? 'Nouvel Artisan' : 'Modification Artisan'),
-          actions: [
+          /*actions: [
             IconButton(
                 onPressed: () {
                   setState(() {
@@ -1059,7 +1407,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                 },
                 icon: Icon(switchUploadFile ? Icons.file_upload : Icons.file_upload_outlined, color: Colors.brown)
             )
-          ],
+          ],*/
         ),
         body: _buildUI()
     );

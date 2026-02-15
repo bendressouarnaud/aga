@@ -65,7 +65,6 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
         Parametre newParam = Parametre(id: 1,
             topicSubscription: 1, param1: 0, param2: 0, param3: '');
         parametreRepository.insert(newParam);
-        print('TOPIC créé');
       }
     }
     catch(e){}
