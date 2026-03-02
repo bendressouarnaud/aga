@@ -7,12 +7,14 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart';
 
 import '../main.dart';
 import 'beans/generic_data.dart';
 import 'beans/stats_bean_manager.dart';
 import 'beans/stats_bean_quartier.dart';
+import 'interface_display_carte.dart';
 import 'interface_view_data_assermente.dart';
 import 'model/commune.dart';
 import 'model/quartier.dart';
@@ -195,7 +197,7 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
     );
   }
 
-  void displayDataSending(){
+  void displayDataSending(int choix){
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -248,13 +250,38 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
 
             // Open if NEEDED :
             if(liste.isNotEmpty){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) {
-                    return InterfaceViewDataAssermente(
-                        liste: liste
-                    );
-                  })
-              );
+              if(choix == 0) {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return InterfaceViewDataAssermente(
+                          liste: liste
+                      );
+                    })
+                );
+              }
+              else{
+                var setMarkers = liste.map(
+                    (l) => Marker(
+                      icon: l.paiement == 0 ? BitmapDescriptor.defaultMarker :
+                        l.paiement == 1 ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange) :
+                        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                      markerId: MarkerId(l.nom),
+                      position: LatLng(l.latitude, l.longitude),
+                      infoWindow: InfoWindow(
+                        title: l.nom,
+                        snippet: '${l.metier} - ${l.datenrolement}'
+                      )
+                    )
+                ).toSet();
+
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return InterfaceDisplayCarte(
+                        lesMarkers: setMarkers,
+                      );
+                    })
+                );
+              }
             }
           } else {
             displayToast('Traitement impossible');
@@ -535,57 +562,95 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                   height: 20,
                 ),
 
-                SizedBox(
-                  width: MediaQuery.of(context).size.width / 2,
-                  child: ElevatedButton.icon(
-                    style: ButtonStyle(
-                        backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
-                    ),
-                    label: const Text("Afficher",
-                        style: TextStyle(
-                            color: Colors.white
-                        )
-                    ),
-                    onPressed: () {
-                      if(listeQuartierCopie.isNotEmpty) {
-                        setState(() {
-                          listeQuartierCopie = [];
-                        });
-                      }
-                      displayDataFetching(laVilleActivite.id);
-                    },
-                    icon: const Icon(
-                      Icons.display_settings,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-                Visibility(
-                    visible: lesQuartiersIndex.isNotEmpty,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width / 2,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: (MediaQuery.of(context).size.width / 2) - 20,
                       child: ElevatedButton.icon(
                         style: ButtonStyle(
-                            backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blue)
+                            backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
                         ),
-                        label: const Text("Rechercher",
+                        label: const Text("Afficher",
                             style: TextStyle(
                                 color: Colors.white
                             )
                         ),
                         onPressed: () {
-                          displayDataSending();
+                          if(listeQuartierCopie.isNotEmpty) {
+                            setState(() {
+                              listeQuartierCopie = [];
+                            });
+                          }
+                          displayDataFetching(laVilleActivite.id);
                         },
                         icon: const Icon(
-                          Icons.search_rounded,
+                          Icons.display_settings,
                           size: 20,
                           color: Colors.white,
                         ),
                       ),
-                    )
+                    ),
+                    Visibility(
+                        visible: lesQuartiersIndex.isNotEmpty,
+                        child: SizedBox(
+                          width: (MediaQuery.of(context).size.width / 2) - 20,
+                          child: ElevatedButton.icon(
+                            style: ButtonStyle(
+                                backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blue)
+                            ),
+                            label: const Text("Rechercher",
+                                style: TextStyle(
+                                    color: Colors.white
+                                )
+                            ),
+                            onPressed: () {
+                              displayDataSending(0);
+                            },
+                            icon: const Icon(
+                              Icons.search_rounded,
+                              size: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                    ),
+                  ],
                 ),
+
+                SizedBox(
+                  height: 10,
+                ),
+
+                Container(
+                  alignment: Alignment.topLeft,
+                  width: MediaQuery.of(context).size.width,
+                  child: Visibility(
+                      visible: lesQuartiersIndex.isNotEmpty,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: ElevatedButton.icon(
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blueGrey)
+                          ),
+                          label: const Text("Affichez sur la carte",
+                              style: TextStyle(
+                                  color: Colors.white
+                              )
+                          ),
+                          onPressed: () {
+                            displayDataSending(1);
+                          },
+                          icon: const Icon(
+                            Icons.map,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                  ),
+                ),
+
                 SizedBox(
                   height: 40
                 ),

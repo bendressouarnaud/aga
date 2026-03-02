@@ -2,11 +2,13 @@ import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:money_formatter/money_formatter.dart';
 
 import '../getxcontroller/artisan_controller_x.dart';
 import '../main.dart';
 import 'beans/daily_payment_bean.dart';
+import 'interface_display_carte.dart';
 import 'interface_view_artisan.dart';
 import 'objets/constants.dart';
 
@@ -357,6 +359,41 @@ class _InterfaceHistoriqueArtisanStatut extends State<InterfaceHistoriqueArtisan
                       });
                     },
                     icon: const Icon(Icons.search, color: Colors.black)
+                )
+            ),
+            Visibility(
+                visible: !requestToSearch,
+                child: IconButton(
+                    onPressed: () {
+
+                      var setMarkers = listeAucunPaiement.map(
+                              (l) => Marker(
+                              icon: l.statut_paiement == 0 ? BitmapDescriptor.defaultMarker :
+                              l.statut_paiement == 1 ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange) :
+                              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                              markerId: MarkerId(l.nom),
+                              position: LatLng(l.latitude, l.longitude),
+                              infoWindow: InfoWindow(
+                                  title: '${l.nom} - ${l.prenom}',
+                                  snippet: '${lesMetiers
+                                      .where((m) =>
+                                  m.id == l
+                                      .activite_principale)
+                                      .first
+                                      .libelle} - ${l.contact1}'
+                              )
+                          )
+                      ).toSet();
+
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return InterfaceDisplayCarte(
+                              lesMarkers: setMarkers,
+                            );
+                          })
+                      );
+                    },
+                    icon: const Icon(Icons.map, color: Colors.blue)
                 )
             )
           ]

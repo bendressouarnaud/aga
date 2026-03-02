@@ -364,7 +364,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             "crm" : leCrm.id,
             "departement" : leDepartement.id,
             "sous_pref" : laSousPrefecture.id,
-            "activite_principale" : lActivitePrincipale.id,
+            "activite_principale" : leMetier.id,
             "activite_secondaire" : activiteSecondaireController.text,
             "raison_social" : denominationController.text,
             "sigle" : sigleController.text,
@@ -446,7 +446,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             departement: leDepartement.id,
             sous_prefecture: laSousPrefecture.id,
             //specialite: leMetier.id,
-            activite_principale: lActivitePrincipale.id,
+            activite_principale: leMetier.id,
             activite_secondaire: activiteSecondaireController.text,
 
             raison_social: denominationController.text,
@@ -557,7 +557,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         crm: leCrm.id,
         departement: leDepartement.id,
         sous_prefecture: laSousPrefecture.id,
-        activite_principale: lActivitePrincipale.id,
+        activite_principale: leMetier.id,
         activite_secondaire: activiteSecondaireController.text,
 
         raison_social: denominationController.text,
