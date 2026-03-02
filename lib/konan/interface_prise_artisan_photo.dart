@@ -51,16 +51,19 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   XFile? photoDiplome;
   XFile? photoRecto;
   XFile? photoVerso;
+  XFile? photoAutre;
   //
   bool uploadPhotoArtisan = false;
   bool uploadPhotoDiplome = false;
   bool uploadPhotoRecto = false;
   bool uploadPhotoVerso = false;
+  bool uploadPhotoAutre = false;
 
   io.File? fileUploadPhotoArtisan;
   io.File? fileUploadPhotoDiplome;
   io.File? fileUploadPhotoRecto;
   io.File? fileUploadPhotoVerso;
+  io.File? fileUploadPhotoAutre;
 
   // Gps Permission
   bool gpsPermission = true;
@@ -74,6 +77,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   TextEditingController photoDiplomeController = TextEditingController();
   TextEditingController photoRectoController = TextEditingController();
   TextEditingController photoVersoController = TextEditingController();
+  TextEditingController photoAutreController = TextEditingController();
 
   double _currentDiscreteSliderValue = 8.0;
   //final ArtisanRepository _artisanRepository = ArtisanRepository();
@@ -748,6 +752,126 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
           )
       ),
 
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Autre document',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: ElevatedButton.icon(
+                  style: ButtonStyle(
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                  ),
+                  label: const Text("Appareil photo",
+                      style: TextStyle(
+                          color: Colors.white
+                      )
+                  ),
+                  onPressed: () async {
+                    try {
+                      // Ensure that the camera is initialized.
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(5);
+                      }
+                    } catch (e) {
+                      // If an error occurs, log the error to the console.
+                      //print('Erreur ....$e');
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.camera_alt_outlined,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
+                    ),
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
+                    ),
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoAutre = io.File(result.files.single.path!);
+                          photoAutreController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoAutre = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  )
+              ),
+            ],
+          )
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoAutreController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fichier Autre...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
       SizedBox(
         height: 40,
       ),
@@ -844,9 +968,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                         try {
                           var getstreamGpsData = await MesServices()
                               .determinePositionStream();
-
-                          print(
-                              'Valeur de getstreamGpsData : $getstreamGpsData');
 
                           if (getstreamGpsData) {
                             setState(() {
@@ -984,10 +1105,17 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                                       uploadPhotoRecto = false;
                                       break;
 
-                                    default:
+                                    case 4:
                                       photoVerso = image;
                                       photoVersoController.text = image.name;
                                       uploadPhotoVerso = false;
+                                      break;
+
+                                    default:
+                                      // AUTRE DOCUMENT
+                                      photoAutre = image;
+                                      photoAutreController.text = image.name;
+                                      uploadPhotoAutre = false;
                                       break;
                                   }
                                   await _cameraController!.pausePreview();
@@ -1155,8 +1283,11 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
       else if(choice == 3){
         return artisanToManage.photo_cni_recto;
       }
-      else{
+      else if(choice == 4){
         return artisanToManage.photo_cni_verso;
+      }
+      else{
+        return artisanToManage.photoAutre;
       }
     }
   }
@@ -1207,7 +1338,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "date_emission_piece" : artisanToManage.date_emission_piece,
             "niveau_etude" : artisanToManage.niveau_etude.toString(),
             "formation" : artisanToManage.formation.toString(),
-            "specialite" : artisanToManage.specialite.toString(),
             "classe" : artisanToManage.classe.toString(),
             "diplome" : artisanToManage.diplome.toString(),
             "ville_residence" : artisanToManage.commune_residence.toString(),
@@ -1225,6 +1355,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               photoVerso != null ? convertPhotoToString(photoVerso!) : "",
             "photo_diplome" : uploadPhotoDiplome ? convertUploadedFile(fileUploadPhotoDiplome!) :
               photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
+            "photo_autre" : uploadPhotoAutre ? convertUploadedFile(fileUploadPhotoAutre!) :
+            photoAutre != null ? convertPhotoToString(photoAutre!) : "",
 
             "longitude" : artisanToManage.id == 0 ? longitude.toString() : artisanToManage.longitude.toString(),
             "latitude" : artisanToManage.id == 0 ? latitude.toString() : artisanToManage.latitude.toString(),
@@ -1248,7 +1380,12 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             "apprenti_femme" : 0,
             "statut_artisan" : artisanToManage.statut_artisan,
             "numero_registre" : artisanToManage.numero_registre,
-            "livraison_carte" : artisanToManage.livraisonCarte == 1 ? true : false
+            "livraison_carte" : artisanToManage.livraisonCarte == 1 ? true : false,
+            "optin_mail": artisanToManage.optinMail == 1 ? true : false,
+            "optin_sms": artisanToManage.optinSms == 1 ? true : false,
+            "optin_whatsapp": 0,
+            "regime_fiscal": artisanToManage.regimeFiscal,
+            "qualification": artisanToManage.qualification
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -1287,6 +1424,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 3),
             photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 4),
             photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 2),
+            photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 5),
             date_expiration_carte: '',
             statut_kyc: artisanToManage.statut_kyc,
             statut_paiement: artisanToManage.statut_paiement,
@@ -1306,7 +1444,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             departement: artisanToManage.departement,
             sous_prefecture: artisanToManage.sous_prefecture,
 
-            specialite: artisanToManage.specialite,
             activite_principale: artisanToManage.activite_principale,
             activite_secondaire: artisanToManage.activite_secondaire,
             raison_social: artisanToManage.raison_social,
@@ -1316,10 +1453,15 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             quartier_activite: artisanToManage.quartier_activite,
             rccm: artisanToManage.rccm,
             niveau_equipement: artisanToManage.niveau_equipement,
-          millisecondes: artisanToManage.millisecondes,
+            millisecondes: artisanToManage.millisecondes,
             quartier_activite_id: artisanToManage.quartier_activite_id,
             statut_artisan: artisanToManage.statut_artisan,
-            livraisonCarte: artisanToManage.livraisonCarte
+            livraisonCarte: artisanToManage.livraisonCarte,
+            optinMail: artisanToManage.optinMail,
+            optinSms: artisanToManage.optinSms,
+            optinWhatsapp: artisanToManage.optinWhatsapp,
+            regimeFiscal: artisanToManage.regimeFiscal,
+            qualification: artisanToManage.qualification
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage.id == 0
@@ -1343,7 +1485,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               quartier: artisan.quartier_residence,
               amende: tampStats.amende,
               latitude: tampStats.latitude,
-              longitude: tampStats.longitude);
+              longitude: tampStats.longitude,
+              montant: tampStats.montant);
           // Reset :
           setOriginFromCallArtisan = 0;
         }
@@ -1351,7 +1494,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         artisanToManage = artisan;
         flagSendData = false;
       } else {
-        displayToast("Impossible de récupérer les données de références");
+        displayToast("Impossible de transmettre les données de l'Artisan !");
       }
     } catch (e) {
       displayToast("Impossible de traiter les données de référence : $e");

@@ -69,6 +69,7 @@ late ArtisanControllerX artisanControllerX;
 late ApprentiControllerX apprentiControllerX;
 late CompagnonControllerX compagnonControllerX;
 late EntrepriseControllerX entrepriseControllerX;
+final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 
 Future<void> main() async {

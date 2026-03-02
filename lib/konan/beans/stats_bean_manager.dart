@@ -13,6 +13,7 @@ class StatsBeanManager {
   final int amende;
   final double latitude;
   final double longitude;
+  final int montant;
 
   const StatsBeanManager({
     required this.id,
@@ -28,7 +29,8 @@ class StatsBeanManager {
     required this.quartier,
     required this.amende,
     required this.latitude,
-    required this.longitude
+    required this.longitude,
+    required this.montant,
   });
 
   factory StatsBeanManager.fromJson(Map<String, dynamic> json) {
@@ -46,7 +48,8 @@ class StatsBeanManager {
         quartier: json['quartier'],
         amende: json['amende'],
       latitude: json['latitude'],
-      longitude: json['longitude']
+      longitude: json['longitude'],
+      montant: json['montant'],
     );
   }
 
@@ -66,6 +69,7 @@ class StatsBeanManager {
     data['amende'] = amende;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
+    data['montant'] = montant;
     return data;
   }
 }

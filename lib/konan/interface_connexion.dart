@@ -224,7 +224,7 @@ class _ConnexionViewState extends State<ConnexionView> {
         // Ici, adapte selon la réponse de ton backend
         User user = User(
           id: donnee.data.id,
-          nom: donnee.data.name + ' ' + donnee.data.firstname,
+          nom: '${donnee.data.name} ${donnee.data.firstname}',
           email: emailController.text,
           pwd: pwdController.text,
           jwt: donnee.data.token,

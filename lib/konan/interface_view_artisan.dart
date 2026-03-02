@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cnmci/getxcontroller/artisan_controller_x.dart';
 import 'package:cnmci/getxcontroller/compagnon_controller_x.dart';
+import 'package:cnmci/konan/beans/generic_data_amount.dart';
 import 'package:cnmci/konan/historique/historique_compagnon.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
@@ -41,6 +42,14 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   bool displayQr = false;
   int montantArtisan = 0;
   int statutPaiement = 0;
+  List<GenericDataAmount> lesGenericLivraisons = [
+    GenericDataAmount(libelle: '3000 CFA', valeur: 3000, active: true),
+    GenericDataAmount(libelle: '5000 CFA', valeur: 5000, active: true),
+    GenericDataAmount(libelle: '10000 CFA', valeur: 10000, active: true),
+    GenericDataAmount(libelle: '15000 CFA', valeur: 15000, active: true),
+  ];
+  int valeurParDefaut = 0;
+  bool envoiLienPaiement = false;
 
 
   // M E T H O D S :
@@ -203,7 +212,6 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               departement: artisanToManage.departement,
               sous_prefecture: artisanToManage.sous_prefecture,
 
-              specialite: artisanToManage.specialite,
               activite_principale: artisanToManage.activite_principale,
               activite_secondaire: artisanToManage.activite_secondaire,
               raison_social: artisanToManage.raison_social,
@@ -216,7 +224,13 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               millisecondes: artisanToManage.millisecondes,
               quartier_activite_id: artisanToManage.quartier_activite_id,
               statut_artisan: artisanToManage.statut_artisan,
-              livraisonCarte: artisanToManage.livraisonCarte
+              livraisonCarte: artisanToManage.livraisonCarte,
+              optinMail: artisanToManage.optinMail,
+              optinSms: artisanToManage.optinSms,
+              optinWhatsapp: artisanToManage.optinWhatsapp,
+              photoAutre: artisanToManage.photoAutre,
+              regimeFiscal: artisanToManage.regimeFiscal,
+              qualification: artisanToManage.qualification
           );
           artisanControllerX.updateData(updateArtisan);
         }
@@ -280,16 +294,122 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             json.decode(response.body));
         //print('Lien URL **** : ${reponse.wave_launch_url}');
         paymentUrl = reponse.wave_launch_url;
+        if(envoiLienPaiement){
+          sendNotificationToArtisan();
+        }
+        else{
+          flagSendData = false;
+        }
+      }
+    }
+    catch(e){}
+    finally{
+      if(!envoiLienPaiement) {
+        flagServerResponse = false;
+      }
+    }
+  }
+
+  // Send MAIL to 'ARTISAN' :
+  void sendNotificationToArtisan() async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}send-wave-url-to-entity');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id": artisanToManage.id,
+            "requester": "ART",
+            "url": paymentUrl
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
         flagSendData = false;
       }
     }
-    catch(e){
-      // Connexion PROBLEM :
-      // print('Exception **** : ${e.toString()}');
-    }
+    catch(e){}
     finally{
       flagServerResponse = false;
     }
+  }
+
+  // Display different AMOUNTs :
+  void displayAmount(int amountToPay){
+    // Depending on the amount to PAY, adjust the list :
+    var amountsToDisplay = lesGenericLivraisons.where((amount) => amountToPay >= amount.valeur).toList();
+    valeurParDefaut = amountsToDisplay.first.valeur;
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return AlertDialog(
+              title: Text('Sélectionner un montant'),
+              content: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width, // 400
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      RadioGroup<int>(
+                          onChanged: (int? value) {
+                            valeurParDefaut = value!;
+                            Navigator.pop(dialogContext);
+                            displayWaintingPayingInterface(valeurParDefaut, 0);
+                          },
+                          child: ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: amountsToDisplay.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(amountsToDisplay[index].libelle,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20
+                                    ),
+                                  ),
+                                  leading: Radio<int>(value: amountsToDisplay[index].valeur),
+                                );
+                              }
+                          )
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: ElevatedButton.icon(
+                            style: ButtonStyle(
+                                backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orange)
+                            ),
+                            label: Text("Fermer",
+                                style: const TextStyle(
+                                    color: Colors.white
+                                )
+                            ),
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                            },
+                            icon: Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.white,
+                            )
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              )
+          );
+        }
+    );
   }
 
   void displayWaintingPayingInterface(int montant, int choix){
@@ -342,13 +462,9 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             timer.cancel();
 
             if (!flagSendData) {
-              // Open WEBVIEW :
-              localLink();
-              /*Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return WebviewPaymentWave(url: paymentUrl, client: artisanToManage.nom);
-                })
-            );*/
+              if(!envoiLienPaiement) {
+                localLink();
+              }
             } else {
               displayToast('Traitement impossible *****');
             }
@@ -480,7 +596,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                                   text: 'Métier : ',
                                                   //style: TextStyle(fontWeight: FontWeight.bold),
                                                   children: <TextSpan>[
-                                                    TextSpan(text: lesMetiers.where((m) => m.id == artisanToManage.specialite).first.libelle,
+                                                    TextSpan(text: lesMetiers.where((m) => m.id == artisanToManage.activite_principale).first.libelle,
                                                         style: TextStyle(fontWeight: FontWeight.bold)
                                                     )
                                                   ]
@@ -632,7 +748,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                             )
                                         ),
                                         onPressed: () {
-                                          displayWaintingPayingInterface(sommeApayer.seul, 0);
+                                          displayAmount(sommeApayer.seul);
+                                          //displayWaintingPayingInterface(sommeApayer.seul, 0);
                                         },
                                         icon: Icon(
                                           Icons.money,
@@ -651,84 +768,23 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                             )
                         ),
 
-                        /*Container(
-                            margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
-                            padding: EdgeInsets.all(5),
-                            height: 120,
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topRight,
-                                  end: Alignment.bottomLeft,
-                                  colors: [
-                                    Colors.blue.shade100,
-                                    Colors.brown.shade50,
-                                  ],
-                                ),
-                                border: Border.all(
-                                    color: Colors.black,
-                                    width: 1
-                                ),
-                                //color: cardviewsousproduit,
-                                borderRadius: BorderRadius.circular(16.0)
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: (){
-                                    displayWaintingPayingInterface(sommeApayer.seul, 0);
-                                  },
-                                  child: SizedBox(
-                                    //color: Colors.brown,
-                                    //width: 92,
-                                    height: 72,
-                                    child: Column(
-                                      children: [
-                                        Icon(Icons.person,
-                                          size: 50,
-                                        ),
-                                        Text('${formatPrice(sommeApayer.seul)} F')
-                                      ],
-                                    ),
-                                  )
-                                ),
-                                ElevatedButton.icon(
-                                    style: ButtonStyle(
-                                        backgroundColor: WidgetStateColor.resolveWith((states) => digiHmbColorDeep)
-                                    ),
-                                    label: Text("Lancez-vous",
-                                        style: const TextStyle(
-                                            color: Colors.white
-                                        )
-                                    ),
-                                    onPressed: () {
-                                    },
-                                    icon: Icon(
-                                      Icons.navigate_next,
-                                      size: 20,
-                                      color: Colors.white,
-                                    )
-                                ),
-                                GestureDetector(
-                                  onTap: (){
-                                    displayWaintingPayingInterface(sommeApayer.tout, 1);
-                                  },
-                                  child: SizedBox(
-                                    //width: 92,
-                                      height: 72,
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.people_alt_outlined,
-                                            size: 50,
-                                          ),
-                                          Text('${formatPrice(sommeApayer.tout)} F')
-                                        ],
-                                      )
-                                  ),
-                                )
-                              ],
+                        SizedBox(
+                          height: 5,
+                        ),
+
+                        Visibility(
+                          visible: artisanToManage.statut_paiement < 2,
+                            child: CheckboxListTile(
+                              title: const Text('Envoi lien de paiement'),
+                              value: envoiLienPaiement,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  envoiLienPaiement = !envoiLienPaiement;
+                                });
+                              },
+                              secondary: const Icon(Icons.send),
                             )
-                        ),*/
+                        ),
 
                         Container(
                           alignment: Alignment.topLeft,
@@ -736,7 +792,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                           child: Text('Gestion des équipes',
                             style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold
+                                fontWeight: FontWeight.bold,
+                              color: Colors.lightBlue
                             ),
                           ),
                         ),

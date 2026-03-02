@@ -38,6 +38,7 @@ import '../getxcontroller/date_delivre_controller.dart';
 import '../getxcontroller/datecontroller.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
+import 'factorise_widgets/custom_optin_checkbox.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -51,7 +52,9 @@ import 'package:flutter/services.dart';
 class InterfaceApprentiPersonne extends StatefulWidget {
   final int artisanId;
   final int entrepriseId;
-  const InterfaceApprentiPersonne({Key? key, required this.artisanId, required this.entrepriseId}) : super(key: key);
+  final Apprenti? lApprenti;
+  const InterfaceApprentiPersonne({Key? key, required this.artisanId, required this.entrepriseId,
+  this.lApprenti}) : super(key: key);
 
   @override
   State<InterfaceApprentiPersonne> createState() => _InterfaceApprentiPersonne();
@@ -134,6 +137,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   //final _userRepository = UserRepository();
   late BuildContext dialogContext;
   bool flagSendData = false;
+  bool flagServerResponse = false;
   bool closeAlertDialog = false;
   int retour = 0;
   //
@@ -151,6 +155,9 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   bool updatePubDate = false;
   bool updatePubHour = false;
   late BuildContext customContext;
+
+  bool optinSms = false;
+  bool optinEmail = true;
 
   double spacingSteps = 40;
   int currentStep = 1;
@@ -220,10 +227,194 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     NiveauEquipement(libelle: 'Bon', id: 2)
   ];
 
-  // M E T H O D S
+
+  // M E T H O D S :
+  void displayDataSending(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        });
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    sendData();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (!flagSendData) {
+            Navigator.pop(context, 1);
+          } else {
+            displayToast('Traitement impossible');
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> sendData() async {
+    // First Call this :
+    var localToken = await MesServices().checkJwtExpiration();
+    final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-apprentimobile');
+    try {
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id" : widget.lApprenti!.id,
+            "civilite" : laCivilite,
+            "nom" : nomController.text,
+            "prenom" : prenomController.text,
+            "date_naissance" : dateNaissanceController.text,
+            "lieu_naissance" : laCommune.id.toString(),
+            "lieu_naissance_autre" : lieuNaissanceAutreController.text,
+            "nationalite" : laNationalite.id.toString(),
+            "sexe" : "",
+            "date_debut_apprentissage" : dateDebutApprentissageController.text,
+            "type_document" : leTypeDocument.id.toString(),
+            "numero_piece" : numeroPieceIdentiteController.text,
+            "piece_delivre" : laPieceDelivre.id.toString(),
+            "date_emission_piece" : datePieceController.text,
+            "niveau_etude" : leNiveauEtude.id.toString(),
+            "specialite" : laSpecialite.id.toString(),
+            "classe" : laClasse.id.toString(),
+            "diplome" : leDiplome.id.toString(),
+            "ville_residence" : laVilleResidence.id.toString(),
+            "quartier_residence" : quartierResidenceController.text,
+            "adresse_postal" : adressePostaleController.text,
+            "contact1" : contact1Controller.text,
+            "contact2" : contact2Controller.text,
+            "email" : emailController.text,
+            "photo_apprenti" : "",
+            "photo_cni_recto" : "",
+            "photo_cni_verso" : "",
+            "photo_autre" : "",
+            "longitude" : widget.lApprenti!.longitude.toString(),
+            "latitude" : widget.lApprenti!.latitude.toString(),
+            "entity_id": widget.lApprenti!.artisan_id > 0 ? widget.lApprenti!.artisan_id : widget.lApprenti!.entreprise_id,
+            "source": widget.lApprenti!.artisan_id > 0 ? 1 : 0,
+            "a_suivi_formation_metier": lApprentissageMetier.id,
+            "centre_formation_metier": centreFormationController.text,
+            "intitule_formation_metier": intituleFormationController.text,
+            "formation_metier_terminee": laFinFormation.id,
+            "diplome_obtenu_metier": diplomeController.text,
+            "cnps" : cnpsController.text,
+            "cmu" : cmuController.text,
+            "statut_apprenti" : leStatutApprenti.id,
+            "numero_immatriculation" : numeroImmatriculationController.text.trim(),
+            "livraison_carte" : laLivraison.id,
+            "optin_mail" : optinEmail ? 1 : 0,
+            "optin_sms" : optinSms ? 1 : 0,
+            "optin_whatsapp" : widget.lApprenti!.optinWhatsapp
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+
+      if (response.statusCode == 200) {
+        MessageResponse reponse = MessageResponse.fromJson(json.decode(response.body));
+        Apprenti apprenti = Apprenti(
+            id: widget.lApprenti!.id,
+            nom: nomController.text,
+            prenom: prenomController.text,
+            civilite: laCivilite,
+            date_naissance: dateNaissanceController.text,
+            numero_immatriculation: numeroImmatriculationController.text.trim(),
+            lieu_naissance_autre: lieuNaissanceAutreController.text,
+            lieu_naissance: laCommune.id,
+            nationalite: laNationalite.id,
+            type_document: leTypeDocument.id,
+            niveau_etude: leNiveauEtude.id,
+            classe: laClasse.id,
+            diplome: leDiplome.id,
+            date_debut_apprentissage: dateDebutApprentissageController.text,
+            commune_residence: laVilleResidence.id,
+            metier: laSpecialite.id,
+            sexe: '',
+            numero_piece: numeroPieceIdentiteController.text,
+            piece_delivre: laPieceDelivre.id,
+            date_emission_piece: datePieceController.text,
+            quartier_residence: quartierResidenceController.text,
+            adresse_postal: adressePostaleController.text,
+            contact1: contact1Controller.text,
+            contact2: contact2Controller.text,
+            email: emailController.text,
+            photo: widget.lApprenti!.photo,
+            photo_cni_recto: widget.lApprenti!.photo_cni_recto,
+            photo_cni_verso: widget.lApprenti!.photo_cni_verso,
+            statut_kyc: widget.lApprenti!.statut_kyc,
+            statut_paiement: widget.lApprenti!.statut_paiement,
+            longitude: widget.lApprenti!.longitude,
+            latitude: widget.lApprenti!.latitude,
+            a_suivi_formation: lApprentissageMetier.id,
+            centre_formation_metier: centreFormationController.text,
+            intitule_formation_metier: intituleFormationController.text,
+            formation_metier_terminee: laFinFormation.id,
+            diplome_obtenu_metier: diplomeController.text,
+            cnps: cnpsController.text,
+            cmu: cmuController.text,
+            artisan_id: widget.artisanId,
+            entreprise_id:  widget.entrepriseId,
+            millisecondes: widget.lApprenti!.millisecondes,
+            statut_apprenti: leStatutApprenti.id,
+            livraisonCarte: laLivraison.id,
+            optinMail: optinEmail ? 1 : 0,
+            optinSms: optinSms ? 1 : 0,
+            optinWhatsapp: 0,
+            photoAutre: widget.lApprenti!.photoAutre
+        );
+        // Update 'APPRENTI :
+        apprentiToManage.id == 0
+            ? apprentiControllerX.addItem(apprenti)
+            : apprentiControllerX.updateData(apprenti);
+        flagSendData = false;
+      } else {
+        displayToast("Impossible de traiter la demande");
+      }
+    } catch (e) {
+      displayToast("Impossible de gérer les données de l'apprenti : $e");
+    } finally {
+      flagServerResponse = false;
+    }
+  }
+
   void feedApprenti() async{
     apprentiToManage = Apprenti(
-        id: 0,
+        id: widget.lApprenti == null ? 0 : widget.lApprenti!.id,
         nom: nomController.text,
         prenom: prenomController.text,
         civilite: laCivilite,
@@ -251,10 +442,10 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         photo: "",
         photo_cni_recto: "",
         photo_cni_verso: "",
-        statut_kyc: 0,
-        statut_paiement: 0,
-        longitude: 0.0,
-        latitude: 0.0,
+        statut_kyc: widget.lApprenti != null ? widget.lApprenti!.statut_kyc : 0,
+        statut_paiement: widget.lApprenti != null ? widget.lApprenti!.statut_paiement : 0,
+        longitude: widget.lApprenti != null ? widget.lApprenti!.longitude : 0.0,
+        latitude: widget.lApprenti != null ? widget.lApprenti!.latitude : 0.0,
         a_suivi_formation: lApprentissageMetier.id,
         centre_formation_metier: centreFormationController.text,
         intitule_formation_metier: intituleFormationController.text,
@@ -264,9 +455,13 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         cmu: cmuController.text,
         artisan_id: widget.artisanId,
         entreprise_id:  widget.entrepriseId,
-      millisecondes: DateTime.now().millisecondsSinceEpoch,
+        millisecondes: widget.lApprenti != null ? widget.lApprenti!.millisecondes : DateTime.now().millisecondsSinceEpoch,
         statut_apprenti: leStatutApprenti.id,
-        livraisonCarte: laLivraison.id
+        livraisonCarte: laLivraison.id,
+        optinMail: optinEmail ? 1 : 0,
+        optinSms: optinSms ? 1 : 0,
+        optinWhatsapp: 0,
+        photoAutre: ""
     );
 
     final result = await Navigator.push(context,
@@ -289,56 +484,97 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
   @override
   void initState() {
     super.initState();
+
+    if(widget.lApprenti != null){
+      nomController.text = widget.lApprenti!.nom;
+      prenomController.text = widget.lApprenti!.prenom;
+      laCivilite = widget.lApprenti!.civilite;
+      laCommune = lesCommunes.where((c) => c.id == widget.lApprenti!.lieu_naissance).first;
+      dateNaissanceController.text = widget.lApprenti!.date_naissance;
+
+      laNationalite = lesPays.where((p) => p.id == widget.lApprenti!.nationalite).first;
+      laVilleResidence = lesCommunes.where((c) => c.id == widget.lApprenti!.commune_residence).first;
+      quartierResidenceController.text = widget.lApprenti!.quartier_residence;
+      adressePostaleController.text = widget.lApprenti!.adresse_postal;
+      contact1Controller.text = widget.lApprenti!.contact1;
+      contact2Controller.text = widget.lApprenti!.contact2;
+      emailController.text = widget.lApprenti!.email;
+
+      leNiveauEtude = lesNiveauEtudes.where((n) => n.id == widget.lApprenti!.niveau_etude).first;
+      laClasse = lesClasses.where((c) => c.id == widget.lApprenti!.classe).first;
+      leDiplome = lesDiplomes.where((d) => d.id == widget.lApprenti!.diplome).first;
+      laSpecialite = lesMetiers.where((m) => m.id == widget.lApprenti!.metier).first;
+      lApprentissageMetier = lesGenericData.where((g) => g.id == widget.lApprenti!.a_suivi_formation).first;
+      diplomeObtenuController.text = widget.lApprenti!.diplome_obtenu_metier;
+      dateDebutApprentissageController.text = widget.lApprenti!.date_debut_apprentissage;
+      leTypeDocument = lesTypeDocuments.where((t) => t.id == widget.lApprenti!.type_document).first;
+      numeroPieceIdentiteController.text = widget.lApprenti!.numero_piece;
+      var tampPieceDelivre = lesCommunes.where((c) => c.id == widget.lApprenti!.piece_delivre).firstOrNull;
+      laPieceDelivre = tampPieceDelivre ?? lesCommunes.first;
+      datePieceController.text = widget.lApprenti!.date_emission_piece;
+      cnpsController.text = widget.lApprenti!.cnps;
+      cmuController.text = widget.lApprenti!.cmu;
+      leStatutApprenti = lesStatutApprenti.where((s) => s.id == widget.lApprenti!.statut_apprenti).first;
+      laLivraison = lesGenericLivraisons.where((l) => l.id == widget.lApprenti!.livraisonCarte).first;
+      laFinFormation = lesGenericData.where((l) => l.id == widget.lApprenti!.formation_metier_terminee).first;
+      lieuNaissanceAutreController.text = widget.lApprenti!.lieu_naissance_autre;
+
+      // Optin :
+      optinSms = widget.lApprenti!.optinSms == 1;
+      optinEmail = widget.lApprenti!.optinMail == 1;
+    }
+    else{
+      laCommune = lesCommunes.first;
+      laVilleCommune = lesCommunes.first;
+      laPieceDelivre = lesCommunes.first;
+      laVilleResidence = lesCommunes.first;
+      laCivilite = lesCivilites.first;
+      laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
+      leCentreFormation = lesGenericData.first;
+      laFinFormation = lesGenericData.first;
+      laSpecialite = lesMetiers.first;
+      lApprentissageMetier = lesGenericData.first;
+      leTypeDeCompte = lesTypeCompteBancaires.first;
+      leTypeDocument = lesTypeDocuments.first;
+      leNiveauEtude = lesNiveauEtudes.first;
+      laClasse = lesClasses.first;
+      leDiplome = lesDiplomes.first;
+      //lApprentissageMetier = lesGenericApprentissagea.first;
+      leMetier = lesMetiers.first;
+      lActivitePrincipale = lesMetiers.first;
+      lActiviteSecondaire = lesMetiers.first;
+      leNiveauEquipement = lesNiveauEquipement.first;
+      //
+      leStatutApprenti = lesStatutApprenti.first;
+      laLivraison = lesGenericLivraisons.first;
+
+      _dateNaissanceController.clear();
+      _datePieceDelivreController.clear();
+      _dateDebutApprentissageController.clear();
+
+      // INIT FIELDS :
+      lieuNaissanceAutreController.text = "";
+      numeroPieceIdentiteController.text = "";
+      quartierResidenceController.text = "";
+      adressePostaleController.text = "";
+      contact2Controller.text = "";
+      emailController.text = "";
+      centreFormationController.text = "";
+      apprentissageMetierController.text = "";
+      intituleFormationController.text = "";
+      diplomeController.text = "";
+      cnpsController.text = "";
+      cmuController.text = "";
+      numeroImmatriculationController.text = "";
+
+      communeController.text = laCommune.libelle;
+      villeResidenceController.text = laVilleResidence.libelle;
+      specialiteController.text = laSpecialite.libelle;
+      pieceDelivreController.text = laPieceDelivre.libelle;
+    }
     leCrm = lesCrms.first;
     leDepartement = lesDepartements.first;
     laSousPrefecture = lesSousPrefectures.first;
-    laCommune = lesCommunes.first;
-    laVilleCommune = lesCommunes.first;
-    laPieceDelivre = lesCommunes.first;
-    laVilleResidence = lesCommunes.first;
-    laCivilite = lesCivilites.first;
-    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
-    leCentreFormation = lesGenericData.first;
-    laFinFormation = lesGenericData.first;
-    laSpecialite = lesMetiers.first;
-    lApprentissageMetier = lesGenericData.first;
-    leTypeDeCompte = lesTypeCompteBancaires.first;
-    leTypeDocument = lesTypeDocuments.first;
-    leNiveauEtude = lesNiveauEtudes.first;
-    laClasse = lesClasses.first;
-    leDiplome = lesDiplomes.first;
-    //lApprentissageMetier = lesGenericApprentissagea.first;
-    leMetier = lesMetiers.first;
-    lActivitePrincipale = lesMetiers.first;
-    lActiviteSecondaire = lesMetiers.first;
-    leNiveauEquipement = lesNiveauEquipement.first;
-    //
-    leStatutApprenti = lesStatutApprenti.first;
-    laLivraison = lesGenericLivraisons.first;
-
-    _dateNaissanceController.clear();
-    _datePieceDelivreController.clear();
-    _dateDebutApprentissageController.clear();
-
-    // INIT FIELDS :
-    lieuNaissanceAutreController.text = "";
-    numeroPieceIdentiteController.text = "";
-    quartierResidenceController.text = "";
-    adressePostaleController.text = "";
-    contact2Controller.text = "";
-    emailController.text = "";
-    centreFormationController.text = "";
-    apprentissageMetierController.text = "";
-    intituleFormationController.text = "";
-    diplomeController.text = "";
-    cnpsController.text = "";
-    cmuController.text = "";
-    numeroImmatriculationController.text = "";
-
-    communeController.text = laCommune.libelle;
-    villeResidenceController.text = laVilleResidence.libelle;
-    specialiteController.text = laSpecialite.libelle;
-    pieceDelivreController.text = laPieceDelivre.libelle;
   }
 
   @override
@@ -350,19 +586,22 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
 
   TextEditingController processData(DateGetController controller){
     dateNaissanceController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.lApprenti != null ? widget.lApprenti!.date_naissance : '');
     return dateNaissanceController;
   }
 
   TextEditingController processDataDelivre(DateDelivreGetController controller){
     datePieceController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.lApprenti != null ? widget.lApprenti!.date_emission_piece : '');
     return datePieceController;
   }
 
   TextEditingController processDateDebutApprentissage(DateDebutActiviteGetController controller){
-    dateDebutApprentissageController  = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+    dateDebutApprentissageController = TextEditingController(
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.lApprenti != null ? widget.lApprenti!.date_debut_apprentissage : '');
     return dateDebutApprentissageController;
   }
 
@@ -385,7 +624,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
 
   Future<void> _selectDateDelivre() async {
     choixDate = 1;
-    final now = DateTime(2015, 1, 2, 00, 00);
+    final now = DateTime(2005, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -1638,6 +1877,44 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
             ],
           )
       ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 40, left: 10, right: 10),
+        child: Divider(
+          color: Colors.black,
+          height: 5,
+        ),
+      ),
+      Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 15),
+          child: Text('Canal d\'information',
+            style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold
+            ),
+          )
+      ),
+      CustomOptinCheckBox(libelle: 'SMS', valeur: optinSms, icone: Icons.message, couleur: Colors.blue,
+          onChanged: (bool? value) {
+            setState(() {
+              optinSms = !optinSms;
+            });
+          }
+      ),
+      SizedBox(
+        height: 2,
+      ),
+      CustomOptinCheckBox(libelle: 'Email', valeur: optinEmail, icone: Icons.mail, couleur: Colors.green,
+          onChanged: (bool? value) {
+            setState(() {
+              optinEmail = !optinEmail;
+            });
+          }
+      ),
+
       lesBoutons()
     ];
   }
@@ -1648,6 +1925,17 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(idpub == 0 ? 'Nouvel Apprenti' : 'Modification Apprenti'),
+            actions: [
+              Visibility(
+                  visible: widget.lApprenti != null,
+                  child: IconButton(
+                      onPressed: () {
+                        displayDataSending();
+                      },
+                      icon: Icon(Icons.save_as_outlined, color: Colors.brown)
+                  )
+              )
+            ]
         ),
         body: SingleChildScrollView(
           child: Column(

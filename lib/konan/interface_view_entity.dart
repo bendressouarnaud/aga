@@ -11,6 +11,7 @@ import 'package:maps_launcher/maps_launcher.dart';
 
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
+import 'beans/generic_data_amount.dart';
 import 'beans/stats_bean_manager.dart';
 import 'beans/wave_payment_response.dart';
 import 'interface_artisan_personne.dart';
@@ -35,6 +36,14 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   bool closeAlertDialog = false;
   int amountToPay = 0;
   String paymentUrl = "";
+  List<GenericDataAmount> lesGenericLivraisons = [
+    GenericDataAmount(libelle: '3000 CFA', valeur: 3000, active: true),
+    GenericDataAmount(libelle: '5000 CFA', valeur: 5000, active: true),
+    GenericDataAmount(libelle: '10000 CFA', valeur: 10000, active: true),
+    GenericDataAmount(libelle: '15000 CFA', valeur: 15000, active: true),
+  ];
+  int valeurParDefaut = 0;
+  bool envoiLienPaiement = false;
 
 
   // METHODS :
@@ -54,6 +63,81 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
         backgroundColor: Colors.black,
         textColor: Colors.white,
         fontSize: 16.0);
+  }
+
+  void displayAmount(int amountToPay){
+    // Depending on the amount to PAY, adjust the list :
+    var amountsToDisplay = lesGenericLivraisons.where((amount) => amountToPay >= amount.valeur).toList();
+    valeurParDefaut = amountsToDisplay.first.valeur;
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return AlertDialog(
+              title: Text('Sélectionner un montant'),
+              content: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width, // 400
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      RadioGroup<int>(
+                          onChanged: (int? value) {
+                            valeurParDefaut = value!;
+                            Navigator.pop(dialogContext);
+                            displayDataRequesting(valeurParDefaut);
+                          },
+                          child: ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: amountsToDisplay.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(amountsToDisplay[index].libelle,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20
+                                    ),
+                                  ),
+                                  leading: Radio<int>(value: amountsToDisplay[index].valeur),
+                                );
+                              }
+                          )
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: ElevatedButton.icon(
+                            style: ButtonStyle(
+                                backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orange)
+                            ),
+                            label: Text("Fermer",
+                                style: const TextStyle(
+                                    color: Colors.white
+                                )
+                            ),
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                            },
+                            icon: Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.white,
+                            )
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              )
+          );
+        }
+    );
   }
 
   void displayEntityRequesting(int id){
@@ -147,7 +231,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
     }
   }
 
-  void displayDataRequesting(){
+  void displayDataRequesting(int amountSelected){
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -185,7 +269,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
     flagSendData = true;
     flagServerResponse = true;
     amountToPay = 0;
-    getAmountToPay();
+    //getAmountToPay();
+    getPaymentUrl(amountSelected);
 
     Timer.periodic(
       const Duration(seconds: 1),
@@ -195,15 +280,17 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
           timer.cancel();
 
           if (!flagSendData) {
-            // Display QRCODE :
-            MesServices().displayDialog(context, paymentUrl);
+            if(!envoiLienPaiement) {
+              // Display QRCODE :
+              MesServices().displayDialog(context, paymentUrl);
+            }
           }
         }
       },
     );
   }
 
-  Future<void> getAmountToPay() async {
+  /*Future<void> getAmountToPay() async {
     try{
       var localToken = await MesServices().checkJwtExpiration();
       final url = Uri.parse('${dotenv.env['URL_BACKEND']}get-amount');
@@ -235,7 +322,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
         getPaymentUrl(amountToPay);
       }
     }
-  }
+  }*/
 
   void getPaymentUrl(int montant) async {
     try{
@@ -257,12 +344,44 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
         WavePaymentResponse reponse = WavePaymentResponse.fromJson(
             json.decode(response.body));
         paymentUrl = reponse.wave_launch_url;
-        flagSendData = false;
+        if(envoiLienPaiement){
+          sendNotificationToEntity();
+        }
+        else{
+          flagSendData = false;
+        }
       }
     }
     catch(e){
       // Connexion PROBLEM :
     }
+    finally{
+      if(!envoiLienPaiement) {
+        flagServerResponse = false;
+      }
+    }
+  }
+
+  void sendNotificationToEntity() async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}send-wave-url-to-entity');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id": statsBeanManager.id,
+            "requester": getAppropriatePrefix(statsBeanManager.type),
+            "url": paymentUrl
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        flagSendData = false;
+      }
+    }
+    catch(e){}
     finally{
       flagServerResponse = false;
     }
@@ -520,12 +639,13 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                         style: ButtonStyle(
                             backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
                         ),
-                        label: Text("Régularisation",
+                        label: Text("Régularisation (${statsBeanManager.montant} CFA)",
                             style: TextStyle(
                                 color: Colors.white
                             )),
                         onPressed: () async {
-                          displayDataRequesting();
+                          displayAmount(statsBeanManager.montant);
+                          //displayDataRequesting();
                         },
                         icon: const Icon(
                           Icons.money,
@@ -533,6 +653,24 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                           color: Colors.white,
                         ),
                       )
+                  )
+              ),
+
+              SizedBox(
+                height: 5,
+              ),
+
+              Visibility(
+                  visible: statsBeanManager.paiement < 2,
+                  child: CheckboxListTile(
+                    title: const Text('Envoi lien de paiement'),
+                    value: envoiLienPaiement,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        envoiLienPaiement = !envoiLienPaiement;
+                      });
+                    },
+                    secondary: const Icon(Icons.send),
                   )
               ),
               Container(
@@ -543,7 +681,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   )
               ),
               Container(
-                  margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                  margin: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 30),
                   alignment: Alignment.topLeft,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
+import 'package:cnmci/konan/beans/stats_bean_manager.dart';
 import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:file_picker/file_picker.dart';
@@ -14,53 +15,53 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart';
 
-import '../getxcontroller/apprenti_controller_x.dart';
 import '../getxcontroller/artisan_controller_x.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
-import 'model/apprenti.dart';
 import 'model/artisan.dart';
+import 'model/entreprise.dart';
 import 'objets/constants.dart';
 import 'package:geolocator/geolocator.dart';
 
-class InterfacePriseApprentiPhoto extends StatefulWidget {
-  const InterfacePriseApprentiPhoto({Key? key}) : super(key: key);
+class InterfacePriseEntreprisePhoto extends StatefulWidget {
+  const InterfacePriseEntreprisePhoto({Key? key}) : super(key: key);
 
   @override
-  State<InterfacePriseApprentiPhoto> createState() => _InterfacePriseApprentiPhoto();
+  State<InterfacePriseEntreprisePhoto> createState() => _InterfacePriseEntreprisePhoto();
 }
 
-class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> with WidgetsBindingObserver {
+class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto> with WidgetsBindingObserver {
 
   // Attributes :
   double spacingSteps = 40;
   int stepForPhoto = 0;
-  int entityId = 0;
+  int artisanId = 0;
   bool cameraOnPause = false;
 
   late BuildContext dialogContext;
   bool flagSendData = false;
   bool flagServerResponse = false;
   bool closeAlertDialog = false;
+  bool switchUploadFile = false;
 
   CameraController? _cameraController;
   late Future<void> _initializeControllerFuture;
   late CameraDescription laCamera;
 
-  XFile? photo;
   XFile? photoRecto;
   XFile? photoVerso;
-  XFile? photoAutre;
-
-  bool uploadPhoto = false;
+  XFile? photoCommerce;
+  XFile? photoDfe;
+  //
+  bool uploadPhotoCommerce = false;
+  bool uploadPhotoDfe = false;
   bool uploadPhotoRecto = false;
   bool uploadPhotoVerso = false;
-  bool uploadPhotoAutre = false;
 
-  io.File? fileUploadPhoto;
+  io.File? fileUploadPhotoCommerce;
+  io.File? fileUploadPhotoDfe;
   io.File? fileUploadPhotoRecto;
   io.File? fileUploadPhotoVerso;
-  io.File? fileUploadPhotoAutre;
 
   // Gps Permission
   bool gpsPermission = true;
@@ -70,18 +71,26 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
   bool streamGps = false;
   late StreamSubscription<Position> positionStream;
 
-  TextEditingController photoController = TextEditingController();
+  TextEditingController photoCommerceController = TextEditingController();
+  TextEditingController photoDfeController = TextEditingController();
   TextEditingController photoRectoController = TextEditingController();
   TextEditingController photoVersoController = TextEditingController();
-  TextEditingController photoAutreController = TextEditingController();
 
   double _currentDiscreteSliderValue = 8.0;
+  //final ArtisanRepository _artisanRepository = ArtisanRepository();
+  //final ArtisanControllerX _artisanControllerX = Get.put(ArtisanControllerX());
 
 
   // METHODS :
   @override
   void initState() {
     super.initState();
+
+    // init :
+    photoCommerceController.text = "";
+    photoDfeController.text = "";
+    photoRectoController.text = "";
+    photoVersoController.text = "";
     setUpCameraController();
   }
 
@@ -177,10 +186,19 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
               child: Text('2',
                 style: TextStyle(
                   fontSize: 30,
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal,
+                ),)
+          ),
+          Container(
+              margin: EdgeInsets.only(left: spacingSteps, right: spacingSteps),
+              child: Text('3',
+                style: TextStyle(
+                  fontSize: 30,
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),)
-          )
+          ),
         ],
       ),
     );
@@ -190,7 +208,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
     return [
       lesEtapes(),
       Visibility(
-          visible: stepForPhoto > 0,
+          visible: stepForPhoto > 7,
           child: Container(
             padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
             height: MediaQuery.sizeOf(context).height * 0.50,
@@ -200,7 +218,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
       ),
 
       Visibility(
-          visible: stepForPhoto > 0,
+          visible: stepForPhoto == 7,
           child: Container(
               margin: EdgeInsets.only(top: 15, right: 10, left: 10, bottom: 15),
               child: ElevatedButton.icon(
@@ -221,6 +239,11 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                     setState(() {
                       stepForPhoto = 0;
                     });
+                    /*
+                    await _cameraController!.pausePreview();
+                    setState(() {
+                      stepForPhoto = 0;
+                    });*/
                   } catch (e) {
                     // Nothing
                   }
@@ -240,127 +263,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Photo Apprenti',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18
-              ),
-            ),
-            Divider(
-              height: 3,
-              thickness: 2,
-              color: Colors.brown,
-            )
-          ],
-        ),
-      ),
-      Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: (MediaQuery.of(context).size.width / 2) - 20,
-                child: ElevatedButton.icon(
-                  style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
-                  ),
-                  label: const Text("Appareil photo",
-                      style: TextStyle(
-                          color: Colors.white
-                      )
-                  ),
-                  onPressed: () async {
-                    try {
-                      // Ensure that the camera is initialized.
-                      if (stepForPhoto == 0) {
-                        //setState(() {
-                        if (cameraOnPause) {
-                          cameraOnPause = false;
-                          _cameraController!.resumePreview();
-                        }
-                        stepForPhoto++;
-                        //});
-                        displayCameraDialog(1);
-                      }
-                    } catch (e) {
-                      // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.camera_alt_outlined,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  child: ElevatedButton.icon(
-                    style: ButtonStyle(
-                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
-                    ),
-                    label: const Text("Uploader",
-                        style: TextStyle(
-                            color: Colors.white
-                        )
-                    ),
-                    onPressed: () async {
-                      try {
-                        // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
-                        if (result != null) {
-                          fileUploadPhoto = io.File(result.files.single.path!);
-                          photoController.text = result.files.single.name;
-                          setState(() {
-                            uploadPhoto = true;
-                          });
-                        }
-                      } catch (e) {
-                        // If an error occurs, log the error to the console.
-                        //print('Erreur ....$e');
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.upload_file,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                  )
-              ),
-            ],
-          )
-      ),
-      Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-          child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: TextField(
-                enabled: false,
-                controller: photoController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Photo Apprenti...',
-                ),
-                style: TextStyle(
-                    height: 0.8
-                ),
-                textAlignVertical: TextAlignVertical.bottom,
-                textAlign: TextAlign.right,
-              )
-          )
-      ),
-
-      Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Pièce Recto',
+            Text('Pièce Recto Gérant',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18
@@ -402,7 +305,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                         }
                         stepForPhoto++;
                         //});
-                        displayCameraDialog(2);
+                        displayCameraDialog(3);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -480,7 +383,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Pièce Verso',
+            Text('Pièce Verso Gérant',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18
@@ -522,7 +425,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                         }
                         stepForPhoto++;
                         //});
-                        displayCameraDialog(3);
+                        displayCameraDialog(4);
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -593,17 +496,17 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
               )
           )
       ),
-
+      
       Container(
         width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Autre document',
+            Text('Photo Registre Commerce',
               style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18
+                fontWeight: FontWeight.bold,
+                fontSize: 18
               ),
             ),
             Divider(
@@ -624,7 +527,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
-                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
                   ),
                   label: const Text("Appareil photo",
                       style: TextStyle(
@@ -636,13 +539,25 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                       // Ensure that the camera is initialized.
                       if (stepForPhoto == 0) {
                         //setState(() {
-                        if (cameraOnPause) {
-                          cameraOnPause = false;
-                          _cameraController!.resumePreview();
-                        }
-                        stepForPhoto++;
+                          if (cameraOnPause) {
+                            cameraOnPause = false;
+                            _cameraController!.resumePreview();
+                          }
+                          stepForPhoto++;
                         //});
-                        displayCameraDialog(4);
+                          displayCameraDialog(1);
+                      }
+                      else {
+                        final image = await _cameraController!.takePicture();
+                        photoCommerce = image;
+                        photoCommerceController.text = photoCommerce!.name;
+                        await _cameraController!.pausePreview();
+                        cameraOnPause = true;
+                        uploadPhotoCommerce = false;
+                        // Reset :
+                        setState(() {
+                          stepForPhoto = 0;
+                        });
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
@@ -672,10 +587,10 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                         // Try to pick files :
                         FilePickerResult? result = await FilePicker.platform.pickFiles();
                         if (result != null) {
-                          fileUploadPhotoAutre = io.File(result.files.single.path!);
-                          photoAutreController.text = result.files.single.name;
+                          fileUploadPhotoCommerce = io.File(result.files.single.path!);
+                          photoCommerceController.text = result.files.single.name;
                           setState(() {
-                            uploadPhotoAutre = true;
+                            uploadPhotoCommerce = true;
                           });
                         }
                       } catch (e) {
@@ -700,10 +615,130 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
               width: MediaQuery.of(context).size.width,
               child: TextField(
                 enabled: false,
-                controller: photoAutreController,
+                controller: photoCommerceController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'Fichier Autre...',
+                  labelText: 'Photo Registre Commerce...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Photo DFE',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: ElevatedButton.icon(
+                  style: ButtonStyle(
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey)
+                  ),
+                  label: const Text("Appareil photo",
+                      style: TextStyle(
+                          color: Colors.white
+                      )
+                  ),
+                  onPressed: () async {
+                    try {
+                      // Ensure that the camera is initialized.
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(2);
+                      }
+                    } catch (e) {
+                      // If an error occurs, log the error to the console.
+                      //print('Erreur ....$e');
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.camera_alt_outlined,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
+                    ),
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
+                    ),
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoDfe = io.File(result.files.single.path!);
+                          photoDfeController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoDfe = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  )
+              ),
+            ],
+          )
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoDfeController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Photo Diplôme...',
                 ),
                 style: TextStyle(
                     height: 0.8
@@ -718,17 +753,16 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
         height: 40,
       ),
       Visibility(
-          visible: streamGps,
+        visible: streamGps,
           child: Container(
-            //width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
+            margin: EdgeInsets.only(left: 10, right: 10, top: 20),
             child: Text('Précision actuelle : $precisionGps m'),
           )
       ),
       Visibility(
           visible: streamGps,
           child: Slider(
-              activeColor: Colors.brown,
+            activeColor: Colors.brown,
               value: _currentDiscreteSliderValue,
               min: 5,
               divisions: 5,
@@ -745,9 +779,9 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
           child: Container(
             margin: EdgeInsets.only(left: 10, right: 10, top: 20),
             child: Text('Précision minimale : $_currentDiscreteSliderValue m',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold
-              ),
+            style: TextStyle(
+              fontWeight: FontWeight.bold
+            ),
             ),
           )
       ),
@@ -765,6 +799,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                       color: Colors.white
                   )),
               onPressed: () {
+
                 if(stepForPhoto > 0){
                   // Close CAMERA
                   _cameraController?.pausePreview();
@@ -774,7 +809,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                   positionStream.pause();
                   positionStream.cancel();
                 }
-                // Next action :
+                // Leave :
                 Navigator.pop(context);
               },
               icon: const Icon(
@@ -784,7 +819,8 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
               ),
             ),
             Visibility(
-              visible: (photo != null || fileUploadPhoto != null) && gpsPermission,
+              visible: ((photoRecto != null || fileUploadPhotoRecto != null) && gpsPermission) ||
+                  entrepriseToManage.id != 0,
                 child: ElevatedButton.icon(
                   style: ButtonStyle(
                       iconAlignment: IconAlignment.end,
@@ -796,59 +832,68 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                       )
                   ),
                   onPressed: () async {
-                    if(!streamGps) {
-                      // check on ville :
-                      if (photoController.text.isEmpty) {
-                        displayToast(
-                            'Veuillez prendre obligatoirement une PHOTO de l\'apprenti !');
-                        return;
-                      }
+                    if(entrepriseToManage.id == 0) {
+                      if (!streamGps) {
+                        // check on ville :
+                        if (photoRectoController.text.isEmpty) {
+                          displayToast(
+                              'Veuillez prendre obligatoirement une PHOTO RECTO de la pièce du Gérant !');
+                          return;
+                        }
 
-                      // Get GPS POSITION :
-                      try {
-                        var getstreamGpsData = await MesServices()
-                            .determinePositionStream();
-                        if (getstreamGpsData) {
-                          setState(() {
-                            streamGps = getstreamGpsData;
-                          });
+                        // Get GPS POSITION :
+                        try {
+                          var getstreamGpsData = await MesServices()
+                              .determinePositionStream();
 
-                          final LocationSettings locationSettings = LocationSettings(
-                            accuracy: LocationAccuracy.high,
-                          );
+                          if (getstreamGpsData) {
+                            setState(() {
+                              streamGps = getstreamGpsData;
+                            });
 
-                          positionStream =
-                              Geolocator.getPositionStream(
-                                  locationSettings: locationSettings).listen(
-                                      (Position? position) {
-                                    if (position != null) {
-                                      setState(() {
-                                        latitude = position.latitude;
-                                        longitude = position.longitude;
-                                        precisionGps = double.parse(
-                                            position.accuracy.toStringAsFixed(
-                                                2));
-                                        if (precisionGps < gpsPrecisionAccuracy ||
-                                            precisionGps < _currentDiscreteSliderValue) {
-                                          positionStream.cancel();
+                            final LocationSettings locationSettings = LocationSettings(
+                              accuracy: LocationAccuracy.high,
+                            );
 
-                                          // Send DATA :
-                                          displayDataSending();
-                                        }
-                                      });
+                            positionStream =
+                                Geolocator.getPositionStream(
+                                    locationSettings: locationSettings).listen(
+                                        (Position? position) {
+                                      if (position != null) {
+                                        setState(() {
+                                          latitude = position.latitude;
+                                          longitude = position.longitude;
+                                          precisionGps = double.parse(
+                                              position.accuracy.toStringAsFixed(
+                                                  2));
+                                          if (precisionGps <
+                                              gpsPrecisionAccuracy ||
+                                              precisionGps <
+                                                  _currentDiscreteSliderValue) {
+                                            // Reset this :
+                                            positionStream.cancel();
+                                            // Send DATA :
+                                            displayDataSending();
+                                          }
+                                        });
+                                      }
                                     }
-                                  }
-                              );
+                                );
+                          }
+                          else {
+                            displayToast('Veuillez autoriser le GPS !');
+                          }
+                        } catch (e) {
+                          displayToast('Le GPS est obligatoire !');
+                          setState(() {
+                            gpsPermission = false;
+                          });
                         }
-                        else {
-                          displayToast('Veuillez autoriser le GPS !');
-                        }
-                      } catch (e) {
-                        displayToast('Le GPS est obligatoire !');
-                        setState(() {
-                          gpsPermission = false;
-                        });
                       }
+                    }
+                    else{
+                      //
+                      displayDataSending();
                     }
                   },
                   icon: Icon(
@@ -920,27 +965,29 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                                   final image = await _cameraController!.takePicture();
                                   switch(step){
                                     case 1:
-                                      photo = image;
-                                      photoController.text = image.name;
-                                      uploadPhoto = false;
+                                      // Registre commerce :
+                                      photoCommerce = image;
+                                      photoCommerceController.text = image.name;
+                                      uploadPhotoCommerce = false;
                                       break;
 
                                     case 2:
+                                      // DFE :
+                                      photoDfe = image;
+                                      photoDfeController.text = image.name;
+                                      uploadPhotoDfe = false;
+                                      break;
+
+                                    case 3:
                                       photoRecto = image;
                                       photoRectoController.text = image.name;
                                       uploadPhotoRecto = false;
                                       break;
 
-                                    case 3:
+                                    default:
                                       photoVerso = image;
                                       photoVersoController.text = image.name;
                                       uploadPhotoVerso = false;
-                                      break;
-
-                                    default:
-                                      photoAutre = image;
-                                      photoAutreController.text = image.name;
-                                      uploadPhotoAutre = false;
                                       break;
                                   }
                                   await _cameraController!.pausePreview();
@@ -966,7 +1013,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
               )
           );
         }
-    );
+        );
   }
 
   void cancelCameraDialog() async{
@@ -1067,13 +1114,13 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
   }
 
   // Check if PHOTO ARTISAN has been taken :
-  String checkPhotoApprenti(){
-    if(photoController.text.isNotEmpty) {
-      if (uploadPhoto) {
-        return convertUploadedFile(fileUploadPhoto!);
+  String checkPhotoRecto(){
+    if(photoRectoController.text.isNotEmpty) {
+      if (uploadPhotoRecto) {
+        return convertUploadedFile(fileUploadPhotoRecto!);
       }
-      else if (photo != null) {
-        return convertPhotoToString(photo!);
+      else if (photoRecto != null) {
+        return convertPhotoToString(photoRecto!);
       }
       else {
         // This BLOCK is not necessary :
@@ -1081,7 +1128,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
       }
     }
     else{
-      return apprentiToManage.photo;
+      return entrepriseToManage.photoCniRecto;
     }
   }
 
@@ -1100,21 +1147,30 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
     }
     else{
       if(choice == 1){
-        return apprentiToManage.photo_cni_recto;
+        return entrepriseToManage.photoCniVerso;
       }
       else if(choice == 2){
-        return apprentiToManage.photo_cni_verso;
+        return entrepriseToManage.photoRegistreCommerce;
       }
-      else {
-        return apprentiToManage.photoAutre;
+      else{
+        return entrepriseToManage.photoDfe;
       }
+    }
+  }
+
+  String checkOtherPhotoType(XFile? picture, String photo, String libPhoto){
+    if(libPhoto.isNotEmpty) {
+      return convertPhotoToString(picture!);
+    }
+    else{
+      return photo;
     }
   }
 
   Future<void> sendData() async {
     // First Call this :
     var localToken = await MesServices().checkJwtExpiration();
-    final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-apprentimobile');
+    final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-entreprisemobile');
     try {
       var response = await post(url,
           headers: {
@@ -1122,120 +1178,134 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             'Authorization': 'Bearer $localToken'
           },
           body: jsonEncode({
-            "id" : apprentiToManage.id,
-            "civilite" : apprentiToManage.civilite,
-            "nom" : apprentiToManage.nom,
-            "prenom" : apprentiToManage.prenom,
-            "date_naissance" : apprentiToManage.date_naissance,
-            "lieu_naissance" : apprentiToManage.lieu_naissance.toString(),
-            "lieu_naissance_autre" : apprentiToManage.lieu_naissance_autre,
-            "nationalite" : apprentiToManage.nationalite.toString(),
-            "sexe" : "",
-            "date_debut_apprentissage" : apprentiToManage.date_debut_apprentissage,
-            "type_document" : apprentiToManage.type_document.toString(),
-            "numero_piece" : apprentiToManage.numero_piece,
-            "piece_delivre" : apprentiToManage.piece_delivre.toString(),
-            "date_emission_piece" : apprentiToManage.date_emission_piece,
-            "niveau_etude" : apprentiToManage.niveau_etude.toString(),
-            "specialite" : apprentiToManage.metier.toString(),
-            "classe" : apprentiToManage.classe.toString(),
-            "diplome" : apprentiToManage.diplome.toString(),
-            "ville_residence" : apprentiToManage.commune_residence.toString(),
-            "quartier_residence" : apprentiToManage.quartier_residence,
-            "adresse_postal" : apprentiToManage.adresse_postal,
-            "contact1" : apprentiToManage.contact1,
-            "contact2" : apprentiToManage.contact2,
-            "email" : apprentiToManage.email,
-            "photo_apprenti" : uploadPhoto ? convertUploadedFile(fileUploadPhoto!) :
-              photo != null ? convertPhotoToString(photo!) : "",
+            "crm_id": entrepriseToManage.crm,
+            "departement_id": entrepriseToManage.departement,
+            "sous_prefecture_id": entrepriseToManage.sous_prefecture,
+            "gerant_id": 0,
+            "civilite": entrepriseToManage.civilite,
+            "nom": entrepriseToManage.nom,
+            "prenom": entrepriseToManage.prenom,
+            "date_naissance": entrepriseToManage.date_naissance,
+            "lieu_naissance": entrepriseToManage.lieu_naissance.toString(),
+            "lieu_naissance_autre": entrepriseToManage.lieu_naissance_autre,
+            "nationalite": entrepriseToManage.nationalite.toString(),
+            "sexe": "",
+            "statut_matrimonial": entrepriseToManage.statut_matrimonial,
+            "type_document": entrepriseToManage.type_document.toString(),
+            "numero_piece": entrepriseToManage.numero_piece,
+            "piece_delivre": entrepriseToManage.piece_delivre.toString(),
+            "date_emission_piece": entrepriseToManage.date_emission_piece,
+            "ville_residence": entrepriseToManage.commune_residence,
+            "quartier_residence": entrepriseToManage.quartier_residence,
+            "adresse_postal": entrepriseToManage.adresse_postal,
+            "contact1": entrepriseToManage.contact1,
+            "contact2": entrepriseToManage.contact2,
+            "email": entrepriseToManage.email,
+            "numero_id": 0,
+            "numero_rea": "",
+            "forme_juridique": entrepriseToManage.forme_juridique,
+            "activite_principale": entrepriseToManage.activite_principale,
+            "activite_secondaire": entrepriseToManage.activite_secondaire,
+            "raison_social": entrepriseToManage.denomination,
+            "sigle": entrepriseToManage.sigle,
+            "objet_social": entrepriseToManage.objet_social,
+            "date_creation": entrepriseToManage.date_creation,
+            "rccm": entrepriseToManage.rccm,
+            "date_rccm": entrepriseToManage.date_rccm,
+            "capital_social": entrepriseToManage.capital_social,
+            "regime_fiscal": entrepriseToManage.regime_fiscal,//.id.toString(),
+            "nombre_associer": entrepriseToManage.total_associe,
+            "duree_personne_morale": entrepriseToManage.duree_personne_morale,
+            "numero_cnps": entrepriseToManage.cnps_entreprise,
+            "compte_contribuable": entrepriseToManage.compte_contribuable,
+            "ilot_lot": entrepriseToManage.lot,
+            "contact_entreprise": entrepriseToManage.telephone,
+            "adresse": entrepriseToManage.adresse_postal,
+            "longitude": longitude,
+            "latitude": latitude,
+            "commune": entrepriseToManage.commune_siege,
+            "quartier": entrepriseToManage.quartier_siege_id,
+            "livraison_carte": entrepriseToManage.livraisonCarte,
+
             "photo_cni_recto" : uploadPhotoRecto ? convertUploadedFile(fileUploadPhotoRecto!) :
               photoRecto != null ? convertPhotoToString(photoRecto!) : "",
             "photo_cni_verso" : uploadPhotoVerso ? convertUploadedFile(fileUploadPhotoVerso!) :
               photoVerso != null ? convertPhotoToString(photoVerso!) : "",
-            "photo_autre" : uploadPhotoAutre ? convertUploadedFile(fileUploadPhotoAutre!) :
-              photoAutre != null ? convertPhotoToString(photoAutre!) : "",
-            "longitude" : longitude.toString(),
-            "latitude" : latitude.toString(),
-            "entity_id": apprentiToManage.artisan_id > 0 ? apprentiToManage.artisan_id : apprentiToManage.entreprise_id,
-            "source": apprentiToManage.artisan_id > 0 ? 1 : 0,
-            "a_suivi_formation_metier": apprentiToManage.a_suivi_formation,
-            "centre_formation_metier": apprentiToManage.centre_formation_metier,
-            "intitule_formation_metier": apprentiToManage.intitule_formation_metier,
-            "formation_metier_terminee": apprentiToManage.formation_metier_terminee,
-            "diplome_obtenu_metier": apprentiToManage.diplome_obtenu_metier,
-            "cnps" : apprentiToManage.cnps,
-            "cmu" : apprentiToManage.cmu,
-            "statut_apprenti" : apprentiToManage.statut_apprenti,
-            "numero_immatriculation" : apprentiToManage.numero_immatriculation,
-            "livraison_carte" : apprentiToManage.livraisonCarte,
-            "optin_mail" : apprentiToManage.optinMail,
-            "optin_sms" : apprentiToManage.optinSms,
-            "optin_whatsapp" : apprentiToManage.optinWhatsapp
+            "photo_registre_commerce" : uploadPhotoCommerce ? convertUploadedFile(fileUploadPhotoCommerce!) :
+              photoCommerce != null ? convertPhotoToString(photoCommerce!) : "",
+            "photo_dfe" : uploadPhotoDfe ? convertUploadedFile(fileUploadPhotoDfe!) :
+              photoDfe != null ? convertPhotoToString(photoDfe!) : ""
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
       if (response.statusCode == 200) {
-        MessageResponse reponse = MessageResponse.fromJson(json.decode(response.body));
-        Apprenti apprenti = Apprenti(
-            id: apprentiToManage.id == 0 ? reponse.id : apprentiToManage.id,
-            nom: apprentiToManage.nom,
-            prenom: apprentiToManage.prenom,
-            civilite: apprentiToManage.civilite,
-            date_naissance: apprentiToManage.date_naissance,
-            numero_immatriculation: apprentiToManage.numero_immatriculation,
-            lieu_naissance_autre: apprentiToManage.lieu_naissance_autre,
-            lieu_naissance: apprentiToManage.lieu_naissance,
-            nationalite: apprentiToManage.nationalite,
-            type_document: apprentiToManage.type_document,
-            niveau_etude: apprentiToManage.niveau_etude,
-            classe: apprentiToManage.classe,
-            diplome: apprentiToManage.diplome,
-            date_debut_apprentissage: apprentiToManage.date_debut_apprentissage,
-            commune_residence: apprentiToManage.commune_residence,
-            metier: apprentiToManage.metier,
-            sexe: '',
-            numero_piece: apprentiToManage.numero_piece,
-            piece_delivre: apprentiToManage.piece_delivre,
-            date_emission_piece: apprentiToManage.date_emission_piece,
-            quartier_residence: apprentiToManage.quartier_residence,
-            adresse_postal: apprentiToManage.adresse_postal,
-            contact1: apprentiToManage.contact1,
-            contact2: apprentiToManage.contact2,
-            email: apprentiToManage.email,
-            photo: checkPhotoApprenti(),
-            photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 1),
-            photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 2),
-            photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 3),
-            statut_kyc: apprentiToManage.statut_kyc,
-            statut_paiement: apprentiToManage.statut_paiement,
+        MessageResponse reponse = MessageResponse.fromJson(
+            json.decode(response.body));
+        Entreprise entreprise = Entreprise(
+            id: reponse.id,
+            crm: entrepriseToManage.crm,
+            departement: entrepriseToManage.departement,
+            sous_prefecture: entrepriseToManage.sous_prefecture,
+            civilite: entrepriseToManage.civilite,
+            nom: entrepriseToManage.nom,
+            prenom: entrepriseToManage.prenom,
+            date_naissance: entrepriseToManage.date_naissance,
+            lieu_naissance: entrepriseToManage.lieu_naissance,
+            lieu_naissance_autre: entrepriseToManage.lieu_naissance_autre,
+            nationalite: entrepriseToManage.nationalite,
+            statut_matrimonial: entrepriseToManage.statut_matrimonial,
+            type_document: entrepriseToManage.type_document,
+            numero_piece: entrepriseToManage.numero_piece,
+            piece_delivre: entrepriseToManage.piece_delivre,
+            date_emission_piece: entrepriseToManage.date_emission_piece,
+            commune_residence: entrepriseToManage.commune_residence,
+            quartier_residence: entrepriseToManage.quartier_residence,
+            adresse_postal: entrepriseToManage.adresse_postal,
+            contact1: entrepriseToManage.contact1,
+            contact2: entrepriseToManage.contact2,
+            email: entrepriseToManage.email,
+
+            forme_juridique: entrepriseToManage.forme_juridique,
+            activite_principale: entrepriseToManage.activite_principale,
+            activite_secondaire: entrepriseToManage.activite_secondaire,
+            denomination: entrepriseToManage.denomination,
+            sigle: entrepriseToManage.sigle,
+            date_creation: entrepriseToManage.date_creation,
+            objet_social: entrepriseToManage.objet_social,
+            rccm: entrepriseToManage.rccm,
+            date_rccm: entrepriseToManage.date_rccm,
+            capital_social: entrepriseToManage.capital_social,
+            regime_fiscal: entrepriseToManage.regime_fiscal,
+            duree_personne_morale: entrepriseToManage.duree_personne_morale,
+            cnps_entreprise: entrepriseToManage.cnps_entreprise,
+            compte_contribuable: entrepriseToManage.compte_contribuable,
+            total_associe: entrepriseToManage.total_associe,
+            commune_siege: entrepriseToManage.commune_siege,
+            quartier_siege: entrepriseToManage.quartier_siege,
+            lot: entrepriseToManage.lot,
+            telephone: entrepriseToManage.telephone,
+            statut_kyc: 0,
+            statut_paiement: 0,
             longitude: longitude,
             latitude: latitude,
-            a_suivi_formation: apprentiToManage.a_suivi_formation,
-            centre_formation_metier: apprentiToManage.centre_formation_metier,
-            intitule_formation_metier: apprentiToManage.intitule_formation_metier,
-            formation_metier_terminee: apprentiToManage.formation_metier_terminee,
-            diplome_obtenu_metier: apprentiToManage.diplome_obtenu_metier,
-            cnps: apprentiToManage.cnps,
-            cmu: apprentiToManage.cmu,
-            artisan_id: apprentiToManage.artisan_id,
-            entreprise_id: apprentiToManage.entreprise_id,
-            millisecondes: apprentiToManage.millisecondes,
-            statut_apprenti: apprentiToManage.statut_apprenti,
-            livraisonCarte: apprentiToManage.livraisonCarte,
-            optinMail: apprentiToManage.optinMail,
-            optinSms: apprentiToManage.optinSms,
-            optinWhatsapp: apprentiToManage.optinWhatsapp
+            millisecondes: DateTime.now().millisecondsSinceEpoch,
+            quartier_siege_id: entrepriseToManage.quartier_siege_id,
+            livraisonCarte: entrepriseToManage.livraisonCarte,
+
+            photoCniRecto: checkPhotoRecto(),
+            photoCniVerso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 1),
+            photoRegistreCommerce: factoriseDocumentProcessing(photoCommerceController, uploadPhotoCommerce, fileUploadPhotoCommerce, photoCommerce, 2),
+            photoDfe: factoriseDocumentProcessing(photoDfeController, uploadPhotoDfe, fileUploadPhotoDfe, photoDfe, 3)
         );
-        // Update 'APPRENTI :
-        apprentiToManage.id == 0
-            ? apprentiControllerX.addItem(apprenti)
-            : apprentiControllerX.updateData(apprenti);
+        entrepriseControllerX.addItem(entreprise);
+        // Refresh :
+        entrepriseToManage = entreprise;
         flagSendData = false;
       } else {
-        displayToast("Impossible de traiter la demande");
+        displayToast("Impossible de transmettre les données de l'Artisan !");
       }
     } catch (e) {
-      displayToast("Impossible de gérer les données de l'apprenti : $e");
+      displayToast("Impossible de traiter les données de référence : $e");
     } finally {
       streamGps = false;
       flagServerResponse = false;
@@ -1275,7 +1345,20 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(apprentiToManage.id == 0 ? 'Nouvel enrôlement' : 'Modification enrôlement'),
+          title: Text(entrepriseToManage.id == 0 ? 'Création Entreprise' : 'Modification Entreprise'),
+          /*actions: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    switchUploadFile = !switchUploadFile;
+                    // Reset :
+                    fileUploadPhotoArtisan = null;
+                    uploadPhotoArtisan = false;
+                  });
+                },
+                icon: Icon(switchUploadFile ? Icons.file_upload : Icons.file_upload_outlined, color: Colors.brown)
+            )
+          ],*/
         ),
         body: _buildUI()
     );

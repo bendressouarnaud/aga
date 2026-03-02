@@ -33,6 +33,7 @@ class Artisan {
   final String photo_cni_recto;
   final String photo_cni_verso;
   final String photo_diplome;
+  final String photoAutre;
   final String date_expiration_carte;
 
   final int statut_kyc;
@@ -54,9 +55,8 @@ class Artisan {
   final int departement;
   final int sous_prefecture;
 
-  final int specialite;
   final int activite_principale;
-  final int activite_secondaire;
+  final String activite_secondaire;
 
   final String raison_social;
   final String sigle;
@@ -72,6 +72,11 @@ class Artisan {
   final int statut_artisan;
   // 11/02/2026
   final int livraisonCarte;
+  final int optinMail;
+  final int optinSms;
+  final int optinWhatsapp;
+  final int regimeFiscal;
+  final String qualification;
 
   // M e t h o d s  :
   Artisan({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance, required this.numero_registre,
@@ -85,11 +90,13 @@ class Artisan {
     required this.chiffre_affaire, required this.cnps, required this.cmu, required this.presence_compte_bancaire, required this.type_compte_bancaire,
     required this.crm, required this.departement, required this.sous_prefecture,
 
-    required this.specialite, required this.activite_principale, required this.activite_secondaire,
+    required this.activite_principale, required this.activite_secondaire,
     required this.raison_social, required this.sigle, required this.date_creation,
     required this.commune_activite, required this.quartier_activite, required this.rccm,
     required this.niveau_equipement, required this.millisecondes, required this.quartier_activite_id,
-    required this.statut_artisan, required this.livraisonCarte
+    required this.statut_artisan, required this.livraisonCarte,
+    required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre,
+    required this.regimeFiscal, required this.qualification
   });
   factory Artisan.fromDatabaseJson(Map<String, dynamic> data) => Artisan(
     id: data['id'],
@@ -142,7 +149,6 @@ class Artisan {
     departement: data['departement'],
     sous_prefecture: data['sous_prefecture'],
 
-    specialite: data['specialite'],
     activite_principale: data['activite_principale'],
     activite_secondaire: data['activite_secondaire'],
 
@@ -156,7 +162,14 @@ class Artisan {
     millisecondes: data['millisecondes'],
     quartier_activite_id: data['quartier_activite_id'],
     statut_artisan: data['statut_artisan'],
-    livraisonCarte: data['livraison_carte']
+    livraisonCarte: data['livraison_carte'],
+
+    optinMail: data['optin_mail'],
+    optinSms: data['optin_sms'],
+    optinWhatsapp: data['optin_whatsapp'],
+    photoAutre: data['photo_autre'],
+    regimeFiscal: data['regime_fiscal'],
+    qualification: data['qualification'],
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -210,7 +223,6 @@ class Artisan {
     "departement": departement,
     "sous_prefecture": sous_prefecture,
 
-    "specialite": specialite,
     "activite_principale": activite_principale,
     "activite_secondaire": activite_secondaire,
 
@@ -224,6 +236,14 @@ class Artisan {
     "millisecondes": millisecondes,
     "quartier_activite_id": quartier_activite_id,
     "statut_artisan": statut_artisan,
-    "livraison_carte": livraisonCarte
+    "livraison_carte": livraisonCarte,
+
+    "optin_mail": optinMail,
+    "optin_sms": optinSms,
+    "optin_whatsapp": optinWhatsapp,
+    "photo_autre": photoAutre,
+
+    "regime_fiscal": regimeFiscal,
+    "qualification": qualification
   };
 }

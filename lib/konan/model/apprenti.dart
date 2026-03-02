@@ -35,6 +35,7 @@ class Apprenti {
   final String photo;
   final String photo_cni_recto;
   final String photo_cni_verso;
+  final String photoAutre;
 
   final int statut_kyc;
   final int statut_paiement;
@@ -57,6 +58,10 @@ class Apprenti {
   // 11/02/2026
   final int livraisonCarte;
 
+  // 28/02/2026
+  final int optinMail;
+  final int optinSms;
+  final int optinWhatsapp;
 
   // M e t h o d s  :
   Apprenti({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance,
@@ -70,7 +75,8 @@ class Apprenti {
     required this.a_suivi_formation, required this.centre_formation_metier, required this.intitule_formation_metier,
     required this.formation_metier_terminee, required this.diplome_obtenu_metier,
     required this.cnps, required this.cmu, required this.artisan_id, required this.entreprise_id,
-    required this.millisecondes, required this.statut_apprenti, required this.livraisonCarte
+    required this.millisecondes, required this.statut_apprenti, required this.livraisonCarte,
+    required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre
   });
   factory Apprenti.fromDatabaseJson(Map<String, dynamic> data) => Apprenti(
     id: data['id'],
@@ -114,10 +120,15 @@ class Apprenti {
     cmu: data['cmu'],
 
     artisan_id: data['artisan_id'],
-      entreprise_id: data['entreprise_id'],
+    entreprise_id: data['entreprise_id'],
     millisecondes: data['millisecondes'],
-      statut_apprenti: data['statut_apprenti'],
-      livraisonCarte: data['livraison_carte']
+    statut_apprenti: data['statut_apprenti'],
+    livraisonCarte: data['livraison_carte'],
+
+    optinMail: data['optin_mail'],
+    optinSms: data['optin_sms'],
+    optinWhatsapp: data['optin_whatsapp'],
+      photoAutre: data['photo_autre']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -165,6 +176,11 @@ class Apprenti {
     "entreprise_id": entreprise_id,
     "millisecondes": millisecondes,
     "statut_apprenti": statut_apprenti,
-    "livraison_carte": livraisonCarte
+    "livraison_carte": livraisonCarte,
+
+    "optin_mail": optinMail,
+    "optin_sms": optinSms,
+    "optin_whatsapp": optinWhatsapp,
+    "photo_autre": photoAutre
   };
 }

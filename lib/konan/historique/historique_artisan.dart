@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -12,6 +13,7 @@ import 'package:http/http.dart';
 import '../../getxcontroller/apprenti_controller_x.dart';
 import '../../getxcontroller/artisan_controller_x.dart';
 import '../interface_artisan_personne.dart';
+import '../interface_historique_artisan_statut.dart';
 import '../interface_view_artisan.dart';
 import '../objets/constants.dart';
 import '../services.dart';
@@ -29,6 +31,7 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
   final ArtisanControllerX _artisanControllerX = Get.put(ArtisanControllerX());
   late BuildContext dialogContext;
   final int limitBlocs = 30;
+  final _key = GlobalKey<ExpandableFabState>();
 
 
   // METHODS :
@@ -43,28 +46,47 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
           title: Text('Historique Art.'
           )
       ),*/
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          // Open :
-          setOriginFromCallArtisan = 0;
-          final result = await Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return const InterfaceArtisanPersonne(lArtisan: null,);
-              })
-          );
-        },
-        backgroundColor: Colors.brown,
-        tooltip: 'Continuer',
-        label: Text('Nouveau',
-          style: const TextStyle(
-              color: Colors.white
+      floatingActionButtonLocation: ExpandableFab.location,
+      floatingActionButton: ExpandableFab(
+          key: _key,
+          overlayStyle: ExpandableFabOverlayStyle(
+            color: Colors.black.withValues(alpha: 0.5),
+            blur: 5,
           ),
+          onOpen: () {
+          },
+          afterOpen: () {
+          },
+          onClose: () {
+          },
+          afterClose: () {
+          },
+          children: [
+            FloatingActionButton.small(
+              // shape: const CircleBorder(),
+              heroTag: null,
+              child: const Icon(Icons.add),
+              onPressed: () {
+                // Open :
+                setOriginFromCallArtisan = 0;
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return const InterfaceArtisanPersonne(lArtisan: null,);
+                    })
+                );
+              },
+            ),
+            FloatingActionButton.small(
+              // shape: const CircleBorder(),
+              heroTag: null,
+              child: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: ((context) => InterfaceHistoriqueArtisanStatut())));
+              },
+            )
+          ],
         ),
-        icon: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-      ),
       body: returnList(),
     );
   }
@@ -156,7 +178,7 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
                                         //style: TextStyle(fontWeight: FontWeight.bold),
                                         children: <TextSpan>[
                                           TextSpan(text: MesServices().processEntityName(
-                                              lesMetiers.where((m) => m.id == currentData[index].specialite).first.libelle,
+                                              lesMetiers.where((m) => m.id == currentData[index].activite_principale).first.libelle,
                                               limitCharacterMetier),
                                               style: TextStyle(fontWeight: FontWeight.bold)
                                           )

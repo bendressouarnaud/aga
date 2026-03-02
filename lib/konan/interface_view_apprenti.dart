@@ -10,10 +10,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:http/http.dart';
 import 'package:money_formatter/money_formatter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
+import 'beans/generic_data_amount.dart';
 import 'beans/wave_payment_response.dart';
+import 'interface_apprenti_personne.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewApprenti extends StatefulWidget{
@@ -31,6 +34,15 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
   bool flagSendData = false;
   bool flagServerResponse = false;
   String paymentUrl = "";
+
+  List<GenericDataAmount> lesGenericLivraisons = [
+    GenericDataAmount(libelle: '3000 CFA', valeur: 3000, active: true),
+    GenericDataAmount(libelle: '5000 CFA', valeur: 5000, active: true),
+    GenericDataAmount(libelle: '10000 CFA', valeur: 10000, active: true),
+    GenericDataAmount(libelle: '15000 CFA', valeur: 15000, active: true),
+  ];
+  int valeurParDefaut = 0;
+  bool envoiLienPaiement = false;
 
 
   // M E T H O D S :
@@ -102,7 +114,12 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
             json.decode(response.body));
         //print('Lien URL **** : ${reponse.wave_launch_url}');
         paymentUrl = reponse.wave_launch_url;
-        flagSendData = false;
+        if(envoiLienPaiement){
+          sendNotificationToApprenti();
+        }
+        else{
+          flagSendData = false;
+        }
       }
     }
     catch(e){
@@ -110,9 +127,115 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
       //print('Exception **** : ${e.toString()}');
     }
     finally{
+      if(!envoiLienPaiement) {
+        flagServerResponse = false;
+      }
+    }
+  }
+
+  // Send MAIL to 'APPRENTI' :
+  void sendNotificationToApprenti() async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}send-wave-url-to-entity');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id": widget.apprenti.id,
+            "requester": "APP",
+            "url": paymentUrl
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        flagSendData = false;
+      }
+    }
+    catch(e){}
+    finally{
       flagServerResponse = false;
     }
   }
+
+
+  // Display different AMOUNTs :
+  void displayAmount(int amountToPay){
+    // Depending on the amount to PAY, adjust the list :
+    var amountsToDisplay = lesGenericLivraisons.where((amount) => amountToPay >= amount.valeur).toList();
+    valeurParDefaut = amountsToDisplay.first.valeur;
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return AlertDialog(
+              title: Text('Sélectionner un montant'),
+              content: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.25,
+                width: MediaQuery.of(context).size.width, // 400
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      RadioGroup<int>(
+                          onChanged: (int? value) {
+                            valeurParDefaut = value!;
+                            Navigator.pop(dialogContext);
+                            displayWaintingPayingInterface(valeurParDefaut, 0);
+                          },
+                          child: ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: amountsToDisplay.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(amountsToDisplay[index].libelle,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20
+                                    ),
+                                  ),
+                                  leading: Radio<int>(value: amountsToDisplay[index].valeur),
+                                );
+                              }
+                          )
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: ElevatedButton.icon(
+                            style: ButtonStyle(
+                                backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orange)
+                            ),
+                            label: Text("Fermer",
+                                style: const TextStyle(
+                                    color: Colors.white
+                                )
+                            ),
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                            },
+                            icon: Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.white,
+                            )
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              )
+          );
+        }
+    );
+  }
+
 
   void displayWaintingPayingInterface(int montant, int choix){
     showDialog(
@@ -162,13 +285,9 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
           timer.cancel();
 
           if (!flagSendData) {
-            // Open WEBVIEW :
-            localLink();
-            /*Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return WebviewPaymentWave(url: paymentUrl, client: widget.artisan.nom);
-                })
-            );*/
+            if(!envoiLienPaiement) {
+              localLink();
+            }
           } else {
             displayToast('Traitement impossible *****');
           }
@@ -316,6 +435,76 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                         Container(
                           alignment: Alignment.topLeft,
                           margin: EdgeInsets.only(right: 10, left: 10, top: 25),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrange)
+                                  ),
+                                  label: Text("Modifier",
+                                      style: const TextStyle(
+                                          color: Colors.white
+                                      )
+                                  ),
+                                  onPressed: () async {
+                                    setOriginFromCallArtisan = 0;
+                                    final result = await Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                          apprentiToManage = widget.apprenti;
+                                          return InterfaceApprentiPersonne(
+                                            artisanId: widget.apprenti.artisan_id,
+                                            entrepriseId: widget.apprenti.entreprise_id,
+                                            lApprenti: widget.apprenti,
+                                          );
+                                        })
+                                    );
+
+                                    // Close the DOORS :
+                                    if (result != null) {
+                                      // Refresh :
+                                      setState(() {});
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                              ),
+                              ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                                  ),
+                                  label: Text("Appeler",
+                                      style: const TextStyle(
+                                          color: Colors.white
+                                      )
+                                  ),
+                                  onPressed: () async {
+                                    if(artisanToManage.contact1.isNotEmpty) {
+                                      var url = Uri.parse(
+                                          'tel:${widget.apprenti.contact1}');
+                                      if (!await launchUrl(url, mode: LaunchMode
+                                          .externalApplication)) {
+                                        throw Exception(
+                                            'Could not launch $url');
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.call,
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                              )
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: EdgeInsets.only(right: 10, left: 10, top: 35),
                           child: Text('Actions',
                             style: TextStyle(
                                 fontSize: 18,
@@ -382,7 +571,8 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                                                   )
                                               ),
                                               onPressed: () {
-                                                displayWaintingPayingInterface(sommeApayer.seul, 0);
+                                                displayAmount(sommeApayer.seul);
+                                                //displayWaintingPayingInterface(sommeApayer.seul, 0);
                                               },
                                               icon: Icon(
                                                 Icons.money,
@@ -401,6 +591,24 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                                   )
                               );
                             }
+                        ),
+
+                        SizedBox(
+                          height: 5,
+                        ),
+
+                        Visibility(
+                            visible: widget.apprenti.statut_paiement < 2,
+                            child: CheckboxListTile(
+                              title: const Text('Envoi lien de paiement'),
+                              value: envoiLienPaiement,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  envoiLienPaiement = !envoiLienPaiement;
+                                });
+                              },
+                              secondary: const Icon(Icons.send),
+                            )
                         )
                       ]
                   ),

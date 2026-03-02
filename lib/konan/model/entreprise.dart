@@ -54,6 +54,11 @@ class Entreprise {
   final int quartier_siege_id;
   final int livraisonCarte;
 
+  final String photoCniRecto;
+  final String photoCniVerso;
+  final String photoRegistreCommerce;
+  final String photoDfe;
+
 
   // M e t h o d s  :
   Entreprise({required this.id, required this.crm, required this.departement, required this.sous_prefecture,
@@ -69,7 +74,10 @@ class Entreprise {
     required this.compte_contribuable, required this.total_associe, required this.commune_siege,
     required this.quartier_siege, required this.lot, required this.telephone, required this.statut_kyc,
     required this.statut_paiement, required this.longitude, required this.latitude, required this.millisecondes,
-    required this.quartier_siege_id, required this.livraisonCarte
+    required this.quartier_siege_id, required this.livraisonCarte,
+    required this.photoCniRecto, required this.photoCniVerso,
+    required this.photoRegistreCommerce, required this.photoDfe
+
   });
   factory Entreprise.fromDatabaseJson(Map<String, dynamic> data) => Entreprise(
       id: data['id'],
@@ -119,7 +127,12 @@ class Entreprise {
       latitude: data['latitude'],
     millisecondes: data['millisecondes'],
     quartier_siege_id: data['quartier_siege_id'],
-      livraisonCarte: data['livraison_carte']
+      livraisonCarte: data['livraison_carte'],
+
+      photoCniRecto: data['photo_cni_recto'],
+      photoCniVerso: data['photo_cni_verso'],
+      photoRegistreCommerce: data['photo_registre_commerce'],
+      photoDfe: data['photo_dfe']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -171,5 +184,10 @@ class Entreprise {
     "millisecondes": millisecondes,
     "quartier_siege_id": quartier_siege_id,
     "livraison_carte": livraisonCarte,
+
+    "photo_cni_recto": photoCniRecto,
+    "photo_cni_verso": photoCniVerso,
+    "photo_registre_commerce": photoRegistreCommerce,
+    "photo_dfe": photoDfe
   };
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as io;
 import 'package:cnmci/konan/beans/generic_data.dart';
+import 'package:cnmci/konan/interface_prise_entreprise_photo.dart';
 import 'package:cnmci/konan/local_data/niveau_equipement.dart';
 import 'package:cnmci/konan/model/commune.dart';
 import 'package:cnmci/konan/model/departement.dart';
@@ -267,7 +268,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   }
 
 
-  void displayDataSending(){
+  /*void displayDataSending(){
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -453,8 +454,77 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
       streamGps = false;
       flagServerResponse = false;
     }
-  }
+  }*/
 
+  void feedEntreprise() async{
+    entrepriseToManage = Entreprise(
+        id: 0,
+        crm: leCrm.id,
+        departement: leDepartement.id,
+        sous_prefecture: laSousPrefecture.id,
+        civilite: laCivilite,
+        nom: nomController.text,
+        prenom: prenomController.text,
+        date_naissance: dateNaissanceController.text,
+        lieu_naissance: laCommune.id,
+        lieu_naissance_autre: lieuNaissanceAutreController.text,
+        nationalite: laNationalite.id,
+        statut_matrimonial: leStatutMatrimonial.id,
+        type_document: leTypeDocument.id,
+        numero_piece: numeroPieceIdentiteController.text,
+        piece_delivre: laPieceDelivre.id,
+        date_emission_piece: datePieceController.text,
+        commune_residence: laVilleResidence.id,
+        quartier_residence: quartierResidenceController.text,
+        adresse_postal: adressePostaleController.text,
+        contact1: contact1Controller.text,
+        contact2: contact2Controller.text,
+        email: emailController.text,
+
+        forme_juridique: laFormeJuridique.id,
+        activite_principale: lActivitePrincipale.id,
+        activite_secondaire: lActiviteSecondaire.id,
+        denomination: denominationController.text,
+        sigle: sigleController.text,
+        date_creation: dateDebutActiviteController.text,
+        objet_social: objetSocialController.text,
+        rccm: rccmController.text,
+        date_rccm: dateImmatriculationController.text,
+        capital_social: int.parse(capitalSocialController.text.replaceAll(',', '')),
+        regime_fiscal: leRegimeFiscal.id,
+        duree_personne_morale: int.parse(dureePersonneMoraleController.text),
+        cnps_entreprise: cnpsEntrepriseController.text,
+        compte_contribuable: compteContribuableController.text,
+        total_associe: int.parse(nombreAssocieController.text),
+        commune_siege: laVilleCommune.id,
+        quartier_siege: quartierCommuneController.text,
+        lot: ilotController.text,
+        telephone: telephonEntrepriseController.text,
+        statut_kyc: 0,
+        statut_paiement: 0,
+        longitude: longitude,
+        latitude: latitude,
+        millisecondes: DateTime.now().millisecondsSinceEpoch,
+        quartier_siege_id: leQuartierActivite.id,
+        livraisonCarte: laLivraison.id,
+
+        photoCniRecto: '',
+        photoCniVerso: '',
+        photoRegistreCommerce: '',
+        photoDfe: ''
+    );
+
+    final result = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) {
+          return const InterfacePriseEntreprisePhoto();
+        }));
+
+    // Close the DOORS :
+    if (result != null) {
+      // Request for Permission :
+      forceLeave();
+    }
+  }
 
   // Leave :
   void forceLeave(){
@@ -616,7 +686,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
 
   Future<void> _selectDateDelivre() async {
     choixDate = 1;
-    final now = DateTime(2015, 1, 2, 00, 00);
+    final now = DateTime(2005, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -709,6 +779,15 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                   fontSize: 30,
                   color: currentStep == 2 ? Colors.red : Colors.black,
                   fontWeight: currentStep == 2 ? FontWeight.bold : FontWeight.normal,
+                ),)
+          ),
+          Container(
+              margin: EdgeInsets.only(left: spacingSteps, right: spacingSteps),
+              child: Text('3',
+                style: TextStyle(
+                  fontSize: 30,
+                  color: currentStep == 3 ? Colors.red : Colors.black,
+                  fontWeight: currentStep == 3 ? FontWeight.bold : FontWeight.normal,
                 ),)
           )
         ],
@@ -809,47 +888,9 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                     currentStep++;
                   });
                 }
-                else {
-                  try {
-                    var getstreamGpsData = await MesServices()
-                        .determinePositionStream();
-                    if (getstreamGpsData) {
-                      setState(() {
-                        streamGps = getstreamGpsData;
-                      });
-
-                      final LocationSettings locationSettings = LocationSettings(
-                        accuracy: LocationAccuracy.high,
-                      );
-
-                      positionStream =
-                          Geolocator.getPositionStream(
-                              locationSettings: locationSettings).listen(
-                                  (Position? position) {
-                                if (position != null) {
-                                  setState(() {
-                                    latitude = position.latitude;
-                                    longitude = position.longitude;
-                                    precisionGps = double.parse(
-                                        position.accuracy.toStringAsFixed(2));
-                                    if (precisionGps < gpsPrecisionAccuracy ||
-                                        precisionGps < _currentDiscreteSliderValue) {
-                                      positionStream.cancel();
-
-                                      // Send DATA :
-                                      displayDataSending();
-                                    }
-                                  });
-                                }
-                              }
-                          );
-                    }
-                    else {
-                      displayToast('Veuillez autoriser le GPS !');
-                    }
-                  } catch (e) {
-                    displayToast('Le GPS est obligatoire !');
-                  }
+                else{
+                  // Try to SEND this OBJECT :
+                  feedEntreprise();
                 }
               }
             },

@@ -26,6 +26,7 @@ import '../getxcontroller/date_debut_activite_controller.dart';
 import '../getxcontroller/date_delivre_controller.dart';
 import '../getxcontroller/datecontroller.dart';
 import '../main.dart';
+import 'factorise_widgets/custom_optin_checkbox.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
 
@@ -129,6 +130,9 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
   bool updatePubDate = false;
   bool updatePubHour = false;
   late BuildContext customContext;
+
+  bool optinSms = false;
+  bool optinEmail = true;
 
   double spacingSteps = 40;
   int currentStep = 1;
@@ -239,9 +243,13 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
         cmu: cmuController.text,
         artisan_id: widget.artisanId,
         entreprise_id:  widget.entrepriseId,
-      millisecondes: DateTime.now().millisecondsSinceEpoch,
+        millisecondes: DateTime.now().millisecondsSinceEpoch,
         statut_compagnon: leStatutCompagnon.id,
-        livraisonCarte: laLivraison.id
+        livraisonCarte: laLivraison.id,
+        optinMail: optinEmail ? 1 : 0,
+        optinSms: optinSms ? 1 : 0,
+        optinWhatsapp: 0,
+        photoAutre: ""
     );
 
     final result = await Navigator.push(context,
@@ -357,7 +365,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
 
   Future<void> _selectDateDelivre() async {
     choixDate = 1;
-    final now = DateTime(2015, 1, 2, 00, 00);
+    final now = DateTime(2005, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -1505,6 +1513,43 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
               )
             ],
           )
+      ),
+
+      Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 40, left: 10, right: 10),
+        child: Divider(
+          color: Colors.black,
+          height: 5,
+        ),
+      ),
+      Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 15),
+          child: Text('Canal d\'information',
+            style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold
+            ),
+          )
+      ),
+      CustomOptinCheckBox(libelle: 'SMS', valeur: optinSms, icone: Icons.message, couleur: Colors.blue,
+          onChanged: (bool? value) {
+            setState(() {
+              optinSms = !optinSms;
+            });
+          }
+      ),
+      SizedBox(
+        height: 2,
+      ),
+      CustomOptinCheckBox(libelle: 'Email', valeur: optinEmail, icone: Icons.mail, couleur: Colors.green,
+          onChanged: (bool? value) {
+            setState(() {
+              optinEmail = !optinEmail;
+            });
+          }
       ),
       lesBoutons()
     ];

@@ -38,6 +38,7 @@ import '../getxcontroller/datecontroller.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
 import 'beans/stats_bean_manager.dart';
+import 'factorise_widgets/custom_optin_checkbox.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -110,6 +111,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   TextEditingController villeCommuneController = TextEditingController();
   TextEditingController rccmCommuneController = TextEditingController();
   TextEditingController niveauEquipementController = TextEditingController();
+  TextEditingController qualificationController = TextEditingController();
+  TextEditingController regimeFiscalController = TextEditingController();
 
   TextEditingController menuCountryDepartController = TextEditingController();
   TextEditingController menuDepartController = TextEditingController();
@@ -122,6 +125,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
   //
   bool initInterface = false;
+  bool optinSms = false;
+  bool optinEmail = true;
 
   late bool _isLoading;
   // Initial value :
@@ -187,6 +192,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   //
   late List<Departement> lesDepartementsFiltre;
   late List<SousPrefecture> lesSousPrefectureFiltre;
+  late GenericData leRegimeFiscal;
 
   int artisanId = 0;
 
@@ -222,6 +228,12 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     NiveauEquipement(libelle: 'Précaire', id: 0),
     NiveauEquipement(libelle: 'Moyen', id: 1),
     NiveauEquipement(libelle: 'Bon', id: 2)
+  ];
+  // REGIME FISCAUX
+  final lesRegimesFiscaux = [
+    GenericData(libelle: 'Taxe communale de l\'entreprenant', id: 1),
+    GenericData(libelle: 'Taxe d\'Etat de l\'entreprenant', id: 2),
+    GenericData(libelle: 'Autres', id: 3)
   ];
 
   int checkChiffreAffaire(){
@@ -341,10 +353,11 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             "contact2" : contact2Controller.text,
             "email" : emailController.text,
 
-            "photo_artisan" : widget.lArtisan!.photo_artisan,
-            "photo_cni_recto" : widget.lArtisan!.photo_cni_verso,
-            "photo_cni_verso" : widget.lArtisan!.photo_cni_verso,
-            "photo_diplome" : widget.lArtisan!.photo_diplome,
+            "photo_artisan" : "",
+            "photo_cni_recto" : "",
+            "photo_cni_verso" : "",
+            "photo_diplome" : "",
+            "photo_autre" : "",
 
             "longitude" : widget.lArtisan!.longitude.toString(),
             "latitude" : widget.lArtisan!.latitude.toString(),
@@ -352,7 +365,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             "departement" : leDepartement.id,
             "sous_pref" : laSousPrefecture.id,
             "activite_principale" : lActivitePrincipale.id,
-            "activite_secondaire" : lActiviteSecondaire.id,
+            "activite_secondaire" : activiteSecondaireController.text,
             "raison_social" : denominationController.text,
             "sigle" : sigleController.text,
             "date_creation" : dateDebutActiviteController.text,
@@ -368,7 +381,13 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             "apprenti_femme" : 0,
             "statut_artisan" : leStatutArtisan.id,
             "numero_registre" : numeroRegistreController.text.trim(),
-            "livraison_carte" : laLivraison.id == 1 ? true : false
+            "livraison_carte" : laLivraison.id == 1 ? true : false,
+
+            "optin_mail": optinEmail ? true : false,
+            "optin_sms": optinSms ? true : false,
+            "optin_whatsapp": 0,
+            "regime_fiscal": leRegimeFiscal.id,
+            "qualification": qualificationController.text
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -407,6 +426,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             photo_cni_recto: widget.lArtisan!.photo_cni_recto,
             photo_cni_verso: widget.lArtisan!.photo_cni_verso,
             photo_diplome: widget.lArtisan!.photo_diplome,
+            photoAutre: widget.lArtisan!.photoAutre,
             date_expiration_carte: widget.lArtisan!.date_expiration_carte,
             statut_kyc: widget.lArtisan!.statut_kyc,
             statut_paiement: widget.lArtisan!.statut_paiement,
@@ -425,9 +445,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             crm: leCrm.id,
             departement: leDepartement.id,
             sous_prefecture: laSousPrefecture.id,
-            specialite: leMetier.id,
+            //specialite: leMetier.id,
             activite_principale: lActivitePrincipale.id,
-            activite_secondaire: lActiviteSecondaire.id,
+            activite_secondaire: activiteSecondaireController.text,
 
             raison_social: denominationController.text,
             sigle: sigleController.text,
@@ -436,10 +456,15 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             quartier_activite: '',// quartierCommuneController.text,
             rccm: rccmCommuneController.text,
             niveau_equipement: leNiveauEquipement.id,
-            millisecondes: DateTime.now().millisecondsSinceEpoch,
+            millisecondes: widget.lArtisan!.millisecondes, // DateTime.now().millisecondsSinceEpoch,
             quartier_activite_id: leQuartierActivite.id,
             statut_artisan: leStatutArtisan.id,
-            livraisonCarte: laLivraison.id
+            livraisonCarte: laLivraison.id,
+            optinMail: optinEmail ? 1 : 0,
+            optinSms: optinSms ? 1 : 0,
+            optinWhatsapp: 0,
+            regimeFiscal: leRegimeFiscal.id,
+            qualification: qualificationController.text
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage = artisan;
@@ -462,7 +487,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               quartier: artisan.quartier_residence,
               amende: tampStats.amende,
               latitude: tampStats.latitude,
-              longitude: tampStats.longitude);
+              longitude: tampStats.longitude,
+              montant: tampStats.montant
+          );
           // Reset :
           setOriginFromCallArtisan = 0;
         }
@@ -511,6 +538,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         photo_cni_recto: "",
         photo_cni_verso: "",
         photo_diplome: "",
+        photoAutre: "",
         date_expiration_carte: '',
         statut_kyc: widget.lArtisan == null ? 0 : widget.lArtisan!.statut_kyc,
         statut_paiement: widget.lArtisan == null ? 0 : widget.lArtisan!.statut_paiement,
@@ -529,9 +557,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         crm: leCrm.id,
         departement: leDepartement.id,
         sous_prefecture: laSousPrefecture.id,
-        specialite: leMetier.id,
         activite_principale: lActivitePrincipale.id,
-        activite_secondaire: lActiviteSecondaire.id,
+        activite_secondaire: activiteSecondaireController.text,
 
         raison_social: denominationController.text,
         sigle: sigleController.text,
@@ -543,7 +570,12 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         millisecondes: DateTime.now().millisecondsSinceEpoch,
         quartier_activite_id: leQuartierActivite.id,
         statut_artisan: leStatutArtisan.id,
-        livraisonCarte: laLivraison.id
+        livraisonCarte: laLivraison.id,
+        optinMail: optinEmail ? 1 : 0,
+        optinSms: optinSms ? 1 : 0,
+        optinWhatsapp: 0,
+        regimeFiscal: leRegimeFiscal.id,
+        qualification: qualificationController.text
     );
 
     final result = await Navigator.push(context,
@@ -610,7 +642,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       lApprentissageMetier = lesGenericApprentissagea.where((p) => p.id == widget.lArtisan!.formation).first;
       leMetier = lesMetiers.where((p) => p.id == widget.lArtisan!.metier).first;
       lActivitePrincipale = lesMetiers.where((p) => p.id == widget.lArtisan!.activite_principale).first;
-      lActiviteSecondaire = lesMetiers.where((p) => p.id == widget.lArtisan!.activite_secondaire).first;
+      activiteSecondaireController.text = widget.lArtisan!.activite_secondaire;
+      //lActiviteSecondaire = lesMetiers.first;//.where((p) => p.id == widget.lArtisan!.activite_secondaire).first;
       leNiveauEquipement = lesNiveauEquipement.where((p) => p.id == widget.lArtisan!.niveau_equipement).first;
       leStatutArtisan = widget.lArtisan!.statut_artisan == 3 ? lesStatutArtisan.last : lesStatutArtisan.first;
       laLivraison = lesGenericLivraisons.where((l) => l.id == widget.lArtisan!.livraisonCarte).first;
@@ -647,8 +680,13 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       pieceDelivreController.text = laPieceDelivre.libelle;
       metierController.text = leMetier.libelle;
       activitePrincipaleController.text = lActivitePrincipale.libelle;
-      activiteSecondaireController.text = lActiviteSecondaire.libelle;
       villeCommuneController.text = laVilleCommune.libelle;
+      qualificationController.text = widget.lArtisan!.qualification;
+      leRegimeFiscal = lesRegimesFiscaux.where((r) => r.id == widget.lArtisan!.regimeFiscal).first;
+
+      // Optin :
+      optinSms = widget.lArtisan!.optinSms == 1;
+      optinEmail = widget.lArtisan!.optinMail == 1;
     }
     else {
       leCrm = lesCrms.first;
@@ -716,6 +754,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       rccmCommuneController.text = "";
       numeroRegistreController.text = "";
       datePieceController.text = "";
+      qualificationController.text = "";
+
+      leRegimeFiscal = lesRegimesFiscaux.last;
 
       // INIT DROPDOWN's Controller text fields
       communeController.text = laCommune.libelle;
@@ -723,7 +764,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       pieceDelivreController.text = laPieceDelivre.libelle;
       metierController.text = leMetier.libelle;
       activitePrincipaleController.text = lActivitePrincipale.libelle;
-      activiteSecondaireController.text = lActiviteSecondaire.libelle;
+      activiteSecondaireController.text = '';
       villeCommuneController.text = laVilleCommune.libelle;
     }
 
@@ -827,7 +868,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
 
   Future<void> _selectDateDelivre() async {
     choixDate = 1;
-    final now = DateTime(2015, 1, 2, 00, 00);
+    final now = DateTime(2005, 1, 2, 00, 00);
     final currentDate = DateTime.now();
 
     // Sélection de la date
@@ -1642,6 +1683,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
           height: 5,
         ),
       ),
+
+      /*
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
@@ -1775,14 +1818,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             }).toList()
         ),
       ),
-      Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.only(top: 30, left: 10, right: 10),
-        child: Divider(
-          color: Colors.black,
-          height: 5,
-        ),
-      ),
+      */
+
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
@@ -2090,6 +2128,42 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             ],
           )
       ),
+      Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 40, left: 10, right: 10),
+        child: Divider(
+          color: Colors.black,
+          height: 5,
+        ),
+      ),
+      Container(
+        alignment: Alignment.center,
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 15),
+        child: Text('Canal d\'information',
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.bold
+        ),
+        )
+      ),
+      CustomOptinCheckBox(libelle: 'SMS', valeur: optinSms, icone: Icons.message, couleur: Colors.blue,
+        onChanged: (bool? value) {
+          setState(() {
+            optinSms = !optinSms;
+          });
+        }
+      ),
+      SizedBox(
+        height: 2,
+      ),
+      CustomOptinCheckBox(libelle: 'Email', valeur: optinEmail, icone: Icons.mail, couleur: Colors.green,
+          onChanged: (bool? value) {
+            setState(() {
+              optinEmail = !optinEmail;
+            });
+          }
+      ),
       lesBoutons()
     ];
   }
@@ -2202,7 +2276,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             ],
           )
       ),
-      Container(
+      /*Container(
         alignment: Alignment.topLeft,
         margin: EdgeInsets.only(top: 20, left: 10, right: 10),
         width: MediaQuery.of(context).size.width,
@@ -2240,29 +2314,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               )
           ),
         )
-        /*DropdownMenu<Metier>(
-            width: (MediaQuery.of(context).size.width / 2) - 20,
-            menuHeight: 250,
-            initialSelection: leMetier,
-            controller: metierController,
-            hintText: "Spécialité",
-            requestFocusOnTap: true,
-            enableSearch: true,
-            enableFilter: false,
-            label: const Text('Spécialité'),
-            // Initial Value
-            onSelected: (Metier? value) {
-              leMetier = value!;
-            },
-            dropdownMenuEntries:
-            lesMetiers.map<DropdownMenuEntry<Metier>>((Metier menu) {
-              return DropdownMenuEntry<Metier>(
-                  value: menu,
-                  label: menu.libelle,
-                  leadingIcon: Icon(Icons.work_history));
-            }).toList()
-        ),*/
-      ),
+      ),*/
       Container(
         width: MediaQuery.of(context).size.width,
         margin: EdgeInsets.only(top: 20, left: 10, right: 10),
@@ -2282,7 +2334,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               child:DropdownSearch<Metier>(
                     mode: Mode.form,
                     onChanged: (Metier? value) => {
-                      lActivitePrincipale = value!
+                      leMetier = value!
                     },
                     compareFn: (Metier? a, Metier? b){
                       if(a == null || b == null){
@@ -2290,7 +2342,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                       }
                       return a.id == b.id;
                     },
-                    selectedItem: lActivitePrincipale,
+                    selectedItem: leMetier,
                     itemAsString: (metier) => metier.libelle,
                     items: (filter, infiniteScrollProps) => lesMetiers,
                     decoratorProps: DropDownDecoratorProps(
@@ -2313,91 +2365,86 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                         )
                     ),
                   )
-              )
-              /*DropdownMenu<Metier>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: lActivitePrincipale,
-                  controller: activitePrincipaleController,
-                  hintText: "Activité principale",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Activité principale'),
-                  // Initial Value
-                  onSelected: (Metier? value) {
-                    lActivitePrincipale = value!;
-                  },
-                  dropdownMenuEntries:
-                  lesMetiers.map<DropdownMenuEntry<Metier>>((Metier menu) {
-                    return DropdownMenuEntry<Metier>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.work));
-                  }).toList()
-              )*/,
+              ),
               SizedBox(
                 width: (MediaQuery.of(context).size.width / 2) - 20,
-                child:DropdownSearch<Metier>(
-                  mode: Mode.form,
-                  onChanged: (Metier? value) => {
-                    lActiviteSecondaire = value!
-                  },
-                  compareFn: (Metier? a, Metier? b){
-                    if(a == null || b == null){
-                      return false;
-                    }
-                    return a.id == b.id;
-                  },
-                  selectedItem: lActiviteSecondaire,
-                  itemAsString: (metier) => metier.libelle,
-                  items: (filter, infiniteScrollProps) => lesMetiers,
-                  decoratorProps: DropDownDecoratorProps(
-                    decoration: InputDecoration(
-                      labelText: 'Activité secondaire',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  popupProps: PopupProps.menu(
-                      showSearchBox: true,
-                      searchFieldProps: TextFieldProps(
-                          decoration: InputDecoration(
-                              hintText: 'Rechercher'
-                          )
-                      ),
-                      fit: FlexFit.loose,
-                      constraints: BoxConstraints(
-                          minHeight: 300,
-                          maxHeight: 400
-                      )
-                  ),
-                )
-              ),
-              /*DropdownMenu<Metier>(
-                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                  menuHeight: 250,
-                  initialSelection: lActiviteSecondaire,
+                child: TextField(
+                  keyboardType: TextInputType.text,
                   controller: activiteSecondaireController,
-                  hintText: "Activité secondaire",
-                  requestFocusOnTap: true,
-                  enableSearch: true,
-                  enableFilter: false,
-                  label: const Text('Activité secondaire'),
-                  // Initial Value
-                  onSelected: (Metier? value) {
-                    lActiviteSecondaire = value!;
-                  },
-                  dropdownMenuEntries:
-                  lesMetiers.map<DropdownMenuEntry<Metier>>((Metier menu) {
-                    return DropdownMenuEntry<Metier>(
-                        value: menu,
-                        label: menu.libelle,
-                        leadingIcon: Icon(Icons.work));
-                  }).toList()
-              )*/
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Activité secondaire',
+                  ),
+                  style: const TextStyle(
+                      height: 1.5
+                  ),
+                  textAlignVertical: TextAlignVertical.bottom,
+                  textAlign: TextAlign.center,
+                  textInputAction: TextInputAction.next,
+                ),
+              )
             ],
           )
       ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 17),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      qualificationController.text = value;
+                    });
+                  },
+                  keyboardType: TextInputType.text,
+                  controller: qualificationController,
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: qualificationController.text.trim().isEmpty ?
+                      Colors.red : Colors.black, width: 1.0),
+                    ),
+                    border: OutlineInputBorder(),
+                    labelText: 'Qualification',
+                  ),
+                  style: const TextStyle(
+                      height: 1.5
+                  ),
+                  textAlignVertical: TextAlignVertical.bottom,
+                  textAlign: TextAlign.center,
+                  textInputAction: TextInputAction.next,
+                ),
+              ),
+              DropdownMenu<GenericData>(
+                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                  menuHeight: 250,
+                  initialSelection: leRegimeFiscal,
+                  controller: regimeFiscalController,
+                  hintText: "Régime fiscal",
+                  requestFocusOnTap: false,
+                  enableSearch: false,
+                  enableFilter: false,
+                  label: const Text('Régime fiscal'),
+                  // Initial Value
+                  onSelected: (GenericData? value) {
+                    leRegimeFiscal = value!;
+                  },
+                  dropdownMenuEntries:
+                  lesRegimesFiscaux.map<DropdownMenuEntry<GenericData>>((GenericData menu) {
+                    return DropdownMenuEntry<GenericData>(
+                        value: menu,
+                        label: menu.libelle,
+                        leadingIcon: Icon(Icons.location_city));
+                  }).toList()
+              )
+            ],
+          )
+      ),
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 10),

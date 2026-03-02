@@ -44,16 +44,19 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
   XFile? photoDiplome;
   XFile? photoRecto;
   XFile? photoVerso;
+  XFile? photoAutre;
 
   bool uploadPhoto = false;
   bool uploadPhotoDiplome = false;
   bool uploadPhotoRecto = false;
   bool uploadPhotoVerso = false;
+  bool uploadPhotoAutre = false;
 
   io.File? fileUploadPhoto;
   io.File? fileUploadPhotoDiplome;
   io.File? fileUploadPhotoRecto;
   io.File? fileUploadPhotoVerso;
+  io.File? fileUploadPhotoAutre;
 
   // Gps Permission
   bool gpsPermission = true;
@@ -67,6 +70,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
   TextEditingController photoDiplomeController = TextEditingController();
   TextEditingController photoRectoController = TextEditingController();
   TextEditingController photoVersoController = TextEditingController();
+  TextEditingController photoAutreController = TextEditingController();
 
   double _currentDiscreteSliderValue = 8.0;
 
@@ -708,6 +712,126 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
           )
       ),
 
+      Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Autre document',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18
+              ),
+            ),
+            Divider(
+              height: 3,
+              thickness: 2,
+              color: Colors.brown,
+            )
+          ],
+        ),
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: (MediaQuery.of(context).size.width / 2) - 20,
+                child: ElevatedButton.icon(
+                  style: ButtonStyle(
+                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                  ),
+                  label: const Text("Appareil photo",
+                      style: TextStyle(
+                          color: Colors.white
+                      )
+                  ),
+                  onPressed: () async {
+                    try {
+                      // Ensure that the camera is initialized.
+                      if (stepForPhoto == 0) {
+                        //setState(() {
+                        if (cameraOnPause) {
+                          cameraOnPause = false;
+                          _cameraController!.resumePreview();
+                        }
+                        stepForPhoto++;
+                        //});
+                        displayCameraDialog(5);
+                      }
+                    } catch (e) {
+                      // If an error occurs, log the error to the console.
+                      //print('Erreur ....$e');
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.camera_alt_outlined,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                  child: ElevatedButton.icon(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateColor.resolveWith((states) => photoIdentite)
+                    ),
+                    label: const Text("Uploader",
+                        style: TextStyle(
+                            color: Colors.white
+                        )
+                    ),
+                    onPressed: () async {
+                      try {
+                        // Try to pick files :
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          fileUploadPhotoAutre = io.File(result.files.single.path!);
+                          photoAutreController.text = result.files.single.name;
+                          setState(() {
+                            uploadPhotoAutre = true;
+                          });
+                        }
+                      } catch (e) {
+                        // If an error occurs, log the error to the console.
+                        //print('Erreur ....$e');
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.upload_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  )
+              ),
+            ],
+          )
+      ),
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+          child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: TextField(
+                enabled: false,
+                controller: photoAutreController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fichier Autre...',
+                ),
+                style: TextStyle(
+                    height: 0.8
+                ),
+                textAlignVertical: TextAlignVertical.bottom,
+                textAlign: TextAlign.right,
+              )
+          )
+      ),
+
       SizedBox(
         height: 40,
       ),
@@ -930,10 +1054,16 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                                       uploadPhotoRecto = false;
                                       break;
 
-                                    default:
+                                    case 4:
                                       photoVerso = image;
                                       photoVersoController.text = image.name;
                                       uploadPhotoVerso = false;
+                                      break;
+
+                                    default:
+                                      photoAutre = image;
+                                      photoAutreController.text = image.name;
+                                      uploadPhotoAutre = false;
                                       break;
                                   }
                                   await _cameraController!.pausePreview();
@@ -1053,6 +1183,60 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
     return img64;
   }
 
+  String convertUploadedFile(io.File file){
+    final bytes = file.readAsBytesSync();
+    String img64 = base64Encode(bytes);
+    return img64;
+  }
+
+  // Check if PHOTO ARTISAN has been taken :
+  String checkPhotoCompagnon(){
+    if(photoController.text.isNotEmpty) {
+      if (uploadPhoto) {
+        return convertUploadedFile(fileUploadPhoto!);
+      }
+      else if (photo != null) {
+        return convertPhotoToString(photo!);
+      }
+      else {
+        // This BLOCK is not necessary :
+        return "";
+      }
+    }
+    else{
+      return compagnonToManage.photo;
+    }
+  }
+
+  String factoriseDocumentProcessing(TextEditingController editingController, bool uploadPhoto, io.File? fileUpload, XFile? photoEntite, int choice){
+    if(editingController.text.isNotEmpty) {
+      if (uploadPhoto) {
+        return convertUploadedFile(fileUpload!);
+      }
+      else if (photoEntite != null) {
+        return convertPhotoToString(photoEntite);
+      }
+      else {
+        // This BLOCK is not necessary :
+        return "";
+      }
+    }
+    else{
+      if(choice == 1){
+        return compagnonToManage.photo_cni_recto;
+      }
+      else if(choice == 2){
+        return compagnonToManage.photo_cni_verso;
+      }
+      else if(choice == 3){
+        return compagnonToManage.photo_diplome;
+      }
+      else {
+        return compagnonToManage.photoAutre;
+      }
+    }
+  }
+
   Future<void> sendData() async {
     // First Call this :
     var localToken = await MesServices().checkJwtExpiration();
@@ -1083,10 +1267,18 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             "contact1" : compagnonToManage.contact1,
             "contact2" : compagnonToManage.contact2,
             "email" : compagnonToManage.email,
-            "photo_compagnon" : photo != null ? convertPhotoToString(photo!) : "",
-            "photo_cni_recto" : photoRecto != null ? convertPhotoToString(photoRecto!) : "",
-            "photo_cni_verso" : photoVerso != null ? convertPhotoToString(photoVerso!) : "",
-            "photo_diplome" : photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
+
+            "photo_compagnon" : uploadPhoto ? convertUploadedFile(fileUploadPhoto!) :
+              photo != null ? convertPhotoToString(photo!) : "",
+            "photo_cni_recto" : uploadPhotoRecto ? convertUploadedFile(fileUploadPhotoRecto!) :
+              photoRecto != null ? convertPhotoToString(photoRecto!) : "",
+            "photo_cni_verso" : uploadPhotoVerso ? convertUploadedFile(fileUploadPhotoVerso!) :
+              photoVerso != null ? convertPhotoToString(photoVerso!) : "",
+            "photo_diplome" : uploadPhotoDiplome ? convertUploadedFile(fileUploadPhotoDiplome!) :
+              photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
+            "photo_autre" : uploadPhotoAutre ? convertUploadedFile(fileUploadPhotoAutre!) :
+              photoAutre != null ? convertPhotoToString(photoAutre!) : "",
+
             "longitude" : longitude.toString(),
             "latitude" : latitude.toString(),
             "entity_id": compagnonToManage.artisan_id > 0 ? compagnonToManage.artisan_id : compagnonToManage.entreprise_id,
@@ -1100,7 +1292,10 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             "cmu" : compagnonToManage.cmu,
             "statut_compagnon" : compagnonToManage.statut_compagnon,
             "numero_immatriculation" : compagnonToManage.numero_immatriculation,
-            "livraison_carte" : compagnonToManage.livraisonCarte
+            "livraison_carte" : compagnonToManage.livraisonCarte,
+            "optin_mail" : compagnonToManage.optinMail,
+            "optin_sms" : compagnonToManage.optinSms,
+            "optin_whatsapp" : compagnonToManage.optinWhatsapp
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -1131,10 +1326,11 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             numero_piece: compagnonToManage.numero_piece,
             piece_delivre: compagnonToManage.piece_delivre,
             date_emission_piece: compagnonToManage.date_emission_piece,
-            photo: photo != null ? convertPhotoToString(photo!) : "",
-            photo_cni_recto: photoRecto != null ? convertPhotoToString(photoRecto!) : "",
-            photo_cni_verso: photoVerso != null ? convertPhotoToString(photoVerso!) : "",
-            photo_diplome: photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
+            photo: checkPhotoCompagnon(),
+            photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 1),
+            photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 2),
+            photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 3),
+            photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 4),
             contact1: compagnonToManage.contact1,
             contact2: compagnonToManage.contact2,
             email: compagnonToManage.email,
@@ -1146,9 +1342,13 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             cmu: compagnonToManage.cmu,
             artisan_id: compagnonToManage.artisan_id,
             entreprise_id: compagnonToManage.entreprise_id,
-          millisecondes: compagnonToManage.millisecondes,
+            millisecondes: compagnonToManage.millisecondes,
             statut_compagnon: compagnonToManage.statut_compagnon,
-            livraisonCarte: compagnonToManage.livraisonCarte
+            livraisonCarte: compagnonToManage.livraisonCarte,
+
+            optinMail: compagnonToManage.optinMail,
+            optinSms: compagnonToManage.optinSms,
+            optinWhatsapp: compagnonToManage.optinWhatsapp
         );
         compagnonControllerX.addItem(compagnon);
         flagSendData = false;

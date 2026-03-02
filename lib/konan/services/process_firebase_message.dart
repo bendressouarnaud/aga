@@ -82,7 +82,6 @@ class FirebaseProcessMessage{
                 departement: artisan.departement,
                 sous_prefecture: artisan.sous_prefecture,
 
-                specialite: artisan.specialite,
                 activite_principale: artisan.activite_principale,
                 activite_secondaire: artisan.activite_secondaire,
                 raison_social: artisan.raison_social,
@@ -95,7 +94,13 @@ class FirebaseProcessMessage{
                 millisecondes: artisan.millisecondes,
                 quartier_activite_id: artisan.quartier_activite_id,
                 statut_artisan: artisan.statut_artisan,
-              livraisonCarte: artisan.livraisonCarte
+              livraisonCarte: artisan.livraisonCarte,
+                optinMail: artisan.optinMail,
+                optinSms: artisan.optinSms,
+                optinWhatsapp: artisan.optinWhatsapp,
+                photoAutre: artisan.photoAutre,
+                regimeFiscal: artisan.regimeFiscal,
+                qualification: artisan.qualification
             );
             //
             artisanControllerX.updateData(updateArtisan);
@@ -135,7 +140,7 @@ class FirebaseProcessMessage{
                 photo: apprenti.photo,
                 photo_cni_recto: apprenti.photo_cni_recto,
                 photo_cni_verso: apprenti.photo_cni_verso,
-                statut_kyc: 0,
+                statut_kyc: apprenti.statut_kyc,
                 statut_paiement: int.parse(message.data['statut']),
                 longitude: apprenti.longitude,
                 latitude: apprenti.latitude,
@@ -150,7 +155,11 @@ class FirebaseProcessMessage{
                 entreprise_id: apprenti.entreprise_id,
                 millisecondes: apprenti.millisecondes,
                 statut_apprenti: apprenti.statut_apprenti,
-                livraisonCarte: apprenti.livraisonCarte
+                livraisonCarte: apprenti.livraisonCarte,
+                optinMail: apprenti.optinMail,
+                optinSms: apprenti.optinSms,
+                optinWhatsapp: apprenti.optinWhatsapp,
+                photoAutre: apprenti.photoAutre
             );
             apprentiControllerX.updateData(updateApprenti);
           }
@@ -201,7 +210,11 @@ class FirebaseProcessMessage{
                 entreprise_id: compagnon.entreprise_id,
                 millisecondes: compagnon.millisecondes,
                 statut_compagnon: compagnon.statut_compagnon,
-                livraisonCarte: compagnon.livraisonCarte
+                livraisonCarte: compagnon.livraisonCarte,
+                optinMail: compagnon.optinMail,
+                optinSms: compagnon.optinSms,
+                optinWhatsapp: compagnon.optinWhatsapp,
+                photoAutre: compagnon.photoAutre
             );
             compagnonControllerX.updateData(updateCompagnon);
           }
@@ -259,7 +272,11 @@ class FirebaseProcessMessage{
               latitude: entreprise.latitude,
               millisecondes: entreprise.millisecondes,
               quartier_siege_id: entreprise.quartier_siege_id,
-              livraisonCarte: entreprise.livraisonCarte
+              livraisonCarte: entreprise.livraisonCarte,
+              photoCniRecto: entreprise.photoCniRecto,
+              photoCniVerso: entreprise.photoCniVerso,
+              photoRegistreCommerce: entreprise.photoRegistreCommerce,
+              photoDfe: entreprise.photoDfe
           );
           entrepriseControllerX.updateData(updateEntreprise);
         }

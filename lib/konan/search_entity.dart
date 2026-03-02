@@ -41,7 +41,7 @@ class _SearchEntity extends State<SearchEntity> {
         .map(
             (a) => SearchResponseData(
                 nom: '${a.nom} ${a.prenom}',
-                metier: lesMetiers.where((m) => m.id == a.specialite).first.libelle,
+                metier: lesMetiers.where((m) => m.id == a.activite_principale).first.libelle,
                 date: a.date_naissance,
                 contact: a.contact1,
                 id: a.id

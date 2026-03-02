@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 5;
+  static final _databaseVersion = 1;
 
 
   // Make this a singleton class.
@@ -59,7 +59,7 @@ class DatabaseHelper {
         await _createDatabase(db);
         break;
 
-      case 2:
+    /*case 2:
         await _addQuartierTable(db);
         break;
 
@@ -73,7 +73,7 @@ class DatabaseHelper {
 
       case 5:
         await _addLivraisonCarteColumn(db);
-        break;
+        break;*/
 
       default:
         // todo
@@ -81,43 +81,14 @@ class DatabaseHelper {
     }
   }
 
-  Future _addQuartierTable(Database db) async {
+  /*Future _addQuartierTable(Database db) async {
     await db.execute('CREATE TABLE quartier (id INTEGER PRIMARY KEY, libelle TEXT, idx integer)');
-    // Update ARTISAN :
-    //await db.execute('ALTER TABLE artisan ADD COLUMN quartier_residence_id integer');
-    await db.execute('ALTER TABLE artisan ADD COLUMN quartier_activite_id integer');
-    // Update ENTREPRISE :
-    await db.execute('ALTER TABLE entreprise ADD COLUMN quartier_siege_id integer');
-  }
-
-  Future _addStatutColumn(Database db) async {
-    await db.execute('ALTER TABLE artisan ADD COLUMN statut_artisan integer');
-    await db.execute('update artisan set statut_artisan = 0');
-    await db.execute('ALTER TABLE apprenti ADD COLUMN statut_apprenti integer');
-    await db.execute('update apprenti set statut_apprenti = 0');
-    await db.execute('ALTER TABLE compagnon ADD COLUMN statut_compagnon integer');
-    await db.execute('update compagnon set statut_compagnon = 0');
   }
 
   Future _addParametreTable(Database db) async {
     await db.execute('CREATE TABLE parametre (id INTEGER PRIMARY KEY, topic_subscription integer, param1 integer,'
         'param2 integer, param3 TEXT)');
-  }
-
-  Future _addLivraisonCarteColumn(Database db) async {
-    // ARTISAN
-    await db.execute('ALTER TABLE artisan ADD COLUMN livraison_carte integer');
-    await db.execute('update artisan set livraison_carte = 0');
-    // APPRENTI
-    await db.execute('ALTER TABLE apprenti ADD COLUMN livraison_carte integer');
-    await db.execute('update apprenti set livraison_carte = 0');
-    // COMPAGNON
-    await db.execute('ALTER TABLE compagnon ADD COLUMN livraison_carte integer');
-    await db.execute('update compagnon set livraison_carte = 0');
-    // ENTREPRISE
-    await db.execute('ALTER TABLE entreprise ADD COLUMN livraison_carte integer');
-    await db.execute('update entreprise set livraison_carte = 0');
-  }
+  }*/
 
   Future _createDatabase(Database db) async {
     await db.execute('CREATE TABLE crm (id INTEGER PRIMARY KEY, libelle TEXT)');
@@ -136,6 +107,10 @@ class DatabaseHelper {
     await db.execute('CREATE TABLE user (id INTEGER PRIMARY KEY, nom TEXT, email TEXT, pwd TEXT, jwt TEXT, profil TEXT,'
         'milliseconds INTEGER)');
 
+    await db.execute('CREATE TABLE quartier (id INTEGER PRIMARY KEY, libelle TEXT, idx integer)');
+    await db.execute('CREATE TABLE parametre (id INTEGER PRIMARY KEY, topic_subscription integer, param1 integer,'
+        'param2 integer, param3 TEXT)');
+
     await db.execute('CREATE TABLE artisan (id INTEGER PRIMARY KEY, nom TEXT, prenom TEXT, contact1 TEXT, contact2 TEXT,'
         'email TEXT, numero_registre TEXT, lieu_naissance_autre TEXT, lieu_naissance INTEGER, civilite TEXT, date_naissance TEXT,'
         'nationalite INTEGER, statut_matrimonial INTEGER, type_document INTEGER, niveau_etude INTEGER, formation INTEGER, classe INTEGER, '
@@ -144,9 +119,11 @@ class DatabaseHelper {
         'date_expiration_carte TEXT, statut_kyc INTEGER, statut_paiement INTEGER, longitude REAL, latitude REAL, regime_social INTEGER, regime_travailleur INTEGER,'
         'regime_imposition_taxe_communale INTEGER, regime_imposition_micro_entreprise INTEGER, comptabilite INTEGER, chiffre_affaire INTEGER, cnps TEXT, cmu TEXT,'
         'presence_compte_bancaire INTEGER, type_compte_bancaire INTEGER, crm INTEGER, departement INTEGER, sous_prefecture INTEGER,'
-        'specialite INTEGER, activite_principale INTEGER, activite_secondaire INTEGER,'
+        'activite_principale INTEGER, activite_secondaire TEXT,'
         'raison_social TEXT, sigle TEXT, date_creation TEXT, commune_activite INTEGER, quartier_activite TEXT,'
-        'rccm TEXT, niveau_equipement INTEGER, millisecondes INTEGER)');
+        'rccm TEXT, niveau_equipement INTEGER, millisecondes INTEGER, quartier_activite_id INTEGER, statut_artisan INTEGER,'
+        'livraison_carte integer, optin_mail integer, optin_sms integer, optin_whatsapp integer, photo_autre TEXT, '
+        'qualification TEXT, regime_fiscal integer)');
 
     await db.execute('CREATE TABLE apprenti (id INTEGER PRIMARY KEY, nom TEXT, prenom TEXT, contact1 TEXT, contact2 TEXT,'
         'email TEXT, numero_immatriculation TEXT, lieu_naissance_autre TEXT, lieu_naissance INTEGER, civilite TEXT, date_naissance TEXT,'
@@ -155,7 +132,8 @@ class DatabaseHelper {
         'numero_piece TEXT, piece_delivre INTEGER, photo TEXT, photo_cni_recto TEXT, photo_cni_verso TEXT,'
         'statut_kyc INTEGER, statut_paiement INTEGER, longitude REAL, latitude REAL, a_suivi_formation INTEGER, centre_formation_metier TEXT, '
         'intitule_formation_metier TEXT, formation_metier_terminee INTEGER, diplome_obtenu_metier TEXT, cnps TEXT, cmu TEXT,'
-        'artisan_id INTEGER, entreprise_id INTEGER, millisecondes INTEGER)');
+        'artisan_id INTEGER, entreprise_id INTEGER, millisecondes INTEGER, statut_apprenti integer, livraison_carte integer, '
+        'optin_mail integer, optin_sms integer, optin_whatsapp integer, photo_autre TEXT)');
 
     await db.execute('CREATE TABLE compagnon (id INTEGER PRIMARY KEY, nom TEXT, prenom TEXT, contact1 TEXT, contact2 TEXT,'
         'email TEXT, numero_immatriculation TEXT, lieu_naissance_autre TEXT, lieu_naissance INTEGER, civilite TEXT, date_naissance TEXT,'
@@ -163,7 +141,8 @@ class DatabaseHelper {
         'diplome INTEGER, apprentissage_metier INTEGER, date_debut_compagnonnage TEXT, commune_residence INTEGER, quartier_residence TEXT, adresse_postal TEXT, date_emission_piece TEXT,'
         'numero_piece TEXT, piece_delivre INTEGER, photo TEXT, photo_cni_recto TEXT, photo_cni_verso TEXT, photo_diplome TEXT,'
         'statut_kyc INTEGER, statut_paiement INTEGER, longitude REAL, latitude REAL, cnps TEXT, cmu TEXT, artisan_id INTEGER, entreprise_id INTEGER,'
-        'millisecondes INTEGER)');
+        'millisecondes INTEGER, statut_compagnon integer, livraison_carte integer,'
+        'optin_mail integer, optin_sms integer, optin_whatsapp integer, photo_autre TEXT)');
 
     await db.execute('CREATE TABLE entreprise (id INTEGER PRIMARY KEY, crm INTEGER, departement INTEGER,'
         'sous_prefecture INTEGER, civilite TEXT, nom TEXT, prenom TEXT, date_naissance TEXT, lieu_naissance INTEGER,'
@@ -174,6 +153,8 @@ class DatabaseHelper {
         'sigle TEXT, date_creation TEXT, objet_social TEXT, rccm TEXT, date_rccm TEXT, capital_social INTEGER,'
         'regime_fiscal INTEGER, duree_personne_morale INTEGER, cnps_entreprise TEXT, compte_contribuable TEXT,'
         'total_associe INTEGER, commune_siege INTEGER, quartier_siege TEXT, lot TEXT, telephone TEXT,'
-        'statut_kyc INTEGER, statut_paiement INTEGER, longitude REAL, latitude REAL, millisecondes INTEGER)');
+        'statut_kyc INTEGER, statut_paiement INTEGER, longitude REAL, latitude REAL, millisecondes INTEGER,'
+        'quartier_siege_id integer, livraison_carte integer,'
+        'photo_cni_recto TEXT, photo_cni_verso TEXT, photo_registre_commerce TEXT, photo_dfe TEXT)');
   }
 }
