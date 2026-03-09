@@ -23,6 +23,7 @@ class FirebaseProcessMessage{
     int sujet = int.parse(message.data['sujet']);
     switch(sujet){
       case 1:
+      case 3:
         if(message.data['type'] == "ART") {
           // Persist
           Artisan? artisan = artisanControllerX.data
@@ -63,7 +64,7 @@ class FirebaseProcessMessage{
                 photo_diplome: artisan.photo_diplome,
                 date_expiration_carte: '',
                 statut_kyc: artisan.statut_kyc,
-                statut_paiement: int.parse(message.data['statut']),
+                statut_paiement: sujet == 1 ? int.parse(message.data['statut']) : artisan.statut_paiement,
                 longitude: artisan.longitude,
                 latitude: artisan.latitude,
                 regime_social: artisan.regime_social,
@@ -100,7 +101,8 @@ class FirebaseProcessMessage{
                 optinWhatsapp: artisan.optinWhatsapp,
                 photoAutre: artisan.photoAutre,
                 regimeFiscal: artisan.regimeFiscal,
-                qualification: artisan.qualification
+                qualification: artisan.qualification,
+                statutLivraison: sujet == 3 ? int.parse(message.data['statut']) : artisan.statutLivraison
             );
             //
             artisanControllerX.updateData(updateArtisan);

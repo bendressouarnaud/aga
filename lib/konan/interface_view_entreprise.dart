@@ -488,7 +488,139 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                           ),
                         ),
 
-                        Card(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                      return  HistoriqueApprenti(entreprise: widget.entreprise);
+                                    })
+                                );
+                              },
+                              child: Container(
+                                width: (MediaQuery.of(context).size.width / 2) - 20,
+                                margin: EdgeInsets.all(10),
+                                padding: EdgeInsets.all(5),
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        Colors.blue.shade100,
+                                        Colors.red.shade50,
+                                      ],
+                                    ),
+                                    //color: Colors.brown[100],
+                                    borderRadius: BorderRadius.circular(8.0)
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.people_alt,
+                                      size: 50,
+                                    ),
+                                    Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Apprentis',
+                                              style: TextStyle(
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                            ),
+                                            GetBuilder(
+                                                builder: (ApprentiControllerX apprentiControllerX) {
+                                                  // Process :
+                                                  var totApprenti = apprentiControllerX.data.where(
+                                                          (a) => a.entreprise_id == widget.entreprise.id
+                                                  ).toList().length;
+
+                                                  return Text('   ($totApprenti)',
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontWeight: FontWeight.bold
+                                                      )
+                                                  );
+                                                }
+                                            )
+                                          ],
+                                        )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                      return  HistoriqueCompagnon(entreprise: widget.entreprise);
+                                    })
+                                );
+                              },
+                              child: Container(
+                                width: (MediaQuery.of(context).size.width / 2) - 20,
+                                margin: EdgeInsets.all(10),
+                                padding: EdgeInsets.all(5),
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        Colors.red.shade50,
+                                        Colors.blue.shade100,
+                                      ],
+                                    ),
+                                    //color: Colors.brown[100],
+                                    borderRadius: BorderRadius.circular(8.0)
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.people_outline,
+                                      size: 50,
+                                    ),
+                                    Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Compagnons',
+                                              style: TextStyle(
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                            ),
+                                            GetBuilder(
+                                                builder: (CompagnonControllerX compagnonControllerX) {
+                                                  // Process :
+                                                  var totCompagnon = compagnonControllerX.data.where(
+                                                          (a) => a.entreprise_id == widget.entreprise.id
+                                                  ).toList().length;
+
+                                                  return Text('   ($totCompagnon)',
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontWeight: FontWeight.bold
+                                                      )
+                                                  );
+                                                }
+                                            )
+                                          ],
+                                        )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        /*Card(
                             color: Colors.brown[50],
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             child: GestureDetector(
@@ -548,8 +680,8 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                                 ),
                               ),
                             )
-                        ),
-                        SizedBox(
+                        ),*/
+                        /*SizedBox(
                           height: 10,
                         ),
                         Card(
@@ -613,7 +745,7 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                                 ),
                               ),
                             )
-                        )
+                        )*/
                       ]
                   ),
                 );

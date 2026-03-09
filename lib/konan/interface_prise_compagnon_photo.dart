@@ -1352,7 +1352,11 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
         );
         compagnonControllerX.addItem(compagnon);
         flagSendData = false;
-      } else {
+      }
+      else if(response.statusCode == 404){
+        displayToast("Ce COMPAGNON ou l'une de ses informations existe déjà !");
+      }
+      else {
         displayToast("Impossible de récupérer les données de références");
       }
     } catch (e) {

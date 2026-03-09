@@ -1461,7 +1461,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             optinSms: artisanToManage.optinSms,
             optinWhatsapp: artisanToManage.optinWhatsapp,
             regimeFiscal: artisanToManage.regimeFiscal,
-            qualification: artisanToManage.qualification
+            qualification: artisanToManage.qualification,
+            statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage.id == 0
@@ -1493,7 +1494,11 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         // Refresh :
         artisanToManage = artisan;
         flagSendData = false;
-      } else {
+      }
+      else if(response.statusCode == 404){
+        displayToast("Cet ARTISAN ou l'une de ses informations existe déjà  !");
+      }
+      else{
         displayToast("Impossible de transmettre les données de l'Artisan !");
       }
     } catch (e) {

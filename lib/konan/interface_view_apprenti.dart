@@ -482,7 +482,7 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                                       )
                                   ),
                                   onPressed: () async {
-                                    if(artisanToManage.contact1.isNotEmpty) {
+                                    if(widget.apprenti.contact1.isNotEmpty) {
                                       var url = Uri.parse(
                                           'tel:${widget.apprenti.contact1}');
                                       if (!await launchUrl(url, mode: LaunchMode
@@ -502,50 +502,50 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                           ),
                         ),
 
-                        Container(
-                          alignment: Alignment.topLeft,
-                          margin: EdgeInsets.only(right: 10, left: 10, top: 35),
-                          child: Text('Actions',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ),
-
-                        Container(
-                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                          child: Divider(
-                            height: 3,
-                          ),
-                        ),
-                        Visibility(
-                          visible: false,
-                            child: Container(
-                                alignment: Alignment.topLeft,
-                                margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
-                                padding: EdgeInsets.all(5),
-                                //height: 30,
-                                child: ElevatedButton.icon(
-                                    style: ButtonStyle(
-                                        backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrangeAccent)
-                                    ),
-                                    label: Text("Modifier",
-                                        style: const TextStyle(
-                                            color: Colors.white
-                                        )
-                                    ),
-                                    onPressed: () {
-
-                                    },
-                                    icon: Icon(
-                                      Icons.person,
-                                      size: 20,
-                                      color: Colors.white,
-                                    )
-                                )
+                        GetBuilder(
+                          builder: (ApprentiControllerX controllerX) {
+                            // Process :
+                            var currentApprenti = controllerX.data
+                                .where(
+                                    (a) => a.id == widget.apprenti.id
                             )
+                                .first;
+                            return Visibility(
+                              visible: currentApprenti.statut_paiement < 2,
+                              child: Container(
+                                alignment: Alignment.topLeft,
+                                margin: EdgeInsets.only(right: 10, left: 10, top: 35),
+                                child: Text('Actions',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                              )
+                            );
+                          }
                         ),
+
+                        GetBuilder(
+                            builder: (ApprentiControllerX controllerX) {
+                              // Process :
+                              var currentApprenti = controllerX.data
+                                  .where(
+                                      (a) => a.id == widget.apprenti.id
+                              )
+                                  .first;
+                              return Visibility(
+                                  visible: currentApprenti.statut_paiement < 2,
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                    child: Divider(
+                                      height: 3,
+                                    ),
+                                  ),
+                              );
+                            }
+                        ),
+
                         GetBuilder(
                             builder: (ApprentiControllerX controllerX) {
                               // Process :
@@ -553,7 +553,7 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
                                       (a) => a.id == widget.apprenti.id
                               ).first;
                               return Visibility(
-                                visible: currentApprenti.statut_paiement == 0,
+                                visible: currentApprenti.statut_paiement < 2,
                                   child: Container(
                                       alignment: Alignment.topLeft,
                                       margin: const EdgeInsets.only(right: 10, left: 10, top: 5),

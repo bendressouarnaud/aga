@@ -1231,7 +1231,11 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             ? apprentiControllerX.addItem(apprenti)
             : apprentiControllerX.updateData(apprenti);
         flagSendData = false;
-      } else {
+      }
+      else if(response.statusCode == 404){
+        displayToast("Cet APPRENTI ou l'une de ses informations existe déjà  !");
+      }
+      else {
         displayToast("Impossible de traiter la demande");
       }
     } catch (e) {

@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 1;
+  static final _databaseVersion = 2;
 
 
   // Make this a singleton class.
@@ -59,11 +59,11 @@ class DatabaseHelper {
         await _createDatabase(db);
         break;
 
-    /*case 2:
-        await _addQuartierTable(db);
+    case 2:
+        await _addStatutLivraisonArtisan(db);
         break;
 
-      case 3:
+      /*case 3:
         await _addStatutColumn(db);
         break;
 
@@ -81,11 +81,13 @@ class DatabaseHelper {
     }
   }
 
-  /*Future _addQuartierTable(Database db) async {
-    await db.execute('CREATE TABLE quartier (id INTEGER PRIMARY KEY, libelle TEXT, idx integer)');
+  Future _addStatutLivraisonArtisan(Database db) async {
+    await db.execute('ALTER TABLE artisan ADD COLUMN statut_livraison INTEGER');
+    // Init that :
+    await db.execute('UPDATE artisan SET statut_livraison = 0');
   }
 
-  Future _addParametreTable(Database db) async {
+  /*Future _addParametreTable(Database db) async {
     await db.execute('CREATE TABLE parametre (id INTEGER PRIMARY KEY, topic_subscription integer, param1 integer,'
         'param2 integer, param3 TEXT)');
   }*/

@@ -482,7 +482,7 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                                       )
                                   ),
                                   onPressed: () async {
-                                    if(artisanToManage.contact1.isNotEmpty) {
+                                    if(widget.compagnon.contact1.isNotEmpty) {
                                       var url = Uri.parse(
                                           'tel:${widget.compagnon.contact1}');
                                       if (!await launchUrl(url, mode: LaunchMode

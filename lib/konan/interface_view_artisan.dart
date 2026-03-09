@@ -20,6 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../getxcontroller/apprenti_controller_x.dart';
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
+import 'beans/payment_livraison_status.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
 import 'interface_artisan_personne.dart';
@@ -142,7 +143,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   // Pick PAYMENT STATUS :
   Future<void> getStatusPayment() async {
     // Reset :
-    statutPaiement = 0;
+    //statutPaiement = 0;
 
     try{
       var localToken = await MesServices().checkJwtExpiration();
@@ -158,8 +159,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
-        statutPaiement = json.decode(response.body);
-        if(statutPaiement != artisanToManage.statut_paiement){
+        PaymentLivraisonStatus paymentLivraisonStatus = PaymentLivraisonStatus.fromJson(json.decode(response.body));
+        if(paymentLivraisonStatus.statutPaiement != artisanToManage.statut_paiement){
           // Update this :
           Artisan updateArtisan = Artisan(
               id: artisanToManage.id,
@@ -195,7 +196,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               photo_diplome: artisanToManage.photo_diplome,
               date_expiration_carte: artisanToManage.date_expiration_carte,
               statut_kyc: artisanToManage.statut_kyc,
-              statut_paiement: statutPaiement,
+              statut_paiement: paymentLivraisonStatus.statutPaiement,
               longitude: artisanToManage.longitude,
               latitude: artisanToManage.latitude,
               regime_social: artisanToManage.regime_social,
@@ -230,7 +231,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               optinWhatsapp: artisanToManage.optinWhatsapp,
               photoAutre: artisanToManage.photoAutre,
               regimeFiscal: artisanToManage.regimeFiscal,
-              qualification: artisanToManage.qualification
+              qualification: artisanToManage.qualification,
+              statutLivraison: paymentLivraisonStatus.statutLivraison
           );
           artisanControllerX.updateData(updateArtisan);
         }
@@ -287,6 +289,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             "requester": "ART",
             "amount": montant,
             "choix": choix,
+            "payment_type": ((artisanToManage.statut_paiement == 2) &&
+                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)) ? 1 : 0,
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
@@ -489,7 +493,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
           title: Text(artisanToManage.nom),
           actions: [
             Visibility(
-                visible: artisanToManage.statut_paiement != 2,
+                //visible: artisanToManage.statut_paiement != 2,
                 child: IconButton(
                     onPressed: () {
                       displayWaintingForStatusPayment();
@@ -706,7 +710,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                          visible: artisanToManage.statut_paiement < 2,
+                          visible: artisanToManage.statut_paiement < 2 ||
+                              (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
                             child: Container(
                               alignment: Alignment.topLeft,
                               margin: EdgeInsets.only(right: 10, left: 10, top: 25),
@@ -720,7 +725,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                            visible: artisanToManage.statut_paiement < 2,
+                            visible: artisanToManage.statut_paiement < 2 ||
+                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
                             child: Container(
                               margin: EdgeInsets.only(right: 10, left: 10, top: 5),
                               child: Divider(
@@ -730,7 +736,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                            visible: artisanToManage.statut_paiement < 2,
+                            visible: artisanToManage.statut_paiement < 2 ||
+                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
                             child: Container(
                                 alignment: Alignment.topLeft,
                                 margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
@@ -748,8 +755,14 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                             )
                                         ),
                                         onPressed: () {
-                                          displayAmount(sommeApayer.seul);
-                                          //displayWaintingPayingInterface(sommeApayer.seul, 0);
+                                          if((artisanToManage.statut_paiement == 2) &&
+                                              (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)){
+                                            montantArtisan = 1500;
+                                            displayWaintingPayingInterface(1500, 0);
+                                          }
+                                          else {
+                                            displayAmount(sommeApayer.seul);
+                                          }
                                         },
                                         icon: Icon(
                                           Icons.money,
@@ -757,7 +770,10 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                           color: Colors.white,
                                         )
                                     ),
-                                    Text('${formatPrice(sommeApayer.seul)} F',
+                                    Text('${ artisanToManage.statut_paiement < 2 ?
+                                    formatPrice(sommeApayer.seul) :
+                                    (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0) ?
+                                    formatPrice(1500) : 0} F',
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold
@@ -786,6 +802,27 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                             )
                         ),
 
+                        SizedBox(
+                          height: 5,
+                        ),
+
+                        Visibility(
+                            visible: artisanToManage.statut_paiement == 2 &&
+                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
+                            child: CheckboxListTile(
+                              title: const Text('Paiement frais Livraison'),
+                              value: envoiLienPaiement,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  envoiLienPaiement = !envoiLienPaiement;
+                                });
+                              },
+                              secondary: const Icon(Icons.share,
+                              color: Colors.orange,
+                              ),
+                            )
+                        ),
+
                         Container(
                           alignment: Alignment.topLeft,
                           margin: EdgeInsets.only(right: 10, left: 10, top: 25),
@@ -805,10 +842,10 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                           ),
                         ),
 
-                        Card(
-                            color: Colors.brown[50],
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: GestureDetector(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
                               onTap: (){
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
@@ -816,47 +853,53 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                     })
                                 );
                               },
-                              child: Padding(
-                                  padding: EdgeInsets.all(5),
+                              child: Container(
+                                width: (MediaQuery.of(context).size.width / 2) - 20,
+                                margin: EdgeInsets.all(10),
+                                padding: EdgeInsets.all(5),
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        Colors.red.shade50,
+                                        Colors.blue.shade100
+                                      ],
+                                    ),
+                                    //color: Colors.brown[100],
+                                    borderRadius: BorderRadius.circular(8.0)
+                                ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Icon(Icons.people_alt,
                                       size: 50,
                                     ),
                                     Expanded(
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text('   Accéder ',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                )
+                                            Text('Apprentis',
+                                              style: TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold
+                                              ),
                                             ),
-                                            Row(
-                                              children: [
-                                                Text('   aux apprentis ',
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight.bold
-                                                    )
-                                                ),
-                                                GetBuilder(
-                                                    builder: (ApprentiControllerX apprentiControllerX) {
-                                                      // Process :
-                                                      var totApprenti = apprentiControllerX.data.where(
-                                                              (a) => a.artisan_id == artisanToManage.id
-                                                      ).toList().length;
+                                            GetBuilder(
+                                                builder: (ApprentiControllerX apprentiControllerX) {
+                                                  // Process :
+                                                  var totApprenti = apprentiControllerX.data.where(
+                                                          (a) => a.artisan_id == artisanToManage.id
+                                                  ).toList().length;
 
-                                                      return Text('   ($totApprenti)',
-                                                          style: TextStyle(
-                                                              color: Colors.blue,
-                                                              fontWeight: FontWeight.bold
-                                                          )
-                                                      );
-                                                    }
-                                                )
-                                              ],
+                                                  return Text('   ($totApprenti)',
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontWeight: FontWeight.bold
+                                                      )
+                                                  );
+                                                }
                                             )
                                           ],
                                         )
@@ -864,15 +907,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                   ],
                                 ),
                               ),
-                            )
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Card(
-                            color: Colors.brown[50],
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: GestureDetector(
+                            ),
+                            GestureDetector(
                               onTap: (){
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
@@ -880,48 +916,54 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                     })
                                 );
                               },
-                              child: Padding(
+                              child: Container(
+                                width: (MediaQuery.of(context).size.width / 2) - 20,
+                                margin: EdgeInsets.all(10),
                                 padding: EdgeInsets.all(5),
+                                height: 100,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        Colors.blue.shade100,
+                                        Colors.red.shade50,
+                                      ],
+                                    ),
+                                    //color: Colors.brown[100],
+                                    borderRadius: BorderRadius.circular(8.0)
+                                ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(Icons.people_alt,
+                                    Icon(Icons.people_outline,
                                       size: 50,
                                     ),
                                     Expanded(
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text('   Accéder ',
+                                            Text('Compagnons',
                                               style: TextStyle(
+                                                fontSize: 17,
                                                 fontWeight: FontWeight.bold
                                               ),
                                             ),
-                                            Row(
-                                              children: [
-                                                Text('   aux compagnons ',
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight.bold
-                                                    )
-                                                ),
-                                                GetBuilder(
-                                                    builder: (CompagnonControllerX compagnonControllerX) {
+                                            GetBuilder(
+                                                builder: (CompagnonControllerX compagnonControllerX) {
 
-                                                      // Process :
-                                                      var totCompagnon = compagnonControllerX.data.where(
-                                                              (a) => a.artisan_id == artisanToManage.id
-                                                      ).toList().length;
+                                                  // Process :
+                                                  var totCompagnon = compagnonControllerX.data.where(
+                                                          (a) => a.artisan_id == artisanToManage.id
+                                                  ).toList().length;
 
-                                                      return Text('   ($totCompagnon)',
-                                                          style: TextStyle(
-                                                              color: Colors.blue,
-                                                              fontWeight: FontWeight.bold
-                                                          )
-                                                      );
-                                                    }
-                                                )
-                                              ],
+                                                  return Text('   ($totCompagnon)',
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontWeight: FontWeight.bold
+                                                      )
+                                                  );
+                                                }
                                             )
                                           ],
                                         )
@@ -929,8 +971,9 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                   ],
                                 ),
                               ),
-                            )
-                        ),
+                            ),
+                          ],
+                        )
 
                         /*Visibility(
                           visible: displayQr,
