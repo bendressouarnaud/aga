@@ -465,7 +465,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             optinWhatsapp: 0,
             regimeFiscal: leRegimeFiscal.id,
             qualification: qualificationController.text,
-            statutLivraison: widget.lArtisan!.statutLivraison
+            statutLivraison: widget.lArtisan!.statutLivraison,
+            print: widget.lArtisan!.print
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage = artisan;
@@ -577,7 +578,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         optinWhatsapp: 0,
         regimeFiscal: leRegimeFiscal.id,
         qualification: qualificationController.text,
-        statutLivraison: widget.lArtisan == null ? 0 : widget.lArtisan!.statutLivraison
+        statutLivraison: widget.lArtisan == null ? 0 : widget.lArtisan!.statutLivraison,
+      print: widget.lArtisan == null ? 0 : widget.lArtisan!.print,
     );
 
     final result = await Navigator.push(context,

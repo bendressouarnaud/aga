@@ -232,7 +232,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               photoAutre: artisanToManage.photoAutre,
               regimeFiscal: artisanToManage.regimeFiscal,
               qualification: artisanToManage.qualification,
-              statutLivraison: paymentLivraisonStatus.statutLivraison
+              statutLivraison: paymentLivraisonStatus.statutLivraison,
+            print: artisanToManage.print
           );
           artisanControllerX.updateData(updateArtisan);
         }
@@ -521,6 +522,44 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                 return SingleChildScrollView(
                   child: Column(
                       children: [
+
+                        Visibility(
+                            visible: artisanToManage.print > 0,
+                            child: Container(
+                              alignment: Alignment.topLeft,
+                              margin: EdgeInsets.only(right: 10, left: 10, top: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Impression document',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        //fontWeight: FontWeight.bold,
+                                      color: Colors.brown
+                                    ),
+                                  ),
+                                  Text('${artisanToManage.print}',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold
+                                    ),
+                                  )
+                                ],
+                              )
+                            )
+                        ),
+
+                        Visibility(
+                            visible: artisanToManage.print > 0,
+                            child: Container(
+                              margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                              child: Divider(
+                                height: 3,
+                              ),
+                            )
+                        ),
+
+
                         Card(
                           /*height: 130,
                           width: MediaQuery.of(context).size.width,*/

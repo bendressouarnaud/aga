@@ -168,7 +168,7 @@ class MesServices{
   }
 
   Widget displayFromLocalOrFirebase(String image){
-    return image.isNotEmpty && image.length < 41 ? CachedNetworkImage(
+    return image.isNotEmpty && image.length < 45 ? CachedNetworkImage(
         imageUrl: "https://firebasestorage.googleapis.com/v0/b/cnm-ci.firebasestorage.app/o/$image?alt=media",
         imageBuilder: (context, imageProvider) => Container(
           decoration: BoxDecoration(
@@ -184,7 +184,7 @@ class MesServices{
         ),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ) : 
-      image.length >= 41 ? Image.memory(base64Decode(image),
+      image.length >= 45 ? Image.memory(base64Decode(image),
         width: 60,
         height: 80,
         fit: BoxFit.fill) :

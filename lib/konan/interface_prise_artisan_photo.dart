@@ -1462,7 +1462,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
             optinWhatsapp: artisanToManage.optinWhatsapp,
             regimeFiscal: artisanToManage.regimeFiscal,
             qualification: artisanToManage.qualification,
-            statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison
+            statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison,
+            print: artisanToManage.print
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage.id == 0
