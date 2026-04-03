@@ -609,6 +609,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     super.initState();
 
     if(widget.lArtisan != null){
+
+      idpub = widget.lArtisan!.id;
       leCrm = lesCrms.where((c) => c.id == widget.lArtisan!.crm).first;
       //leDepartement = lesDepartements.where((c) => c.id == widget.lArtisan!.departement).first;
       //laSousPrefecture = lesSousPrefectures.where((c) => c.id == widget.lArtisan!.sous_prefecture).first;

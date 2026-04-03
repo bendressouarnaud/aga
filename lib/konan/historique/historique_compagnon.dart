@@ -49,7 +49,7 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
           final result = await Navigator.push(context,
               MaterialPageRoute(builder: (context) {
                 return InterfaceCompagnonPersonne(artisanId: widget.artisan != null ? widget.artisan!.id : 0,
-                entrepriseId: widget.entreprise != null ? widget.entreprise!.id : 0,
+                entrepriseId: widget.entreprise != null ? widget.entreprise!.id : 0, compagnon: null
                 );
               })
           );

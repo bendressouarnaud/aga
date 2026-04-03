@@ -43,7 +43,7 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
           // Send DATA :
           final result = await Navigator.push(context,
               MaterialPageRoute(builder: (context) {
-                return const InterfaceEntreprise();
+                return const InterfaceEntreprise(entreprise: null,);
               })
           );
         },

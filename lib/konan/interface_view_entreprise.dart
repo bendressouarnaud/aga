@@ -21,6 +21,7 @@ import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
+import 'interface_entreprise.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
 
@@ -205,6 +206,10 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
 
   void localLink() {
     MesServices().displayDialog(context, paymentUrl);
+  }
+
+  void forceLeave(){
+    Navigator.pop(context);
   }
 
   @override
@@ -469,6 +474,78 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                               ],
                             )
                         ),*/
+
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: EdgeInsets.only(right: 10, left: 10, top: 25),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Visibility(
+                                  visible: true,
+                                  child: ElevatedButton.icon(
+                                      style: ButtonStyle(
+                                          backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrange)
+                                      ),
+                                      label: Text("Modifier",
+                                          style: const TextStyle(
+                                              color: Colors.white
+                                          )
+                                      ),
+                                      onPressed: () async {
+                                        setOriginFromCallArtisan = 0;
+                                        final result = await Navigator.push(context,
+                                            MaterialPageRoute(builder: (context) {
+                                              entrepriseToManage = widget.entreprise;
+                                              return InterfaceEntreprise(
+                                                entreprise: widget.entreprise,
+                                              );
+                                            })
+                                        );
+
+                                        // Close the DOORS :
+                                        if (result != null) {
+                                          // Force to leave :
+                                          displayToast("Vous pouvez afficher la donnée si vous le souhaitez !");
+                                          forceLeave();
+                                        }
+                                      },
+                                      icon: Icon(
+                                        Icons.edit,
+                                        size: 20,
+                                        color: Colors.white,
+                                      )
+                                  )
+                              ),
+                              ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                      backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
+                                  ),
+                                  label: Text("Appeler",
+                                      style: const TextStyle(
+                                          color: Colors.white
+                                      )
+                                  ),
+                                  onPressed: () async {
+                                    if(widget.entreprise.contact1.isNotEmpty) {
+                                      var url = Uri.parse(
+                                          'tel:${widget.entreprise.contact1}');
+                                      if (!await launchUrl(url, mode: LaunchMode
+                                          .externalApplication)) {
+                                        throw Exception(
+                                            'Could not launch $url');
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.call,
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                              )
+                            ],
+                          ),
+                        ),
 
                         Container(
                           alignment: Alignment.topLeft,

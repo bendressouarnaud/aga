@@ -300,6 +300,10 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
     MesServices().displayDialog(context, paymentUrl);
   }
 
+  void forceLeave(){
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -462,8 +466,8 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
 
                                     // Close the DOORS :
                                     if (result != null) {
-                                      // Refresh :
-                                      setState(() {});
+                                      displayToast("Vous pouvez afficher la donnée si vous le souhaitez !");
+                                      forceLeave();
                                     }
                                   },
                                   icon: Icon(

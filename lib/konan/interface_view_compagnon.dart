@@ -298,6 +298,10 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
     MesServices().displayDialog(context, paymentUrl);
   }
 
+  void forceLeave(){
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -437,7 +441,7 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Visibility(
-                                visible: false,
+                                visible: true,
                                   child: ElevatedButton.icon(
                                       style: ButtonStyle(
                                           backgroundColor: WidgetStateColor.resolveWith((states) => Colors.deepOrange)
@@ -454,7 +458,8 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                                               compagnonToManage = widget.compagnon;
                                               return InterfaceCompagnonPersonne(
                                                   artisanId: widget.compagnon.artisan_id,
-                                                  entrepriseId: widget.compagnon.entreprise_id
+                                                  entrepriseId: widget.compagnon.entreprise_id,
+                                                compagnon: widget.compagnon,
                                               );
                                             })
                                         );
@@ -462,7 +467,8 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                                         // Close the DOORS :
                                         if (result != null) {
                                           // Refresh :
-                                          setState(() {});
+                                          displayToast("Vous pouvez afficher la donnée si vous le souhaitez !");
+                                          forceLeave();
                                         }
                                       },
                                       icon: Icon(
@@ -502,23 +508,50 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                           ),
                         ),
 
-                        Container(
-                          alignment: Alignment.topLeft,
-                          margin: EdgeInsets.only(right: 10, left: 10, top: 25),
-                          child: Text('Actions',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold
-                            ),
-                          ),
+                        GetBuilder(
+                            builder: (CompagnonControllerX controllerX) {
+                              // Process :
+                              var currentCompagnon = controllerX.data
+                                  .where(
+                                      (a) => a.id == widget.compagnon.id
+                              )
+                                  .first;
+                              return Visibility(
+                                  visible: currentCompagnon.statut_paiement < 2,
+                                  child: Container(
+                                    alignment: Alignment.topLeft,
+                                    margin: EdgeInsets.only(right: 10, left: 10, top: 35),
+                                    child: Text('Actions',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  )
+                              );
+                            }
                         ),
 
-                        Container(
-                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
-                          child: Divider(
-                            height: 3,
-                          ),
+                        GetBuilder(
+                            builder: (CompagnonControllerX controllerX) {
+                              // Process :
+                              var currentCompagnon = controllerX.data
+                                  .where(
+                                      (a) => a.id == widget.compagnon.id
+                              )
+                                  .first;
+                              return Visibility(
+                                  visible: currentCompagnon.statut_paiement < 2,
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                                    child: Divider(
+                                      height: 3,
+                                    ),
+                                  )
+                              );
+                            }
                         ),
+
                         Visibility(
                           visible: false,
                             child: Container(

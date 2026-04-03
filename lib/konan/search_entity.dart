@@ -67,7 +67,7 @@ class _SearchEntity extends State<SearchEntity> {
         ).toList();
         break;
 
-      case 2:
+      case 3:
       // Compagnons
         liste = compagnonControllerX.data.where(
                 (a) => a.nom.toLowerCase().contains(textToSearch.trim().toLowerCase()) ||
@@ -85,7 +85,7 @@ class _SearchEntity extends State<SearchEntity> {
         ).toList();
         break;
 
-      case 3:
+      default:
       // Entreprises
         liste = entrepriseControllerX.data.where(
                 (a) => a.denomination.toLowerCase().contains(textToSearch.trim().toLowerCase()) ||

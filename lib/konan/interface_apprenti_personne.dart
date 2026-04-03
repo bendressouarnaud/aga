@@ -486,6 +486,8 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
     super.initState();
 
     if(widget.lApprenti != null){
+      idpub = widget.lApprenti!.id;
+
       nomController.text = widget.lApprenti!.nom;
       prenomController.text = widget.lApprenti!.prenom;
       laCivilite = widget.lApprenti!.civilite;

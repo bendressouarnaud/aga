@@ -50,7 +50,8 @@ import 'package:geolocator/geolocator.dart';
 
 
 class InterfaceEntreprise extends StatefulWidget {
-  const InterfaceEntreprise({Key? key}) : super(key: key);
+  final Entreprise? entreprise;
+  const InterfaceEntreprise({Key? key, required this.entreprise}) : super(key: key);
 
   @override
   State<InterfaceEntreprise> createState() => _InterfaceEntreprise();
@@ -268,7 +269,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   }
 
 
-  /*void displayDataSending(){
+  void displayDataSending(){
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -316,7 +317,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
           timer.cancel();
 
           if (!flagSendData) {
-            Navigator.pop(context);
+            Navigator.pop(context, 1);
           } else {
             displayToast('Traitement impossible');
           }
@@ -341,7 +342,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 "crm_id": leCrm.id,
                 "departement_id": leDepartement.id,
                 "sous_prefecture_id": laSousPrefecture.id,
-                "gerant_id": 0,
+                "gerant_id": 0, // This one is USELESS
                 "civilite": laCivilite,
                 "nom": nomController.text,
                 "prenom": prenomController.text,
@@ -361,7 +362,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 "contact1": contact1Controller.text,
                 "contact2": contact2Controller.text,
                 "email": emailController.text,
-                "numero_id": 0,
+                "numero_id": widget.entreprise!.id,
                 "numero_rea": "",
                 "forme_juridique": laFormeJuridique.id,
                 "activite_principale": lActivitePrincipale.id,
@@ -373,27 +374,30 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 "rccm": rccmController.text,
                 "date_rccm": dateImmatriculationController.text,
                 "capital_social": int.parse(capitalSocialController.text.replaceAll(',', '')),
-                "regime_fiscal": leRegimeFiscal.libelle,//.id.toString(),
-                "nombre_associer": int.parse(nombreAssocieController.text.replaceAll(',', '')),
+                "regime_fiscal": leRegimeFiscal.id,//.id.toString(),
+                "nombre_associer": int.parse(nombreAssocieController.text),
                 "duree_personne_morale": int.parse(dureePersonneMoraleController.text),
                 "numero_cnps": cnpsEntrepriseController.text,
                 "compte_contribuable": compteContribuableController.text,
                 "ilot_lot": ilotController.text,
                 "contact_entreprise": telephonEntrepriseController.text,
                 "adresse": adressePostaleController.text,
-                "longitude": longitude,
-                "latitude": latitude,
+                "longitude": widget.entreprise!.longitude,
+                "latitude": widget.entreprise!.latitude,
                 "commune": laVilleCommune.id,
                 "quartier": leQuartierActivite.id,
-                "livraison_carte": laLivraison.id
+                "livraison_carte": laLivraison.id,
+
+                "photo_cni_recto" : "",
+                "photo_cni_verso" : "",
+                "photo_registre_commerce" : "",
+                "photo_dfe" : ""
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
       if (response.statusCode == 200) {
-        MessageResponse reponse = MessageResponse.fromJson(
-            json.decode(response.body));
         entrepriseToManage = Entreprise(
-            id: reponse.id,
+            id: widget.entreprise!.id,
             crm: leCrm.id,
             departement: leDepartement.id,
             sous_prefecture: laSousPrefecture.id,
@@ -435,15 +439,20 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             quartier_siege: quartierCommuneController.text,
             lot: ilotController.text,
             telephone: telephonEntrepriseController.text,
-            statut_kyc: 0,
-            statut_paiement: 0,
-            longitude: longitude,
-            latitude: latitude,
-          millisecondes: DateTime.now().millisecondsSinceEpoch,
+            statut_kyc: widget.entreprise!.statut_kyc,
+            statut_paiement: widget.entreprise!.statut_paiement,
+            longitude: widget.entreprise!.longitude,
+            latitude: widget.entreprise!.latitude,
+          millisecondes: widget.entreprise!.millisecondes,
             quartier_siege_id: leQuartierActivite.id,
-            livraisonCarte: laLivraison.id
+            livraisonCarte: laLivraison.id,
+
+            photoCniRecto: widget.entreprise!.photoCniRecto,
+            photoCniVerso: widget.entreprise!.photoCniVerso,
+            photoRegistreCommerce: widget.entreprise!.photoRegistreCommerce,
+            photoDfe: widget.entreprise!.photoDfe
         );
-        entrepriseControllerX.addItem(entrepriseToManage);
+        entrepriseControllerX.updateData(entrepriseToManage);
         flagSendData = false;
       } else {
         displayToast("Impossible de synchroniser vos données");
@@ -451,14 +460,13 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     } catch (e) {
       displayToast("Impossible de traiter les données : $e");
     } finally {
-      streamGps = false;
       flagServerResponse = false;
     }
-  }*/
+  }
 
   void feedEntreprise() async{
     entrepriseToManage = Entreprise(
-        id: 0,
+        id: widget.entreprise == null ? 0 : widget.entreprise!.id,
         crm: leCrm.id,
         departement: leDepartement.id,
         sous_prefecture: laSousPrefecture.id,
@@ -534,84 +542,138 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   @override
   void initState() {
     super.initState();
-    leCrm = lesCrms.first;
-    leDepartement = lesDepartements.first;
-    laSousPrefecture = lesSousPrefectures.first;
 
-    laCommune = lesCommunes.first;
-    laVilleCommune = lesCommunes.first;
-    laPieceDelivre = lesCommunes.first;
-    laVilleResidence = lesCommunes.first;
+    if(widget.entreprise != null){
+      idpub = widget.entreprise!.id;
 
-    // Init QUARTIERS :
-    lesQuartiersIndex = lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
-    leQuartierActivite = lesQuartiersIndex.first;
+      // CRM
+      leCrm = lesCrms.where((c) => c.id == widget.entreprise!.crm).first;
+      leDepartement = lesDepartements.where((c) => c.id == widget.entreprise!.departement).first;
+      laSousPrefecture = lesSousPrefectures.where((c) => c.id == widget.entreprise!.sous_prefecture).first;
 
-    laCivilite = lesCivilites.first;
-    laNationalite = lesPays.where((p) => p.id == 1).first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
-    leStatutMatrimonial = lesStatutMatrimoniaux.first;
-    leRegimeSocial = lesGenericData.first;
-    leRegimetravailleur = lesGenericData.first;
-    leRegimeImpositionCommunale = lesGenericData.first;
-    leRegimeImpositionEntreprise = lesGenericData.first;
-    leCompteBancaire = lesGenericData.first;
-    laComptabilite = lesGenericComptabilite.first;
-    leTypeDeCompte = lesTypeCompteBancaires.first;
-    leTypeDocument = lesTypeDocuments.first;
-    leNiveauEtude = lesNiveauEtudes.first;
-    laClasse = lesClasses.first;
-    leDiplome = lesDiplomes.first;
-    lApprentissageMetier = lesGenericApprentissagea.first;
-    leMetier = lesMetiers.first;
-    lActivitePrincipale = lesMetiers.first;
-    lActiviteSecondaire = lesMetiers.first;
-    leNiveauEquipement = lesNiveauEquipement.first;
-    laLivraison = lesGenericLivraisons.first;
+      // GERANT :
+      laLivraison = lesGenericLivraisons.where((c) => c.id == widget.entreprise!.livraisonCarte).first;
+      nomController.text = widget.entreprise!.nom;
+      prenomController.text = widget.entreprise!.prenom;
+      laCivilite = widget.entreprise!.civilite;
+      laCommune = lesCommunes.where((c) => c.id == widget.entreprise!.lieu_naissance).first;
+      lieuNaissanceAutreController.text = widget.entreprise!.lieu_naissance_autre;
+      dateNaissanceController.text = widget.entreprise!.date_naissance;
+      laNationalite = lesPays.where((p) => p.id == widget.entreprise!.nationalite).first;
+      leStatutMatrimonial = lesStatutMatrimoniaux.where((s) => s.id == widget.entreprise!.statut_matrimonial).first;
+      laVilleResidence = lesCommunes.where((c) => c.id == widget.entreprise!.commune_residence).first;
+      quartierResidenceController.text = widget.entreprise!.quartier_residence;
+      adressePostaleController.text = widget.entreprise!.adresse_postal;
+      contact1Controller.text = widget.entreprise!.contact1;
+      contact2Controller.text = widget.entreprise!.contact2;
+      leTypeDocument = lesTypeDocuments.where((t) => t.id == widget.entreprise!.type_document).first;
+      numeroPieceIdentiteController.text = widget.entreprise!.numero_piece;
+      laPieceDelivre = lesCommunes.where((c) => c.id == widget.entreprise!.piece_delivre).first;
 
-    // ENTREPRISE
-    laFormeJuridique = lesFormesJuridiques.first;
-    leRegimeFiscal = lesRegimesFiscaux.first;
+      // ENTREPRISE :
+      laFormeJuridique = lesFormesJuridiques.where((f) => f.id == widget.entreprise!.forme_juridique).first;
+      lActivitePrincipale = lesMetiers.where((a) => a.id == widget.entreprise!.activite_principale).first;
+      lActiviteSecondaire = lesMetiers.where((a) => a.id == widget.entreprise!.activite_secondaire).first;
+      denominationController.text = widget.entreprise!.denomination;
+      sigleController.text = widget.entreprise!.sigle;
+      objetSocialController.text = widget.entreprise!.objet_social;
+      rccmController.text = widget.entreprise!.rccm;
+      capitalSocialController.text = widget.entreprise!.capital_social.toString();
+      leRegimeFiscal = lesRegimesFiscaux.where((r) => r.id == widget.entreprise!.regime_fiscal).first;
+      dureePersonneMoraleController.text = widget.entreprise!.duree_personne_morale.toString();
+      cnpsEntrepriseController.text = widget.entreprise!.cnps_entreprise;
+      compteContribuableController.text = widget.entreprise!.compte_contribuable;
+      nombreAssocieController.text = widget.entreprise!.total_associe.toString();
+      laVilleCommune = lesCommunes.where((c) => c.id == widget.entreprise!.commune_siege).first;
+      lesQuartiersIndex =
+          lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
+      leQuartierActivite = lesQuartiersIndex.where((q) => q.id == widget.entreprise!.quartier_siege_id).first;
+      ilotController.text = widget.entreprise!.lot;
+      telephonEntrepriseController.text = widget.entreprise!.telephone;
+    }
+    else {
+      leCrm = lesCrms.first;
+      leDepartement = lesDepartements.first;
+      laSousPrefecture = lesSousPrefectures.first;
 
-    _dateNaissanceController.clear();
-    _datePieceDelivreController.clear();
-    _dateDebutCreationController.clear();
-    _dateImmatricualtionController.clear();
+      laCommune = lesCommunes.first;
+      laVilleCommune = lesCommunes.first;
+      laPieceDelivre = lesCommunes.first;
+      laVilleResidence = lesCommunes.first;
 
-    // INITIALIZATION for CAMERA
-    //setUpCameraController();
+      // Init QUARTIERS :
+      lesQuartiersIndex =
+          lesQuartiers.where((q) => q.idx == laVilleCommune.id).toList();
+      leQuartierActivite = lesQuartiersIndex.first;
 
-    lesDepartementsFiltre = lesDepartements;
-    lesSousPrefectureFiltre = lesSousPrefectures;
+      laCivilite = lesCivilites.first;
+      laNationalite = lesPays
+          .where((p) => p.id == 1)
+          .first; // Pick 'CÔTE d'IVOIRE' by DEFAULT
+      leStatutMatrimonial = lesStatutMatrimoniaux.first;
+      leRegimeSocial = lesGenericData.first;
+      leRegimetravailleur = lesGenericData.first;
+      leRegimeImpositionCommunale = lesGenericData.first;
+      leRegimeImpositionEntreprise = lesGenericData.first;
+      leCompteBancaire = lesGenericData.first;
+      laComptabilite = lesGenericComptabilite.first;
+      leTypeDeCompte = lesTypeCompteBancaires.first;
+      leTypeDocument = lesTypeDocuments.first;
+      leNiveauEtude = lesNiveauEtudes.first;
+      laClasse = lesClasses.first;
+      leDiplome = lesDiplomes.first;
+      lApprentissageMetier = lesGenericApprentissagea.first;
+      leMetier = lesMetiers.first;
+      lActivitePrincipale = lesMetiers.first;
+      lActiviteSecondaire = lesMetiers.first;
+      leNiveauEquipement = lesNiveauEquipement.first;
+      laLivraison = lesGenericLivraisons.first;
 
-    // Set DEFAULT DATA :
-    lieuNaissanceAutreController.text = "";
-    numeroPieceIdentiteController.text = "";
-    quartierResidenceController.text = "";
-    adressePostaleController.text = "";
-    contact1Controller.text = "";
-    contact2Controller.text = "";
-    emailController.text = "";
-    emailController.text = "";
-    denominationController.text = "";
-    sigleController.text = "";
-    objetSocialController.text = "";
-    rccmController.text = "";
-    capitalSocialController.text = "0";
-    nombreAssocieController.text = "0";
-    dureePersonneMoraleController.text = "0";
-    cnpsEntrepriseController.text = "";
-    compteContribuableController.text = "";
-    ilotController.text = "";
-    telephonEntrepriseController.text = "";
-    adressePostaleController.text = "";
-    quartierCommuneController.text = "";
+      // ENTREPRISE
+      laFormeJuridique = lesFormesJuridiques.first;
+      leRegimeFiscal = lesRegimesFiscaux.first;
 
-    communeController.text = laCommune.libelle;
-    villeResidenceController.text = laVilleResidence.libelle;
-    pieceDelivreController.text = laPieceDelivre.libelle;
-    activitePrincipaleController.text = lActivitePrincipale.libelle;
-    activiteSecondaireController.text = lActiviteSecondaire.libelle;
-    villeCommuneController.text = laVilleCommune.libelle;
+      _dateNaissanceController.clear();
+      _datePieceDelivreController.clear();
+      _dateDebutCreationController.clear();
+      _dateImmatricualtionController.clear();
+
+      // INITIALIZATION for CAMERA
+      //setUpCameraController();
+
+      lesDepartementsFiltre = lesDepartements;
+      lesSousPrefectureFiltre = lesSousPrefectures;
+
+      // Set DEFAULT DATA :
+      lieuNaissanceAutreController.text = "";
+      numeroPieceIdentiteController.text = "";
+      quartierResidenceController.text = "";
+      adressePostaleController.text = "";
+      contact1Controller.text = "";
+      contact2Controller.text = "";
+      emailController.text = "";
+      emailController.text = "";
+      denominationController.text = "";
+      sigleController.text = "";
+      objetSocialController.text = "";
+      rccmController.text = "";
+      capitalSocialController.text = "0";
+      nombreAssocieController.text = "0";
+      dureePersonneMoraleController.text = "0";
+      cnpsEntrepriseController.text = "";
+      compteContribuableController.text = "";
+      ilotController.text = "";
+      telephonEntrepriseController.text = "";
+      adressePostaleController.text = "";
+      quartierCommuneController.text = "";
+
+      communeController.text = laCommune.libelle;
+      villeResidenceController.text = laVilleResidence.libelle;
+      pieceDelivreController.text = laPieceDelivre.libelle;
+      activitePrincipaleController.text = lActivitePrincipale.libelle;
+      activiteSecondaireController.text = lActiviteSecondaire.libelle;
+      villeCommuneController.text = laVilleCommune.libelle;
+    }
 
     // Call this to INITIALIZE :
     filtrerDepartement();
@@ -645,25 +707,29 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
 
   TextEditingController processData(DateGetController controller){
     dateNaissanceController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.entreprise != null ? widget.entreprise!.date_naissance : '');
     return dateNaissanceController;
   }
 
   TextEditingController processDataDelivre(DateDelivreGetController controller){
     datePieceController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.entreprise != null ? widget.entreprise!.date_emission_piece : '');
     return datePieceController;
   }
 
   TextEditingController processDateDebutActivite(DateDebutActiviteGetController controller){
     dateDebutActiviteController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.entreprise != null ? widget.entreprise!.date_creation : '');
     return dateDebutActiviteController;
   }
 
   TextEditingController processDateImmatriculation(DateImmatricualtionController controller){
     dateImmatriculationController = TextEditingController(
-        text: controller.data.isNotEmpty ? controller.data[0] : '');
+        text: controller.data.isNotEmpty ? controller.data[0] :
+        widget.entreprise != null ? widget.entreprise!.date_rccm : '');
     return dateImmatriculationController;
   }
 
@@ -2425,6 +2491,17 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(idpub == 0 ? 'Nouvelle Entreprise' : 'Modification Entreprise'),
+            actions: [
+              Visibility(
+                  visible: widget.entreprise != null,
+                  child: IconButton(
+                      onPressed: () {
+                        displayDataSending();
+                      },
+                      icon: Icon(Icons.save_as_outlined, color: Colors.brown)
+                  )
+              )
+            ]
         ),
         body: SingleChildScrollView(
           child: Column(
