@@ -1,23 +1,14 @@
 import 'dart:convert';
 
-import 'package:cnmci/getxcontroller/entreprise_controller_x.dart';
-import 'package:cnmci/konan/historique/historique_artisan.dart';
-import 'package:cnmci/konan/interface_entreprise.dart';
-import 'package:cnmci/konan/interface_view_apprenti.dart';
-import 'package:cnmci/konan/interface_view_artisan.dart';
-import 'package:cnmci/konan/interface_view_compagnon.dart';
-import 'package:cnmci/konan/interface_view_entreprise.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart';
 
-import 'interface_view_entity.dart';
-import 'beans/search_response_data.dart';
 import 'beans/stats_bean_manager.dart';
+import 'interface_view_entity.dart';
 import 'objets/constants.dart';
 
 class SearchEntityManager extends StatefulWidget {

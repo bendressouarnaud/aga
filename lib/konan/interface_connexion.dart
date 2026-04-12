@@ -229,7 +229,8 @@ class _ConnexionViewState extends State<ConnexionView> {
           pwd: pwdController.text,
           jwt: donnee.data.token,
           profil: donnee.data.profil,
-          milliseconds: DateTime.now().millisecondsSinceEpoch
+          milliseconds: DateTime.now().millisecondsSinceEpoch,
+          crm: donnee.data.crm
         );
         globalUser = user;
         jwtToken = donnee.data.token;

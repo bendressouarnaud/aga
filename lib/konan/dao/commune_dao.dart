@@ -26,6 +26,12 @@ class CommuneDao {
     return data.isNotEmpty ? data.map((c) => Commune.DatabaseToObject(c)).toList() : [];
   }
 
+  Future<List<Commune>> findAllBySousPrefectureIdIn(List<int> ids) async {
+    final db = await dbProvider.database;
+    var data = await db.query('commune', where: 'idx in (${ids.join(', ')})');
+    return data.isNotEmpty ? data.map((c) => Commune.DatabaseToObject(c)).toList() : [];
+  }
+
   Future<List<Commune>> findAll() async {
     final db = await dbProvider.database;
     final List<Map<String, Object?>> results = await db.query('commune');

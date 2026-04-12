@@ -5,6 +5,7 @@ import 'package:cnmci/getxcontroller/artisan_controller_x.dart';
 import 'package:cnmci/getxcontroller/compagnon_controller_x.dart';
 import 'package:cnmci/konan/beans/generic_data_amount.dart';
 import 'package:cnmci/konan/historique/historique_compagnon.dart';
+import 'package:cnmci/konan/interface_signature.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:cnmci/konan/webviews/webview_payment_wave.dart';
@@ -493,6 +494,19 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
         appBar: AppBar(
           title: Text(artisanToManage.nom),
           actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                        return InterfaceSignature(id: artisanToManage.id, requester: 'ART');
+                      })
+                  );
+                },
+                icon: Icon(Icons.draw
+                  , color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                )
+            ),
             Visibility(
                 //visible: artisanToManage.statut_paiement != 2,
                 child: IconButton(

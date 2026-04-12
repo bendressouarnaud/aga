@@ -9,4 +9,5 @@ class CommuneRepository {
   Future<Commune?> findOne(int id) => dao.findOne(id);
   Future<List<Commune>> findAll() => dao.findAll();
   Future<List<Commune>> findAllBySousPrefectureId(int index) => dao.findAllBySousPrefectureId(index);
+  Future<List<Commune>> findAllBySousPrefectureIdIn(List<int> ids) => dao.findAllBySousPrefectureIdIn(ids);
 }

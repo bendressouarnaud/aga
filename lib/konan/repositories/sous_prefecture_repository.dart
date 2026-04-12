@@ -8,4 +8,5 @@ class SousPrefectureRepository {
   Future<SousPrefecture?> findOne(int id) => dao.findOne(id);
   Future<List<SousPrefecture>> findAll() => dao.findAll();
   Future<List<SousPrefecture>> findAllByDepartementId(int index) => dao.findAllByDepartementId(index);
+  Future<List<SousPrefecture>> findAllByDepartementIdIn(List<int> ids) => dao.findAllByDepartementIdIn(ids);
 }

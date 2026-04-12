@@ -159,6 +159,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   int milliseconds = 0;
   bool updatePubDate = false;
   bool updatePubHour = false;
+  bool initCommuneActivite = false;
   late BuildContext customContext;
 
   double spacingSteps = 40;
@@ -208,6 +209,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   late List<Departement> lesDepartementsFiltre;
   late List<SousPrefecture> lesSousPrefectureFiltre;
   late GenericData laLivraison;
+  late List<Commune> lesCommunesActivite;
 
   int artisanId = 0;
 
@@ -539,15 +541,30 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     Navigator.pop(context);
   }
 
+  Crm pickAppropriateCrm(){
+    if(globalUser!.crm == 0){
+      return widget.entreprise != null ?
+      lesCrms.where((c) => c.id == widget.entreprise!.crm).first : lesCrms.first;
+    }
+    else{
+      return widget.entreprise != null ?
+      lesCrms.where((c) => c.id == widget.entreprise!.crm).first :
+      lesCrms.where((c) => c.id == globalUser!.crm).first;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    // Init this :
+    lesCommunesActivite = lesCommunes;
 
     if(widget.entreprise != null){
       idpub = widget.entreprise!.id;
 
       // CRM
-      leCrm = lesCrms.where((c) => c.id == widget.entreprise!.crm).first;
+      leCrm = pickAppropriateCrm();
       leDepartement = lesDepartements.where((c) => c.id == widget.entreprise!.departement).first;
       laSousPrefecture = lesSousPrefectures.where((c) => c.id == widget.entreprise!.sous_prefecture).first;
 
@@ -592,7 +609,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
       telephonEntrepriseController.text = widget.entreprise!.telephone;
     }
     else {
-      leCrm = lesCrms.first;
+      leCrm = pickAppropriateCrm();
       leDepartement = lesDepartements.first;
       laSousPrefecture = lesSousPrefectures.first;
 
@@ -679,11 +696,36 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
     filtrerDepartement();
   }
 
+  // Only SELECT 'COMMUNES' attached to the 'selected' CRM :
+  Future<void> getAllCommunesLinkedToTheCrm() async {
+    var lesDepartementsCrm = lesDepartements.where((d) => d.idx == leCrm.id).toList();
+    List<SousPrefecture> lesSousPrefecturesCrm = await outil.findAllByDepartementIdIn(
+        lesDepartementsCrm.map((d) => d.id).toList());
+    var tPlesCommunesActivite = await outil.findAllCommunesBySousPrefectureIdIn(
+        lesSousPrefecturesCrm.map((s) => s.id).toList());
+    refreshCommune(tPlesCommunesActivite);
+  }
+
+  void refreshCommune(List<Commune> liste){
+    setState(() {
+      lesCommunesActivite = liste;
+      lesCommunesActivite.sort((a,b) => a.libelle.compareTo(b.libelle));
+      if(widget.entreprise != null && !initCommuneActivite){
+        initCommuneActivite = true;
+      }
+      else {
+        laVilleCommune = lesCommunesActivite.first;
+      }
+    });
+  }
+
   void filtrerDepartement(){
     setState(() {
       lesDepartementsFiltre = lesDepartements.where((d) => d.idx == leCrm.id).toList();
       leDepartement = lesDepartementsFiltre.first;
       filtrerSousPrefecture();
+      // Update TOWN :
+      getAllCommunesLinkedToTheCrm();
     });
   }
 
@@ -981,6 +1023,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               DropdownMenu<Crm>(
+                  enabled: globalUser!.crm > 0 ? false : true,
                   width: (MediaQuery.of(context).size.width / 2) - 20,
                   menuHeight: 250,
                   initialSelection: leCrm,
@@ -2321,7 +2364,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                   },
                   selectedItem: laVilleCommune,
                   itemAsString: (commune) => commune.libelle,
-                  items: (filter, infiniteScrollProps) => lesCommunes,
+                  items: (filter, infiniteScrollProps) => lesCommunesActivite, //lesCommunes,
                   decoratorProps: DropDownDecoratorProps(
                     decoration: InputDecoration(
                       labelText: 'Ville/Commune',

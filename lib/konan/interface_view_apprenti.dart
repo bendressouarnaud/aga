@@ -17,6 +17,7 @@ import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/generic_data_amount.dart';
 import 'beans/wave_payment_response.dart';
 import 'interface_apprenti_personne.dart';
+import 'interface_signature.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewApprenti extends StatefulWidget{
@@ -310,6 +311,21 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(widget.apprenti.nom),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return InterfaceSignature(id: widget.apprenti.id, requester: 'APP');
+                        })
+                    );
+                  },
+                  icon: Icon(Icons.draw
+                    , color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  )
+              )
+            ]
         ),
         body: FutureBuilder(
             future: Future.wait([getAmountToPay()]),

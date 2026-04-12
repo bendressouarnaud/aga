@@ -47,7 +47,8 @@ class MesServices{
               pwd: globalUser!.pwd,
               jwt: donnee.data.token,
               profil: globalUser!.profil,
-              milliseconds: DateTime.now().millisecondsSinceEpoch
+              milliseconds: DateTime.now().millisecondsSinceEpoch,
+              crm: donnee.data.crm
           );
           _userRepository.update(user);
           globalUser = user;

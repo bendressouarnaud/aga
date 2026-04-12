@@ -25,6 +25,12 @@ class SousPrefectureDao {
     return data.isNotEmpty ? data.map((c) => SousPrefecture.DatabaseToObject(c)).toList() : [];
   }
 
+  Future<List<SousPrefecture>> findAllByDepartementIdIn(List<int> ids) async {
+    final db = await dbProvider.database;
+    var data = await db.query('sous_prefecture', where: 'idx in (${ids.join(', ')})');
+    return data.isNotEmpty ? data.map((c) => SousPrefecture.DatabaseToObject(c)).toList() : [];
+  }
+
   Future<List<SousPrefecture>> findAll() async {
     final db = await dbProvider.database;
     final List<Map<String, Object?>> results = await db.query('sous_prefecture');

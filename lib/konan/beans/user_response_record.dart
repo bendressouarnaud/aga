@@ -9,6 +9,7 @@ class UserResponseRecord {
   final String contact;
   final String profil;
   final String token;
+  final int crm;
 
   UserResponseRecord({
     required this.id,
@@ -17,7 +18,8 @@ class UserResponseRecord {
     required this.email,
     required this.contact,
     required this.profil,
-    required this.token
+    required this.token,
+    required this.crm
   });
 
   factory UserResponseRecord.fromJson(Map<String, dynamic> json) {
@@ -28,7 +30,8 @@ class UserResponseRecord {
         email: json['email'],
         contact: json['contact'],
         profil: json['profil'],
-        token: json['token']
+        token: json['token'],
+        crm: json['crm']
     );
   }
 }

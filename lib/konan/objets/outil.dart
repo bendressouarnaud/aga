@@ -125,14 +125,25 @@ class Outil {
     List<Departement> data = await _departementRepository.findAll();
     return data;
   }
+
   // SOUS-PREFECTURE
   Future<List<SousPrefecture>> findAllSousPrefecture() async{
     List<SousPrefecture> data = await _sousPrefectureRepository.findAll();
     return data;
   }
+  Future<List<SousPrefecture>> findAllByDepartementIdIn(List<int> ids) async{
+    List<SousPrefecture> data = await _sousPrefectureRepository.findAllByDepartementIdIn(ids);
+    return data;
+  }
+
   // COMMUNE
   Future<List<Commune>> findAllCommune() async{
     List<Commune> data = await _communeRepository.findAll();
+    return data;
+  }
+
+  Future<List<Commune>> findAllCommunesBySousPrefectureIdIn(List<int> ids) async{
+    List<Commune> data = await _communeRepository.findAllBySousPrefectureIdIn(ids);
     return data;
   }
 

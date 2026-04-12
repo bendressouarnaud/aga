@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:maps_launcher/maps_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
@@ -16,6 +17,7 @@ import 'beans/stats_bean_manager.dart';
 import 'beans/wave_payment_response.dart';
 import 'interface_artisan_personne.dart';
 import 'interface_manage_amende.dart';
+import 'interface_signature.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewEntity extends StatefulWidget {
@@ -464,6 +466,41 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   },
                   icon: Icon(Icons.edit, color: Colors.brown)
               ),
+            ),
+            Visibility(
+                visible: statsBeanManager.type != 'Compagnons',
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return InterfaceSignature(id: statsBeanManager.id,
+                                requester: getAppropriatePrefix(statsBeanManager.type)
+                            );
+                          })
+                      );
+                    },
+                    icon: Icon(Icons.draw
+                      , color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    )
+                )
+            ),
+            IconButton(
+                onPressed: () async {
+                  if(statsBeanManager.contact.isNotEmpty) {
+                    var url = Uri.parse(
+                        'tel:${statsBeanManager.contact}');
+                    if (!await launchUrl(url, mode: LaunchMode
+                        .externalApplication)) {
+                    throw Exception(
+                    'Could not launch $url');
+                    }
+                  }
+                  else{
+                    displayToast('Contact indisponible !');
+                  }
+                },
+                icon: Icon(Icons.call, color: Colors.blue)
             )
           ]
       ),

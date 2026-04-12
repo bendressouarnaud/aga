@@ -22,6 +22,7 @@ import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
 import 'interface_entreprise.dart';
+import 'interface_signature.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
 
@@ -218,6 +219,21 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(widget.entreprise.denomination),
+          actions: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return InterfaceSignature(id: widget.entreprise.id, requester: 'ENT');
+                        })
+                    );
+                  },
+                  icon: Icon(Icons.draw
+                    , color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  )
+              )
+            ]
         ),
         body: FutureBuilder(
             future: Future.wait([getAmountToPay(), getTotalApprenti(), getTotalCompagnon()]),

@@ -11,10 +11,11 @@ class User {
   final String jwt;
   final String profil;
   final int milliseconds;
+  final int crm;
 
   // M e t h o d s  :
   User({required this.id, required this.nom, required this.email, required this.pwd, required this.jwt,
-    required this.profil, required this.milliseconds});
+    required this.profil, required this.milliseconds, required this.crm});
   factory User.fromDatabaseJson(Map<String, dynamic> data) => User(
     //This will be used to convert JSON objects that
     //are coming from querying the database and converting
@@ -25,7 +26,8 @@ class User {
     pwd: data['pwd'],
     jwt: data['jwt'],
     profil: data['profil'],
-    milliseconds: data['milliseconds']
+    milliseconds: data['milliseconds'],
+    crm: data['crm']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -37,6 +39,7 @@ class User {
     "pwd": pwd,
     "jwt": jwt,
     "profil": profil,
-    "milliseconds": milliseconds
+    "milliseconds": milliseconds,
+    "crm": crm
   };
 }

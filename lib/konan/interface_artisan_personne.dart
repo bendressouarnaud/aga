@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as io;
-import 'dart:typed_data';
-import 'package:camera/camera.dart';
 import 'package:cnmci/konan/beans/generic_data.dart';
 import 'package:cnmci/konan/interface_prise_artisan_photo.dart';
 import 'package:cnmci/konan/local_data/niveau_equipement.dart';
@@ -150,6 +148,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   int milliseconds = 0;
   bool updatePubDate = false;
   bool updatePubHour = false;
+  bool initCommuneActivite = false;
   late BuildContext customContext;
 
   double spacingSteps = 40;
@@ -193,6 +192,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
   late List<Departement> lesDepartementsFiltre;
   late List<SousPrefecture> lesSousPrefectureFiltre;
   late GenericData leRegimeFiscal;
+  late List<Commune> lesCommunesActivite;
 
   int artisanId = 0;
 
@@ -246,6 +246,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     }
     return tamp;
   }
+
 
   // M E T H O D S
   void displayDataSending(){
@@ -604,14 +605,29 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     }
   }
 
+  Crm pickAppropriateCrm(){
+    if(globalUser!.crm == 0){
+      return widget.lArtisan != null ?
+        lesCrms.where((c) => c.id == widget.lArtisan!.crm).first : lesCrms.first;
+    }
+    else{
+      return widget.lArtisan != null ?
+        lesCrms.where((c) => c.id == widget.lArtisan!.crm).first :
+      lesCrms.where((c) => c.id == globalUser!.crm).first;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
+    // Init this :
+    lesCommunesActivite = lesCommunes;
+
     if(widget.lArtisan != null){
 
       idpub = widget.lArtisan!.id;
-      leCrm = lesCrms.where((c) => c.id == widget.lArtisan!.crm).first;
+      leCrm = pickAppropriateCrm();
       //leDepartement = lesDepartements.where((c) => c.id == widget.lArtisan!.departement).first;
       //laSousPrefecture = lesSousPrefectures.where((c) => c.id == widget.lArtisan!.sous_prefecture).first;
 
@@ -695,7 +711,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       optinEmail = widget.lArtisan!.optinMail == 1;
     }
     else {
-      leCrm = lesCrms.first;
+      leCrm = pickAppropriateCrm();
       leDepartement = lesDepartements.first;
       laSousPrefecture = lesSousPrefectures.first;
       laCommune = lesCommunes.first;
@@ -773,12 +789,6 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       activiteSecondaireController.text = '';
       villeCommuneController.text = laVilleCommune.libelle;
     }
-
-    // Call this to INITIALIZE :
-    /*if(widget.lArtisan == null) {
-      filtrerDepartement();
-    }*/
-
     filtrerDepartement();
   }
 
@@ -793,12 +803,37 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
     });
   }
 
+  // Only SELECT 'COMMUNES' attached to the 'selected' CRM :
+  Future<void> getAllCommunesLinkedToTheCrm() async {
+    var lesDepartementsCrm = lesDepartements.where((d) => d.idx == leCrm.id).toList();
+    List<SousPrefecture> lesSousPrefecturesCrm = await outil.findAllByDepartementIdIn(
+        lesDepartementsCrm.map((d) => d.id).toList());
+    var tPlesCommunesActivite = await outil.findAllCommunesBySousPrefectureIdIn(
+        lesSousPrefecturesCrm.map((s) => s.id).toList());
+    refreshCommune(tPlesCommunesActivite);
+  }
+
+  void refreshCommune(List<Commune> liste){
+    setState(() {
+      lesCommunesActivite = liste;
+      lesCommunesActivite.sort((a,b) => a.libelle.compareTo(b.libelle));
+      if(widget.lArtisan != null && !initCommuneActivite){
+        initCommuneActivite = true;
+      }
+      else {
+        laVilleCommune = lesCommunesActivite.first;
+      }
+    });
+  }
+
   void filtrerDepartement(){
     setState(() {
       lesDepartementsFiltre = lesDepartements.where((d) => d.idx == leCrm.id).toList();
       leDepartement = widget.lArtisan == null ? lesDepartementsFiltre.first :
         lesDepartementsFiltre.where((c) => c.id == widget.lArtisan!.departement).first;
       filtrerSousPrefecture();
+      // Update TOWN :
+      getAllCommunesLinkedToTheCrm();
     });
   }
 
@@ -812,18 +847,6 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       }
       laSousPrefecture = (widget.lArtisan == null || tempSousPrefecture == null) ? lesSousPrefectureFiltre.first :
         tempSousPrefecture;
-      // UPDATE 'Ville Naissance'
-      /*laCommune = (widget.lArtisan == null || tempSousPrefecture == null) ?
-        lesCommunes.where((l) => l.idx == laSousPrefecture.id).first :
-        lesCommunes.where((c) => c.id == widget.lArtisan!.lieu_naissance).first;
-      // 'Ville délivrance Pièce'
-      laPieceDelivre = (widget.lArtisan == null) ?
-        lesCommunes.where((l) => l.idx == laSousPrefecture.id).first :
-        lesCommunes.where((c) => c.id == widget.lArtisan!.piece_delivre).first;
-      // 'Ville Activité'
-      laVilleCommune = (widget.lArtisan == null) ?
-        lesCommunes.where((l) => l.idx == laSousPrefecture.id).first :
-        lesCommunes.where((c) => c.id == widget.lArtisan!.commune_activite).first;*/
     });
   }
 
@@ -1047,6 +1070,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               DropdownMenu<Crm>(
+                  enabled: globalUser!.crm > 0 ? false : true,
                   width: (MediaQuery.of(context).size.width / 2) - 20,
                   menuHeight: 250,
                   initialSelection: leCrm,
@@ -2575,7 +2599,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   },
                   selectedItem: laVilleCommune,
                   itemAsString: (commune) => commune.libelle,
-                  items: (filter, infiniteScrollProps) => lesCommunes,
+                  items: (filter, infiniteScrollProps) => lesCommunesActivite, //lesCommunes,
                   decoratorProps: DropDownDecoratorProps(
                     decoration: InputDecoration(
                       labelText: 'Commune d\'activité',
