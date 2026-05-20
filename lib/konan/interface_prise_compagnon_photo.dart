@@ -1350,7 +1350,9 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             optinSms: compagnonToManage.optinSms,
             optinWhatsapp: compagnonToManage.optinWhatsapp
         );
-        compagnonControllerX.addItem(compagnon);
+        compagnonToManage.id == 0 ?
+        compagnonControllerX.addItem(compagnon) :
+        compagnonControllerX.updateData(compagnon);
         flagSendData = false;
       }
       else if(response.statusCode == 404){

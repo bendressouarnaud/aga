@@ -77,6 +77,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
   TextEditingController civiliteController = TextEditingController();
   TextEditingController communeController = TextEditingController();
   TextEditingController lieuNaissanceAutreController = TextEditingController();
+  TextEditingController qualificationController = TextEditingController();
   TextEditingController dateNaissanceController = TextEditingController();
   TextEditingController datePieceController = TextEditingController();
   TextEditingController nationaliteController = TextEditingController();
@@ -393,7 +394,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 "photo_cni_recto" : "",
                 "photo_cni_verso" : "",
                 "photo_registre_commerce" : "",
-                "photo_dfe" : ""
+                "photo_dfe" : "",
+                "qualification" : qualificationController.text
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -452,7 +454,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             photoCniRecto: widget.entreprise!.photoCniRecto,
             photoCniVerso: widget.entreprise!.photoCniVerso,
             photoRegistreCommerce: widget.entreprise!.photoRegistreCommerce,
-            photoDfe: widget.entreprise!.photoDfe
+            photoDfe: widget.entreprise!.photoDfe,
+            qualification: qualificationController.text
         );
         entrepriseControllerX.updateData(entrepriseToManage);
         flagSendData = false;
@@ -521,7 +524,8 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
         photoCniRecto: '',
         photoCniVerso: '',
         photoRegistreCommerce: '',
-        photoDfe: ''
+        photoDfe: '',
+        qualification: qualificationController.text
     );
 
     final result = await Navigator.push(context,
@@ -586,6 +590,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
       leTypeDocument = lesTypeDocuments.where((t) => t.id == widget.entreprise!.type_document).first;
       numeroPieceIdentiteController.text = widget.entreprise!.numero_piece;
       laPieceDelivre = lesCommunes.where((c) => c.id == widget.entreprise!.piece_delivre).first;
+      qualificationController.text = widget.entreprise!.qualification;
 
       // ENTREPRISE :
       laFormeJuridique = lesFormesJuridiques.where((f) => f.id == widget.entreprise!.forme_juridique).first;
@@ -683,6 +688,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
       telephonEntrepriseController.text = "";
       adressePostaleController.text = "";
       quartierCommuneController.text = "";
+      qualificationController.text = "";
 
       communeController.text = laCommune.libelle;
       villeResidenceController.text = laVilleResidence.libelle;
@@ -777,7 +783,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
 
   Future<void> _selectDate() async {
     choixDate = 0;
-    final now = DateTime(1965, 1, 1, 00, 00);
+    final now = DateTime(1940, 1, 1, 00, 00);
     final initialDate = DateTime(2000, 1, 1, 00, 00);
 
     // Sélection de la date
@@ -1411,6 +1417,29 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             ],
           )
       ),
+
+      Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+          child: TextField(
+            keyboardType: TextInputType.text,
+            controller: qualificationController,
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black, width: 1.0),
+              ),
+              border: OutlineInputBorder(),
+              labelText: 'Qualification',
+            ),
+            style: const TextStyle(
+              height: 1.5,
+            ),
+            textAlignVertical: TextAlignVertical.bottom,
+            textAlign: TextAlign.center,
+            textInputAction: TextInputAction.next,
+          )
+      ),
+
       Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 40),

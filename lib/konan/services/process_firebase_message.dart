@@ -279,7 +279,8 @@ class FirebaseProcessMessage{
               photoCniRecto: entreprise.photoCniRecto,
               photoCniVerso: entreprise.photoCniVerso,
               photoRegistreCommerce: entreprise.photoRegistreCommerce,
-              photoDfe: entreprise.photoDfe
+              photoDfe: entreprise.photoDfe,
+              qualification: entreprise.qualification
           );
           entrepriseControllerX.updateData(updateEntreprise);
         }

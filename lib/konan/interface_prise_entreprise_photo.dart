@@ -1201,7 +1201,7 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
             "contact1": entrepriseToManage.contact1,
             "contact2": entrepriseToManage.contact2,
             "email": entrepriseToManage.email,
-            "numero_id": 0,
+            "numero_id": entrepriseToManage.id,
             "numero_rea": "",
             "forme_juridique": entrepriseToManage.forme_juridique,
             "activite_principale": entrepriseToManage.activite_principale,
@@ -1234,7 +1234,8 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
             "photo_registre_commerce" : uploadPhotoCommerce ? convertUploadedFile(fileUploadPhotoCommerce!) :
               photoCommerce != null ? convertPhotoToString(photoCommerce!) : "",
             "photo_dfe" : uploadPhotoDfe ? convertUploadedFile(fileUploadPhotoDfe!) :
-              photoDfe != null ? convertPhotoToString(photoDfe!) : ""
+              photoDfe != null ? convertPhotoToString(photoDfe!) : "",
+            "qualification" : entrepriseToManage.qualification
           })
       ).timeout(const Duration(seconds: timeOutValue));
 
@@ -1295,9 +1296,12 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
             photoCniRecto: checkPhotoRecto(),
             photoCniVerso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 1),
             photoRegistreCommerce: factoriseDocumentProcessing(photoCommerceController, uploadPhotoCommerce, fileUploadPhotoCommerce, photoCommerce, 2),
-            photoDfe: factoriseDocumentProcessing(photoDfeController, uploadPhotoDfe, fileUploadPhotoDfe, photoDfe, 3)
+            photoDfe: factoriseDocumentProcessing(photoDfeController, uploadPhotoDfe, fileUploadPhotoDfe, photoDfe, 3),
+            qualification: entrepriseToManage.qualification
         );
-        entrepriseControllerX.addItem(entreprise);
+        entrepriseToManage.id == 0 ? 
+        entrepriseControllerX.addItem(entreprise) : 
+        entrepriseControllerX.updateData(entreprise);
         // Refresh :
         entrepriseToManage = entreprise;
         flagSendData = false;

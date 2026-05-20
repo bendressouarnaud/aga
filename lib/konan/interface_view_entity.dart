@@ -233,6 +233,84 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
     }
   }
 
+  void sendRegularisation() async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}regularisation');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "contact": statsBeanManager.contact,
+            "entite": getAppropriatePrefix(statsBeanManager.type)
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        flagSendData = false;
+      }
+    }
+    catch(e){
+      // Connexion PROBLEM :
+    }
+    finally{
+      if(!envoiLienPaiement) {
+        flagServerResponse = false;
+      }
+    }
+  }
+
+  void displayWaitingForRegularisation(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        });
+
+    flagSendData = true;
+    flagServerResponse = true;
+    sendRegularisation();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+        }
+      },
+    );
+  }
+
   void displayDataRequesting(int amountSelected){
     showDialog(
         barrierDismissible: false,
@@ -498,6 +576,12 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   }
                   else{
                     displayToast('Contact indisponible !');
+                  }
+                },
+                onLongPress: () {
+                  // Call for REGULARISATION :
+                  if(globalUser!.profil == "ROLE_SUPER_ADMIN") {
+                    displayWaitingForRegularisation();
                   }
                 },
                 icon: Icon(Icons.call, color: Colors.blue)
