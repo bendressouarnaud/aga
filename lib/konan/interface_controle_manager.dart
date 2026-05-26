@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cnmci/konan/interface_history_action_terrain.dart';
 import 'package:cnmci/konan/search_entity_manager.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -146,12 +147,17 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
                 selectedIcon: Icon(Icons.person_search_sharp), //Icon(Icons.announcement),
                 icon: Icon(Icons.person_search_outlined),//Icon(Icons.announcement_outlined),
                 label: 'Recherche',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.gps_not_fixed), //Icon(Icons.announcement),
+                icon: Icon(Icons.gps_fixed),//Icon(Icons.announcement_outlined),
+                label: 'Action Terrain',
               )
             ]
         ),
       appBar: AppBar(
-        title: const Text(
-          "Statistiques",
+        title: Text(currentPageIndex < 3 ?
+          "Statistiques" : "Historique",
           textAlign: TextAlign.left,
         ),
       ),
@@ -327,7 +333,8 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
           }
         ),
         InterfaceControleSermente(),
-        SearchEntityManager()
+        SearchEntityManager(),
+        InterfaceHistoryActionTerrain()
       ][currentPageIndex]
     );
 

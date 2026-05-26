@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 5;
+  static final _databaseVersion = 6;
 
 
   // Make this a singleton class.
@@ -75,6 +75,10 @@ class DatabaseHelper {
         await _addQualificationColumnToEntreprise(db);
         break;
 
+      case 6:
+        await _addActionTerrainTable(db);
+        break;
+
       default:
         // todo
         break;
@@ -100,6 +104,11 @@ class DatabaseHelper {
   Future _addQualificationColumnToEntreprise(Database db) async {
     await db.execute('ALTER TABLE entreprise ADD COLUMN qualification TEXT');
     await db.execute("UPDATE entreprise SET qualification = ''");
+  }
+
+  Future _addActionTerrainTable(Database db) async {
+    await db.execute('CREATE TABLE action_terrain (id INTEGER PRIMARY KEY, '
+        'actif INTEGER, commune_id INTEGER, quartier_id INTEGER)');
   }
 
   Future _createDatabase(Database db) async {

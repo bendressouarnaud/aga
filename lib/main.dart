@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:cnmci/getxcontroller/action_terrain_controller_x.dart';
 import 'package:cnmci/konan/interface_accueil.dart';
 import 'package:cnmci/konan/model/compagnon.dart';
 import 'package:cnmci/konan/model/artisan.dart';
@@ -69,6 +70,7 @@ late ArtisanControllerX artisanControllerX;
 late ApprentiControllerX apprentiControllerX;
 late CompagnonControllerX compagnonControllerX;
 late EntrepriseControllerX entrepriseControllerX;
+late ActionTerrainControllerX actionTerrainControllerX;
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 
@@ -97,6 +99,7 @@ Future<void> main() async {
   apprentiControllerX = Get.put(ApprentiControllerX());
   compagnonControllerX = Get.put(CompagnonControllerX());
   entrepriseControllerX = Get.put(EntrepriseControllerX());
+  actionTerrainControllerX = Get.put(ActionTerrainControllerX());
 
   // Pick DATA :
   globalUser = await outil.findUser();
