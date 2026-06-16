@@ -307,7 +307,7 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
             "longitude" : widget.compagnon!.longitude.toString(),
             "latitude" : widget.compagnon!.latitude.toString(),
             "entity_id": widget.compagnon!.artisan_id > 0 ? widget.compagnon!.artisan_id : widget.compagnon!.entreprise_id,
-            "source": widget.compagnon!.artisan_id > 0 ? 1 : 0,
+            "source": widget.compagnon!.artisan_id > 0 ? 0 : 1,
             "date_debut_compagnonage" : dateDebutCompagnonnageController.text,
             "type_document" : leTypeDocument.id,
             "niveau_etude" : leNiveauEtude.id,

@@ -328,7 +328,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
             "longitude" : widget.lApprenti!.longitude.toString(),
             "latitude" : widget.lApprenti!.latitude.toString(),
             "entity_id": widget.lApprenti!.artisan_id > 0 ? widget.lApprenti!.artisan_id : widget.lApprenti!.entreprise_id,
-            "source": widget.lApprenti!.artisan_id > 0 ? 1 : 0,
+            "source": widget.lApprenti!.artisan_id > 0 ? 0 : 1,
             "a_suivi_formation_metier": lApprentissageMetier.id,
             "centre_formation_metier": centreFormationController.text,
             "intitule_formation_metier": intituleFormationController.text,

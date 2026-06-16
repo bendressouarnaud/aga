@@ -1157,7 +1157,7 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             "longitude" : longitude.toString(),
             "latitude" : latitude.toString(),
             "entity_id": apprentiToManage.artisan_id > 0 ? apprentiToManage.artisan_id : apprentiToManage.entreprise_id,
-            "source": apprentiToManage.artisan_id > 0 ? 1 : 0,
+            "source": apprentiToManage.artisan_id > 0 ? 0 : 1,
             "a_suivi_formation_metier": apprentiToManage.a_suivi_formation,
             "centre_formation_metier": apprentiToManage.centre_formation_metier,
             "intitule_formation_metier": apprentiToManage.intitule_formation_metier,

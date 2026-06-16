@@ -1282,7 +1282,7 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
             "longitude" : longitude.toString(),
             "latitude" : latitude.toString(),
             "entity_id": compagnonToManage.artisan_id > 0 ? compagnonToManage.artisan_id : compagnonToManage.entreprise_id,
-            "source": compagnonToManage.artisan_id > 0 ? 1 : 0,
+            "source": compagnonToManage.artisan_id > 0 ? 0 : 1,
             "date_debut_compagnonage" : compagnonToManage.date_debut_compagnonnage,
             "type_document" : compagnonToManage.type_document,
             "niveau_etude" : compagnonToManage.niveau_etude,

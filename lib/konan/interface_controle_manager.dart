@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cnmci/konan/interface_history_action_terrain.dart';
@@ -11,7 +12,9 @@ import 'package:money_formatter/money_formatter.dart';
 
 import 'beans/daily_payment_bean.dart';
 import 'beans/stats_bean.dart';
+import 'beans/stats_bean_manager.dart';
 import 'interface_controle_sermente.dart';
+import 'interface_historique_artisan_terrain.dart';
 import 'objets/constants.dart';
 
 class InterfaceControleManager extends StatefulWidget {
@@ -35,6 +38,10 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
   String maxAmountString ='';
   String tranche1 ='';
   String tranche2 ='';
+  late BuildContext dialogContext;
+  bool flagSendData = false;
+  bool flagServerResponse = false;
+  List<StatsBeanManager> liste = [];
 
 
   // METHODS :
@@ -160,6 +167,17 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
           "Statistiques" : "Historique",
           textAlign: TextAlign.left,
         ),
+        actions: [
+          Visibility(
+            visible: currentPageIndex == 3,
+              child: IconButton(
+                  onPressed: () {
+                    displayWaintingForStatusPayment();
+                  },
+                  icon: const Icon(Icons.data_exploration, color: Colors.brown)
+              )
+          )
+        ],
       ),
 
       body: <Widget>[
@@ -462,6 +480,91 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
     };
 
     return Text(text, style: style, textAlign: TextAlign.left);
+  }
+
+  void displayWaintingForStatusPayment(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        }
+    );
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    getEntitiesList();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (!flagSendData) {
+            // Open NEW INTERFACE to DISPLAY DATA
+            Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return InterfaceHistoriqueArtisanTerrain(liste: liste);
+                        })
+                    );
+
+          }
+        }
+      },
+    );
+  }
+
+  // Pick PAYMENT STATUS :
+  Future<void> getEntitiesList() async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND_STAT']}get-artisan-list-action-terrain');
+      var response = await get(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          }
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        final List result = json.decode(response.body);
+        liste = result.map((e) => StatsBeanManager.fromJson(e)).toList();
+        flagSendData = false;
+      }
+    }
+    catch(e){}
+    finally{
+      flagServerResponse = false;
+    }
   }
 
 }

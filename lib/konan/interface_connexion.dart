@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cnmci/konan/interface_accueil.dart';
+import 'package:cnmci/konan/model/action_terrain.dart';
 import 'package:cnmci/konan/model/apprenti.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/classe.dart';
@@ -253,6 +254,10 @@ class _ConnexionViewState extends State<ConnexionView> {
           for (Entreprise entreprise in donnee.entreprises) {
             //
             entrepriseControllerX.addItemWithNoNotification(entreprise);
+          }
+          for (ActionTerrain actionTerrain in donnee.actionterrains) {
+            //
+            actionTerrainControllerX.addItem(actionTerrain);
           }
         }
         catch(e){
