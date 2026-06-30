@@ -19,4 +19,11 @@ class ParametreDao {
     var data = await db.query('parametre', where: 'id = ?', whereArgs: [id]);
     return data.isNotEmpty ? data.map((c) => Parametre.fromDatabaseJson(c)).toList().first : null;
   }
+
+  Future<int> update(Parametre data) async {
+    final db = await dbProvider.database;
+    var result = await db.update("parametre", data.toDatabaseJson(),
+        where: "id = ?", whereArgs: [data.id]);
+    return result;
+  }
 }

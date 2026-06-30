@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 6;
+  static final _databaseVersion = 7;
 
 
   // Make this a singleton class.
@@ -79,6 +79,10 @@ class DatabaseHelper {
         await _addActionTerrainTable(db);
         break;
 
+      case 7:
+        await _addSynchronizedToArtisanTable(db);
+        break;
+
       default:
         // todo
         break;
@@ -109,6 +113,11 @@ class DatabaseHelper {
   Future _addActionTerrainTable(Database db) async {
     await db.execute('CREATE TABLE action_terrain (id INTEGER PRIMARY KEY, '
         'actif INTEGER, commune_id INTEGER, quartier_id INTEGER)');
+  }
+
+  Future _addSynchronizedToArtisanTable(Database db) async {
+    await db.execute('ALTER TABLE artisan ADD COLUMN synchronized integer');
+    await db.execute("UPDATE artisan SET synchronized = 1");
   }
 
   Future _createDatabase(Database db) async {

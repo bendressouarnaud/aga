@@ -42,8 +42,10 @@ class ArtisanControllerX extends GetxController {
     update();
   }
 
-  void deleteItem(Artisan data){
+  void deleteItem(Artisan data) async{
     this.data.removeWhere((d) => d.id == data.id);
+    // Delete from DataBase :
+    await _repository.delete(data);
     update();
   }
 

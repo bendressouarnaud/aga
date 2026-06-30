@@ -79,6 +79,7 @@ class Artisan {
   final String qualification;
   final int statutLivraison;
   final int print;
+  final int synchronized;
 
   // M e t h o d s  :
   Artisan({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance, required this.numero_registre,
@@ -99,7 +100,7 @@ class Artisan {
     required this.statut_artisan, required this.livraisonCarte,
     required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre,
     required this.regimeFiscal, required this.qualification, required this.statutLivraison
-    , required this.print
+    , required this.print, required this.synchronized
   });
   factory Artisan.fromDatabaseJson(Map<String, dynamic> data) => Artisan(
     id: data['id'],
@@ -175,6 +176,7 @@ class Artisan {
     qualification: data['qualification'],
     statutLivraison: data['statut_livraison'],
     print: data['print'],
+    synchronized: data['synchronized']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -252,5 +254,6 @@ class Artisan {
     "qualification": qualification,
     "statut_livraison": statutLivraison,
     "print": print,
+    "synchronized": synchronized,
   };
 }

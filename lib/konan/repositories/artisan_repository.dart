@@ -8,5 +8,6 @@ class ArtisanRepository {
   Future<int> insert(Artisan data) => dao.create(data);
   Future<Artisan?> findOne(int id) => dao.findOne(id);
   Future<int> update(Artisan data) => dao.update(data);
+  Future<int> delete(Artisan data) => dao.delete(data);
   Future<List<Artisan>> findAll() => dao.findAll();
 }

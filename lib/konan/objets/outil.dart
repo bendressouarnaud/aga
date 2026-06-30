@@ -15,6 +15,7 @@ import 'package:cnmci/konan/repositories/quartier_repository.dart';
 import '../model/apprenti.dart';
 import '../model/classe.dart';
 import '../model/diplome.dart';
+import '../model/parametre.dart';
 import '../model/pays.dart';
 import '../model/type_document.dart';
 import '../repositories/classe_repository.dart';
@@ -24,6 +25,7 @@ import '../repositories/departement_repository.dart';
 import '../repositories/diplome_repository.dart';
 import '../repositories/metier_repository.dart';
 import '../repositories/niveau_etude_repository.dart';
+import '../repositories/parametre_repository.dart';
 import '../repositories/pays_repository.dart';
 import '../repositories/sous_prefecture_repository.dart';
 import '../repositories/statut_matrimonial_repository.dart';
@@ -52,6 +54,8 @@ class Outil {
 
   late ApprentiRepository _apprentiRepository;
   late CompagnonRepository _compagnonRepository;
+  late ParametreRepository _parametreRepository;
+  bool launchSynchro = false;
 
   // M E T H O D S
   // using a factory is important because it promises to return _an_ object of this type but it doesn't promise to make a new one.
@@ -80,6 +84,30 @@ class Outil {
 
     _apprentiRepository = ApprentiRepository();
     _compagnonRepository = CompagnonRepository();
+    _parametreRepository = ParametreRepository();
+  }
+
+  // INIT SYNCHRONISATION :
+  void updateSynchro(bool value){
+    launchSynchro = value;
+  }
+
+  bool getSynchro(){
+    return launchSynchro;
+  }
+
+  // PARAMETES
+  Future<Parametre?> findParameter() async{
+    Parametre? parametre = await _parametreRepository.findUnique(1);
+    return parametre;
+  }
+
+  void insertParameter(Parametre param) async{
+    await _parametreRepository.insert(param);
+  }
+
+  void updateParameter(Parametre param) async{
+    await _parametreRepository.update(param);
   }
 
   // APPRENTI

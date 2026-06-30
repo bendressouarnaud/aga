@@ -34,4 +34,10 @@ class ArtisanDao {
         where: "id = ?", whereArgs: [data.id]);
     return result;
   }
+
+  Future<int> delete(Artisan data) async {
+    final db = await dbProvider.database;
+    var result = await db.delete("artisan", where: "id = ?", whereArgs: [data.id]);
+    return result;
+  }
 }

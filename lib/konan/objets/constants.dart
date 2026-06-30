@@ -24,6 +24,7 @@ const Color photoIdentite = Color(0xffba8b62);
 const double defaultPadding = 16.0;
 
 const int timeOutValue = 15;
+const int timeOutValueEntite = 25;
 const int gpsPrecisionAccuracy = 10; // 7
 const int limitCharacter = 12;
 const int limitCharacterHisto = 25;

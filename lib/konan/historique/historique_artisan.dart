@@ -189,16 +189,29 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
                               Container(
                                   margin: EdgeInsets.only(right: 10, left: 10, top: 5),
                                   alignment: Alignment.topLeft,
-                                  child: Text.rich(
-                                    TextSpan(
-                                        text: 'Nationalité : ',
-                                        //style: TextStyle(fontWeight: FontWeight.bold),
-                                        children: <TextSpan>[
-                                          TextSpan(text: lesPays.where((p) => p.id == currentData[index].nationalite).first.libelle,
-                                              style: TextStyle(fontWeight: FontWeight.bold)
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text.rich(
+                                        TextSpan(
+                                            text: 'Nationalité : ',
+                                            //style: TextStyle(fontWeight: FontWeight.bold),
+                                            children: <TextSpan>[
+                                              TextSpan(text: lesPays.where((p) => p.id == currentData[index].nationalite).first.libelle,
+                                                  style: TextStyle(fontWeight: FontWeight.bold)
+                                              )
+                                            ]
+                                        ),
+                                      ),
+                                      Visibility(
+                                        visible: currentData[index].synchronized == 0,
+                                          child: Icon(
+                                            Icons.sync,
+                                            color: Colors.blue,
+                                            size: 25,
                                           )
-                                        ]
-                                    ),
+                                      )
+                                    ],
                                   )
                               ),
                               Container(

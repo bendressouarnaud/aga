@@ -103,7 +103,8 @@ class FirebaseProcessMessage{
                 regimeFiscal: artisan.regimeFiscal,
                 qualification: artisan.qualification,
                 statutLivraison: sujet == 3 ? int.parse(message.data['statut']) : artisan.statutLivraison,
-              print: artisan.print
+              print: artisan.print,
+                synchronized: artisan.synchronized
             );
             //
             artisanControllerX.updateData(updateArtisan);
@@ -386,6 +387,7 @@ class FirebaseProcessMessage{
                 qualification: artisan.qualification,
                 statutLivraison: artisan.statutLivraison,
                 print: int.parse(message.data['print']),
+                synchronized: artisan.synchronized
             );
             //
             artisanControllerX.updateData(updateArtisan);

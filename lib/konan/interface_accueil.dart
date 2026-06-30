@@ -4,6 +4,7 @@ import 'package:cnmci/konan/historique/historique_apprenti.dart';
 import 'package:cnmci/konan/historique/historique_compagnon.dart';
 import 'package:cnmci/konan/historique/historique_entreprise.dart';
 import 'package:cnmci/konan/interface_gestion_utilisateur.dart';
+import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/repositories/parametre_repository.dart';
 import 'package:cnmci/konan/search_entity.dart';
 import 'package:cnmci/konan/widget_accueil.dart';
@@ -14,8 +15,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import '../main.dart';
+import 'factorise_widgets/custom_linear_progress_indicator.dart';
 import 'historique/historique_artisan.dart';
 import 'interface_controle_manager.dart';
+import 'interface_parametre.dart';
 import 'model/parametre.dart';
 
 class InterfaceAccueil extends StatefulWidget {
@@ -30,13 +33,13 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
   // A t t r i b u t e s  :
   late final StreamSubscription<InternetStatus> internetCheck;
   int currentPageIndex = 0;
-  final parametreRepository = ParametreRepository();
+  late BuildContext dialogContext;
+  bool uploadButtonFlag = false;
 
 
   // M E T H O D S  :
   @override
   void initState() {
-    super.initState();
 
     internetCheck = InternetConnection().onStatusChange.listen((status) {
       // Handle internet status changes :
@@ -46,25 +49,38 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
             // Check if 'INITIALIZATION has been done :
             checkParametreInitialization();
           }
+
+          // FRom there, check if we have values to SEND :
+          List<Artisan> listeArtisanToSend = artisanControllerX.data.where((a) => a.synchronized == 0).toList();
+          if(listeArtisanToSend.isNotEmpty){
+            setState(() {
+              uploadButtonFlag = true;
+            });
+          }
+          else{
+            setState(() {
+              uploadButtonFlag = false;
+            });
+          }
           break;
 
         case InternetStatus.disconnected:
           break;
       }
-      setState(() {
-      });
     });
+
+    super.initState();
   }
 
   void checkParametreInitialization() async{
     try {
-      Parametre? parametre = await parametreRepository.findUnique(1);
+      Parametre? parametre = await outil.findParameter();
       if(parametre == null){
         await FirebaseMessaging.instance.subscribeToTopic('${dotenv.env['SIGA_TOPIC']}');
         // Persist :
         Parametre newParam = Parametre(id: 1,
             topicSubscription: 1, param1: 0, param2: 0, param3: '');
-        parametreRepository.insert(newParam);
+        outil.insertParameter(newParam);
       }
     }
     catch(e){}
@@ -80,6 +96,52 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
     apprentiControllerX.dispose();
     compagnonControllerX.dispose();
     entrepriseControllerX.dispose();
+  }
+
+  void displayWaitingForDataPushing(List<Artisan> listeArtisanToSend, double finalDivision){
+    outil.updateSynchro(true);
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+
+                          CustomLinearProgressIndicator(
+                            listeArtisanToSend: listeArtisanToSend,
+                            increment: finalDivision,
+                          )
+                        ],
+                      )
+                  )
+              )
+          );
+        }
+    );
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if(!outil.getSynchro()){
+          timer.cancel();
+          Navigator.pop(dialogContext);
+          setState(() {
+            uploadButtonFlag = false;
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -141,7 +203,7 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
           ),
           actions: [
             Visibility(
-                visible: globalUser!.profil == "ROLE_SUPER_ADMIN",
+                visible: false,//globalUser!.profil == "ROLE_SUPER_ADMIN",
                 child: IconButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -166,7 +228,7 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
                           })
                       );
                     },
-                    icon: const Icon(Icons.manage_accounts, color: Colors.black)
+                    icon: const Icon(Icons.bar_chart, color: Colors.brown)
                 )
             ),
             Visibility(
@@ -181,6 +243,31 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
                     },
                     icon: const Icon(Icons.search, color: Colors.black)
                 )
+            ),
+            Visibility(
+              visible: uploadButtonFlag && currentPageIndex == 0,
+              child: IconButton(
+                onPressed: () async {
+                  List<Artisan> listeArtisanToSend = artisanControllerX.data.where((a) => a.synchronized == 0).toList();
+                  if(listeArtisanToSend.isNotEmpty){
+                    double firstDivision = 10 / listeArtisanToSend.length;
+                    double finalDivision = firstDivision / 10;
+                    displayWaitingForDataPushing(listeArtisanToSend, finalDivision);
+                  }
+                },
+                icon: const Icon(Icons.upload, color: Colors.brown)
+              )
+            ),
+            IconButton(
+                onPressed: () async {
+                  Parametre? parametre = await outil.findParameter();
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                        return InterfaceParametre(parametre: parametre);
+                      })
+                  );
+                },
+                icon: const Icon(Icons.settings, color: Colors.blue)
             )
           ],
         ),

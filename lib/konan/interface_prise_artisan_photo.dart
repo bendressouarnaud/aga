@@ -4,6 +4,7 @@ import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
 import 'package:cnmci/konan/beans/stats_bean_manager.dart';
+import 'package:cnmci/konan/model/parametre.dart';
 import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:file_picker/file_picker.dart';
@@ -80,8 +81,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   TextEditingController photoAutreController = TextEditingController();
 
   double _currentDiscreteSliderValue = 8.0;
-  //final ArtisanRepository _artisanRepository = ArtisanRepository();
-  //final ArtisanControllerX _artisanControllerX = Get.put(ArtisanControllerX());
+  int offlineMode = 0;
 
 
   // METHODS :
@@ -90,11 +90,17 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
     super.initState();
 
     // init :
+    pickOfflineStatus();
     photoArtisanController.text = "";
     photoDiplomeController.text = "";
     photoRectoController.text = "";
     photoVersoController.text = "";
     setUpCameraController();
+  }
+
+  void pickOfflineStatus() async{
+    Parametre? param = await outil.findParameter();
+    offlineMode = param != null ? param.param1 : 0;
   }
 
   @override
@@ -324,7 +330,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
                     }
                   },
                   icon: const Icon(
@@ -358,7 +363,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                         }
                       } catch (e) {
                         // If an error occurs, log the error to the console.
-                        //print('Erreur ....$e');
                       }
                     },
                     icon: const Icon(
@@ -444,7 +448,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
                     }
                   },
                   icon: const Icon(
@@ -478,7 +481,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                         }
                       } catch (e) {
                         // If an error occurs, log the error to the console.
-                        //print('Erreur ....$e');
                       }
                     },
                     icon: const Icon(
@@ -564,7 +566,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
                     }
                   },
                   icon: const Icon(
@@ -598,7 +599,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                         }
                       } catch (e) {
                         // If an error occurs, log the error to the console.
-                        //print('Erreur ....$e');
                       }
                     },
                     icon: const Icon(
@@ -684,7 +684,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
                     }
                   },
                   icon: const Icon(
@@ -718,7 +717,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                         }
                       } catch (e) {
                         // If an error occurs, log the error to the console.
-                        //print('Erreur ....$e');
                       }
                     },
                     icon: const Icon(
@@ -804,7 +802,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                       }
                     } catch (e) {
                       // If an error occurs, log the error to the console.
-                      //print('Erreur ....$e');
                     }
                   },
                   icon: const Icon(
@@ -838,7 +835,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                         }
                       } catch (e) {
                         // If an error occurs, log the error to the console.
-                        //print('Erreur ....$e');
                       }
                     },
                     icon: const Icon(
@@ -1124,7 +1120,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                                   closeCameraDialog();
                                 } catch (e) {
                                   // If an error occurs, log the error to the console.
-                                  //print('Erreur ....$e');
                                 }
                               },
                               icon: const Icon(
@@ -1210,8 +1205,6 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
 
           if (!flagSendData) {
             Navigator.pop(context, 1);
-          } else {
-            displayToast('Traitement impossible');
           }
         }
       },
@@ -1219,6 +1212,17 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   }
 
   void displayToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  void displayToastShort(String message) {
     Fluttertoast.showToast(
         msg: message,
         toastLength: Toast.LENGTH_SHORT,
@@ -1303,211 +1307,323 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
 
   Future<void> sendArtisanData() async {
     // First Call this :
-    var localToken = await MesServices().checkJwtExpiration();
-    final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-artisanmobile');
-    try {
-      var response = await post(url,
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer $localToken'
-          },
-          body: jsonEncode({
-            "id" : artisanToManage.id,
-            "civilite" : artisanToManage.civilite,
-            "nom" : artisanToManage.nom,
-            "prenom" : artisanToManage.prenom,
-            "date_naissance" : artisanToManage.date_naissance,
-            "lieu_naissance" : artisanToManage.lieu_naissance.toString(),
-            "lieu_naissance_autre" : artisanToManage.lieu_naissance_autre,
-            "nationalite" : artisanToManage.nationalite.toString(),
-            "cnps" : artisanToManage.cnps,
-            "cmu" : artisanToManage.cmu,
-            "chiffre_affaire" : artisanToManage.chiffre_affaire,
-            "presence_compte_bancaire" : artisanToManage.presence_compte_bancaire,
-            "type_compte_bancaire" : artisanToManage.type_compte_bancaire,
-            "regime_social" : artisanToManage.regime_social,
-            "regime_travailleur" : artisanToManage.regime_travailleur,
-            "regime_imposition_taxe_communale" : artisanToManage.regime_imposition_taxe_communale,
-            "regime_imposition_micro_entreprise" : artisanToManage.regime_imposition_micro_entreprise,
-            "comptabilite" : artisanToManage.comptabilite,
-            "sexe" : "",
-            "statut_matrimonial" : artisanToManage.statut_matrimonial.toString(),
-            "type_document" : artisanToManage.type_document.toString(),
-            "numero_piece" : artisanToManage.numero_piece,
-            "piece_delivre" : artisanToManage.piece_delivre.toString(),
-            "date_emission_piece" : artisanToManage.date_emission_piece,
-            "niveau_etude" : artisanToManage.niveau_etude.toString(),
-            "formation" : artisanToManage.formation.toString(),
-            "classe" : artisanToManage.classe.toString(),
-            "diplome" : artisanToManage.diplome.toString(),
-            "ville_residence" : artisanToManage.commune_residence.toString(),
-            "quartier_residence" : artisanToManage.quartier_residence,
-            "adresse_postal" : artisanToManage.adresse_postal,
-            "contact1" : artisanToManage.contact1,
-            "contact2" : artisanToManage.contact2,
-            "email" : artisanToManage.email,
+    if(offlineMode == 0){
+      // Online : SEND DATA :
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-artisanmobile');
+      try {
+        var response = await post(url,
+            headers: {
+              "Content-Type": "application/json",
+              'Authorization': 'Bearer $localToken'
+            },
+            body: jsonEncode({
+              "id" : artisanToManage.id,
+              "civilite" : artisanToManage.civilite,
+              "nom" : artisanToManage.nom,
+              "prenom" : artisanToManage.prenom,
+              "date_naissance" : artisanToManage.date_naissance,
+              "lieu_naissance" : artisanToManage.lieu_naissance.toString(),
+              "lieu_naissance_autre" : artisanToManage.lieu_naissance_autre,
+              "nationalite" : artisanToManage.nationalite.toString(),
+              "cnps" : artisanToManage.cnps,
+              "cmu" : artisanToManage.cmu,
+              "chiffre_affaire" : artisanToManage.chiffre_affaire,
+              "presence_compte_bancaire" : artisanToManage.presence_compte_bancaire,
+              "type_compte_bancaire" : artisanToManage.type_compte_bancaire,
+              "regime_social" : artisanToManage.regime_social,
+              "regime_travailleur" : artisanToManage.regime_travailleur,
+              "regime_imposition_taxe_communale" : artisanToManage.regime_imposition_taxe_communale,
+              "regime_imposition_micro_entreprise" : artisanToManage.regime_imposition_micro_entreprise,
+              "comptabilite" : artisanToManage.comptabilite,
+              "sexe" : "",
+              "statut_matrimonial" : artisanToManage.statut_matrimonial.toString(),
+              "type_document" : artisanToManage.type_document.toString(),
+              "numero_piece" : artisanToManage.numero_piece,
+              "piece_delivre" : artisanToManage.piece_delivre.toString(),
+              "date_emission_piece" : artisanToManage.date_emission_piece,
+              "niveau_etude" : artisanToManage.niveau_etude.toString(),
+              "formation" : artisanToManage.formation.toString(),
+              "classe" : artisanToManage.classe.toString(),
+              "diplome" : artisanToManage.diplome.toString(),
+              "ville_residence" : artisanToManage.commune_residence.toString(),
+              "quartier_residence" : artisanToManage.quartier_residence,
+              "adresse_postal" : artisanToManage.adresse_postal,
+              "contact1" : artisanToManage.contact1,
+              "contact2" : artisanToManage.contact2,
+              "email" : artisanToManage.email,
 
-            "photo_artisan" : uploadPhotoArtisan ? convertUploadedFile(fileUploadPhotoArtisan!) :
+              "photo_artisan" : uploadPhotoArtisan ? convertUploadedFile(fileUploadPhotoArtisan!) :
               photoArtisan != null ? convertPhotoToString(photoArtisan!) : "",
-            "photo_cni_recto" : uploadPhotoRecto ? convertUploadedFile(fileUploadPhotoRecto!) :
+              "photo_cni_recto" : uploadPhotoRecto ? convertUploadedFile(fileUploadPhotoRecto!) :
               photoRecto != null ? convertPhotoToString(photoRecto!) : "",
-            "photo_cni_verso" : uploadPhotoVerso ? convertUploadedFile(fileUploadPhotoVerso!) :
+              "photo_cni_verso" : uploadPhotoVerso ? convertUploadedFile(fileUploadPhotoVerso!) :
               photoVerso != null ? convertPhotoToString(photoVerso!) : "",
-            "photo_diplome" : uploadPhotoDiplome ? convertUploadedFile(fileUploadPhotoDiplome!) :
+              "photo_diplome" : uploadPhotoDiplome ? convertUploadedFile(fileUploadPhotoDiplome!) :
               photoDiplome != null ? convertPhotoToString(photoDiplome!) : "",
-            "photo_autre" : uploadPhotoAutre ? convertUploadedFile(fileUploadPhotoAutre!) :
-            photoAutre != null ? convertPhotoToString(photoAutre!) : "",
+              "photo_autre" : uploadPhotoAutre ? convertUploadedFile(fileUploadPhotoAutre!) :
+              photoAutre != null ? convertPhotoToString(photoAutre!) : "",
 
-            "longitude" : artisanToManage.id == 0 ? longitude.toString() : artisanToManage.longitude.toString(),
-            "latitude" : artisanToManage.id == 0 ? latitude.toString() : artisanToManage.latitude.toString(),
-            "crm" : artisanToManage.crm,
-            "departement" : artisanToManage.departement,
-            "sous_pref" : artisanToManage.sous_prefecture,
-            "activite_principale" : artisanToManage.activite_principale,
-            "activite_secondaire" : artisanToManage.activite_secondaire,
-            "raison_social" : artisanToManage.raison_social,
-            "sigle" : artisanToManage.sigle,
-            "date_creation" : artisanToManage.date_creation,
-            "ville_commune" : artisanToManage.commune_activite.toString(),
-            "quartier" : artisanToManage.quartier_activite_id,
-            "niveau_equipement" : artisanToManage.niveau_equipement.toString(),
-            "rccm" : artisanToManage.rccm,
-            "salarie_homme" : 0,
-            "salarie_femme" : 0,
-            "auxiliaire_homme" : 0,
-            "auxiliaire_femme" : 0,
-            "apprenti_homme" : 0,
-            "apprenti_femme" : 0,
-            "statut_artisan" : artisanToManage.statut_artisan,
-            "numero_registre" : artisanToManage.numero_registre,
-            "livraison_carte" : artisanToManage.livraisonCarte == 1 ? true : false,
-            "optin_mail": artisanToManage.optinMail == 1 ? true : false,
-            "optin_sms": artisanToManage.optinSms == 1 ? true : false,
-            "optin_whatsapp": 0,
-            "regime_fiscal": artisanToManage.regimeFiscal,
-            "qualification": artisanToManage.qualification
-          })
-      ).timeout(const Duration(seconds: timeOutValue));
+              "longitude" : artisanToManage.id == 0 ? longitude.toString() : artisanToManage.longitude.toString(),
+              "latitude" : artisanToManage.id == 0 ? latitude.toString() : artisanToManage.latitude.toString(),
+              "crm" : artisanToManage.crm,
+              "departement" : artisanToManage.departement,
+              "sous_pref" : artisanToManage.sous_prefecture,
+              "activite_principale" : artisanToManage.activite_principale,
+              "activite_secondaire" : artisanToManage.activite_secondaire,
+              "raison_social" : artisanToManage.raison_social,
+              "sigle" : artisanToManage.sigle,
+              "date_creation" : artisanToManage.date_creation,
+              "ville_commune" : artisanToManage.commune_activite.toString(),
+              "quartier" : artisanToManage.quartier_activite_id,
+              "niveau_equipement" : artisanToManage.niveau_equipement.toString(),
+              "rccm" : artisanToManage.rccm,
+              "salarie_homme" : 0,
+              "salarie_femme" : 0,
+              "auxiliaire_homme" : 0,
+              "auxiliaire_femme" : 0,
+              "apprenti_homme" : 0,
+              "apprenti_femme" : 0,
+              "statut_artisan" : artisanToManage.statut_artisan,
+              "numero_registre" : artisanToManage.numero_registre,
+              "livraison_carte" : artisanToManage.livraisonCarte == 1 ? true : false,
+              "optin_mail": artisanToManage.optinMail == 1 ? true : false,
+              "optin_sms": artisanToManage.optinSms == 1 ? true : false,
+              "optin_whatsapp": 0,
+              "regime_fiscal": artisanToManage.regimeFiscal,
+              "qualification": artisanToManage.qualification
+            })
+        ).timeout(const Duration(seconds: timeOutValueEntite));
 
-      if (response.statusCode == 200) {
-        MessageResponse reponse = MessageResponse.fromJson(
-            json.decode(response.body));
-        Artisan artisan = Artisan(
-            id: artisanToManage.id == 0 ? reponse.id : artisanToManage.id,
-            nom: artisanToManage.nom,
-            prenom: artisanToManage.prenom,
-            civilite: artisanToManage.civilite,
-            date_naissance: artisanToManage.date_naissance,
-            numero_registre: artisanToManage.numero_registre,
-            lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
-            lieu_naissance: artisanToManage.lieu_naissance,
-            nationalite: artisanToManage.nationalite,
-            statut_matrimonial: artisanToManage.statut_matrimonial,
-            type_document: artisanToManage.type_document,
-            niveau_etude: artisanToManage.niveau_etude,
-            formation: artisanToManage.formation,
-            classe: artisanToManage.classe,
-            diplome: artisanToManage.diplome,
-            commune_residence: artisanToManage.commune_residence,
-            activite: artisanToManage.activite,
-            sexe: '',
-            numero_piece: artisanToManage.numero_piece,
-            piece_delivre: artisanToManage.piece_delivre,
-            date_emission_piece: artisanToManage.date_emission_piece,
-            metier: artisanToManage.metier,
-            quartier_residence: artisanToManage.quartier_residence,
-            adresse_postal: artisanToManage.adresse_postal,
-            contact1: artisanToManage.contact1,
-            contact2: artisanToManage.contact2,
-            email: artisanToManage.email,
-            photo_artisan: checkPhotoArtisan(),
-            photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 3),
-            photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 4),
-            photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 2),
-            photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 5),
-            date_expiration_carte: '',
-            statut_kyc: artisanToManage.statut_kyc,
-            statut_paiement: artisanToManage.statut_paiement,
-            longitude: artisanToManage.id == 0 ? longitude : artisanToManage.longitude,
-            latitude: artisanToManage.id == 0 ? latitude : artisanToManage.latitude,
-            regime_social: artisanToManage.regime_social,
-            regime_travailleur: artisanToManage.regime_travailleur,
-            regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
-            regime_imposition_micro_entreprise: artisanToManage.regime_imposition_micro_entreprise,
-            comptabilite: artisanToManage.comptabilite,
-            chiffre_affaire: artisanToManage.chiffre_affaire,
-            cnps: artisanToManage.cnps,
-            cmu: artisanToManage.cmu,
-            presence_compte_bancaire: artisanToManage.presence_compte_bancaire,
-            type_compte_bancaire: artisanToManage.type_compte_bancaire,
-            crm: artisanToManage.crm,
-            departement: artisanToManage.departement,
-            sous_prefecture: artisanToManage.sous_prefecture,
+        if (response.statusCode == 200) {
+          MessageResponse reponse = MessageResponse.fromJson(
+              json.decode(response.body));
+          Artisan artisan = Artisan(
+              id: artisanToManage.id == 0 ? reponse.id : artisanToManage.id,
+              nom: artisanToManage.nom,
+              prenom: artisanToManage.prenom,
+              civilite: artisanToManage.civilite,
+              date_naissance: artisanToManage.date_naissance,
+              numero_registre: artisanToManage.numero_registre,
+              lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
+              lieu_naissance: artisanToManage.lieu_naissance,
+              nationalite: artisanToManage.nationalite,
+              statut_matrimonial: artisanToManage.statut_matrimonial,
+              type_document: artisanToManage.type_document,
+              niveau_etude: artisanToManage.niveau_etude,
+              formation: artisanToManage.formation,
+              classe: artisanToManage.classe,
+              diplome: artisanToManage.diplome,
+              commune_residence: artisanToManage.commune_residence,
+              activite: artisanToManage.activite,
+              sexe: '',
+              numero_piece: artisanToManage.numero_piece,
+              piece_delivre: artisanToManage.piece_delivre,
+              date_emission_piece: artisanToManage.date_emission_piece,
+              metier: artisanToManage.metier,
+              quartier_residence: artisanToManage.quartier_residence,
+              adresse_postal: artisanToManage.adresse_postal,
+              contact1: artisanToManage.contact1,
+              contact2: artisanToManage.contact2,
+              email: artisanToManage.email,
+              photo_artisan: checkPhotoArtisan(),
+              photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 3),
+              photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 4),
+              photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 2),
+              photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 5),
+              date_expiration_carte: '',
+              statut_kyc: artisanToManage.statut_kyc,
+              statut_paiement: artisanToManage.statut_paiement,
+              longitude: artisanToManage.id == 0 ? longitude : artisanToManage.longitude,
+              latitude: artisanToManage.id == 0 ? latitude : artisanToManage.latitude,
+              regime_social: artisanToManage.regime_social,
+              regime_travailleur: artisanToManage.regime_travailleur,
+              regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
+              regime_imposition_micro_entreprise: artisanToManage.regime_imposition_micro_entreprise,
+              comptabilite: artisanToManage.comptabilite,
+              chiffre_affaire: artisanToManage.chiffre_affaire,
+              cnps: artisanToManage.cnps,
+              cmu: artisanToManage.cmu,
+              presence_compte_bancaire: artisanToManage.presence_compte_bancaire,
+              type_compte_bancaire: artisanToManage.type_compte_bancaire,
+              crm: artisanToManage.crm,
+              departement: artisanToManage.departement,
+              sous_prefecture: artisanToManage.sous_prefecture,
 
-            activite_principale: artisanToManage.activite_principale,
-            activite_secondaire: artisanToManage.activite_secondaire,
-            raison_social: artisanToManage.raison_social,
-            sigle: artisanToManage.sigle,
-            date_creation: artisanToManage.date_creation,
-            commune_activite: artisanToManage.commune_activite,
-            quartier_activite: artisanToManage.quartier_activite,
-            rccm: artisanToManage.rccm,
-            niveau_equipement: artisanToManage.niveau_equipement,
-            millisecondes: artisanToManage.millisecondes,
-            quartier_activite_id: artisanToManage.quartier_activite_id,
-            statut_artisan: artisanToManage.statut_artisan,
-            livraisonCarte: artisanToManage.livraisonCarte,
-            optinMail: artisanToManage.optinMail,
-            optinSms: artisanToManage.optinSms,
-            optinWhatsapp: artisanToManage.optinWhatsapp,
-            regimeFiscal: artisanToManage.regimeFiscal,
-            qualification: artisanToManage.qualification,
-            statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison,
-            print: artisanToManage.print
-        );
-        if(setOriginFromCallArtisan == 0) {
-          artisanToManage.id == 0
-              ? artisanControllerX.addItem(artisan)
-              : artisanControllerX.updateData(artisan);
+              activite_principale: artisanToManage.activite_principale,
+              activite_secondaire: artisanToManage.activite_secondaire,
+              raison_social: artisanToManage.raison_social,
+              sigle: artisanToManage.sigle,
+              date_creation: artisanToManage.date_creation,
+              commune_activite: artisanToManage.commune_activite,
+              quartier_activite: artisanToManage.quartier_activite,
+              rccm: artisanToManage.rccm,
+              niveau_equipement: artisanToManage.niveau_equipement,
+              millisecondes: artisanToManage.millisecondes,
+              quartier_activite_id: artisanToManage.quartier_activite_id,
+              statut_artisan: artisanToManage.statut_artisan,
+              livraisonCarte: artisanToManage.livraisonCarte,
+              optinMail: artisanToManage.optinMail,
+              optinSms: artisanToManage.optinSms,
+              optinWhatsapp: artisanToManage.optinWhatsapp,
+              regimeFiscal: artisanToManage.regimeFiscal,
+              qualification: artisanToManage.qualification,
+              statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison,
+              print: artisanToManage.print,
+              synchronized: 1
+          );
+          if(setOriginFromCallArtisan == 0) {
+            artisanToManage.id == 0
+                ? artisanControllerX.addItem(artisan)
+                : artisanControllerX.updateData(artisan);
+          }
+          else{
+            // Update StatsBeanManager :
+            var tampStats = statsBeanManager;
+            statsBeanManager = StatsBeanManager(
+                id: artisan.id,
+                nom: '${artisan.nom} ${artisan.prenom}',
+                contact: artisan.contact1,
+                datenaissance: artisan.date_naissance,
+                metier: lesMetiers.where((l) => l.id == artisan.metier).first.libelle,
+                paiement: tampStats.paiement,
+                commune: lesCommunes.where((c) => c.id == artisan.commune_residence).first.libelle,
+                type: tampStats.type,
+                image: tampStats.image,
+                datenrolement: tampStats.datenrolement,
+                quartier: artisan.quartier_residence,
+                amende: tampStats.amende,
+                latitude: tampStats.latitude,
+                longitude: tampStats.longitude,
+                montant: tampStats.montant);
+            // Reset :
+            setOriginFromCallArtisan = 0;
+          }
+          // Refresh :
+          artisanToManage = artisan;
+          flagSendData = false;
+        }
+        else if(response.statusCode == 404){
+          displayToast("Cet ARTISAN ou l'une de ses informations existe déjà  !");
+        }
+        else if(response.statusCode == 500){
+          MessageResponse reponse = MessageResponse.fromJson(
+              json.decode(response.body));
+          displayToast('Erreur survenue : ${reponse.message}');
         }
         else{
-          // Update StatsBeanManager :
-          var tampStats = statsBeanManager;
-          statsBeanManager = StatsBeanManager(
-              id: artisan.id,
-              nom: '${artisan.nom} ${artisan.prenom}',
-              contact: artisan.contact1,
-              datenaissance: artisan.date_naissance,
-              metier: lesMetiers.where((l) => l.id == artisan.metier).first.libelle,
-              paiement: tampStats.paiement,
-              commune: lesCommunes.where((c) => c.id == artisan.commune_residence).first.libelle,
-              type: tampStats.type,
-              image: tampStats.image,
-              datenrolement: tampStats.datenrolement,
-              quartier: artisan.quartier_residence,
-              amende: tampStats.amende,
-              latitude: tampStats.latitude,
-              longitude: tampStats.longitude,
-              montant: tampStats.montant);
-          // Reset :
-          setOriginFromCallArtisan = 0;
+          displayToast("Impossible de transmettre les données de l'Artisan !");
         }
-        // Refresh :
-        artisanToManage = artisan;
-        flagSendData = false;
       }
-      else if(response.statusCode == 404){
-        displayToast("Cet ARTISAN ou l'une de ses informations existe déjà  !");
+      on ClientException catch(e){
+        persistLocally();
       }
-      else{
-        displayToast("Impossible de transmettre les données de l'Artisan !");
+      on TimeoutException catch(e){
+        persistLocally();
       }
-    } catch (e) {
-      displayToast("Impossible de traiter les données de référence : $e");
-    } finally {
+      catch (e) {
+        persistLocally();
+        //displayToast("Impossible de traiter les données de référence : $e");
+      } finally {
+        streamGps = false;
+        flagServerResponse = false;
+      }
+    }
+    else{
+      // Offline
+      persistLocally();
       streamGps = false;
       flagServerResponse = false;
     }
+  }
+
+  // Perist LOCALLY :
+  void persistLocally(){
+    //
+    var listeTampon = artisanControllerX.data;
+    // Order by DESCENDING order based on ID :
+    listeTampon.sort((a,b) => b.id.compareTo(a.id));
+    var dateTime = DateTime.now();
+
+    Artisan artisan = Artisan(
+        id: (listeTampon.first.id + int.parse('${dateTime.year}${dateTime.minute}')),
+        nom: artisanToManage.nom,
+        prenom: artisanToManage.prenom,
+        civilite: artisanToManage.civilite,
+        date_naissance: artisanToManage.date_naissance,
+        numero_registre: artisanToManage.numero_registre,
+        lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
+        lieu_naissance: artisanToManage.lieu_naissance,
+        nationalite: artisanToManage.nationalite,
+        statut_matrimonial: artisanToManage.statut_matrimonial,
+        type_document: artisanToManage.type_document,
+        niveau_etude: artisanToManage.niveau_etude,
+        formation: artisanToManage.formation,
+        classe: artisanToManage.classe,
+        diplome: artisanToManage.diplome,
+        commune_residence: artisanToManage.commune_residence,
+        activite: artisanToManage.activite,
+        sexe: '',
+        numero_piece: artisanToManage.numero_piece,
+        piece_delivre: artisanToManage.piece_delivre,
+        date_emission_piece: artisanToManage.date_emission_piece,
+        metier: artisanToManage.metier,
+        quartier_residence: artisanToManage.quartier_residence,
+        adresse_postal: artisanToManage.adresse_postal,
+        contact1: artisanToManage.contact1,
+        contact2: artisanToManage.contact2,
+        email: artisanToManage.email,
+        photo_artisan: checkPhotoArtisan(),
+        photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 3),
+        photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 4),
+        photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 2),
+        photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 5),
+        date_expiration_carte: '',
+        statut_kyc: artisanToManage.statut_kyc,
+        statut_paiement: artisanToManage.statut_paiement,
+        longitude: artisanToManage.id == 0 ? longitude : artisanToManage.longitude,
+        latitude: artisanToManage.id == 0 ? latitude : artisanToManage.latitude,
+        regime_social: artisanToManage.regime_social,
+        regime_travailleur: artisanToManage.regime_travailleur,
+        regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
+        regime_imposition_micro_entreprise: artisanToManage.regime_imposition_micro_entreprise,
+        comptabilite: artisanToManage.comptabilite,
+        chiffre_affaire: artisanToManage.chiffre_affaire,
+        cnps: artisanToManage.cnps,
+        cmu: artisanToManage.cmu,
+        presence_compte_bancaire: artisanToManage.presence_compte_bancaire,
+        type_compte_bancaire: artisanToManage.type_compte_bancaire,
+        crm: artisanToManage.crm,
+        departement: artisanToManage.departement,
+        sous_prefecture: artisanToManage.sous_prefecture,
+
+        activite_principale: artisanToManage.activite_principale,
+        activite_secondaire: artisanToManage.activite_secondaire,
+        raison_social: artisanToManage.raison_social,
+        sigle: artisanToManage.sigle,
+        date_creation: artisanToManage.date_creation,
+        commune_activite: artisanToManage.commune_activite,
+        quartier_activite: artisanToManage.quartier_activite,
+        rccm: artisanToManage.rccm,
+        niveau_equipement: artisanToManage.niveau_equipement,
+        millisecondes: artisanToManage.millisecondes,
+        quartier_activite_id: artisanToManage.quartier_activite_id,
+        statut_artisan: artisanToManage.statut_artisan,
+        livraisonCarte: artisanToManage.livraisonCarte,
+        optinMail: artisanToManage.optinMail,
+        optinSms: artisanToManage.optinSms,
+        optinWhatsapp: artisanToManage.optinWhatsapp,
+        regimeFiscal: artisanToManage.regimeFiscal,
+        qualification: artisanToManage.qualification,
+        statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison,
+        print: artisanToManage.print,
+        synchronized: 0 // Means to SYNCHRONIZE
+    );
+    // KEEP :
+    artisanControllerX.addItem(artisan);
+    // Force below :
+    flagSendData = false;
+    displayToastShort("Sauvegarde Offline !");
   }
 
   Widget _buildUI(){

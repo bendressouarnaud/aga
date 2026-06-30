@@ -6,5 +6,6 @@ class ParametreRepository {
   final dao = ParametreDao();
 
   Future<int> insert(Parametre data) => dao.create(data);
+  Future<int> update(Parametre data) => dao.update(data);
   Future<Parametre?> findUnique(int id) => dao.findUnique(id);
 }

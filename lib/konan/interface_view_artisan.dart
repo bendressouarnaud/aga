@@ -52,6 +52,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   ];
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
+  bool openLocalWaveApplication = false;
 
 
   // M E T H O D S :
@@ -234,7 +235,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
               regimeFiscal: artisanToManage.regimeFiscal,
               qualification: artisanToManage.qualification,
               statutLivraison: paymentLivraisonStatus.statutLivraison,
-            print: artisanToManage.print
+            print: artisanToManage.print,
+              synchronized: 1
           );
           artisanControllerX.updateData(updateArtisan);
         }
@@ -469,7 +471,13 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
 
             if (!flagSendData) {
               if(!envoiLienPaiement) {
-                localLink();
+                if(openLocalWaveApplication){
+                  openLocalWaveApplication = false;
+                  openWaveApplication();
+                }
+                else {
+                  localLink();
+                }
               }
             } else {
               displayToast('Traitement impossible *****');
@@ -485,6 +493,11 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
 
   void localLink() {
     MesServices().displayDialog(context, paymentUrl);
+  }
+
+  void openWaveApplication() async{
+    final Uri url = Uri.parse(paymentUrl);
+    await launchUrl(url);
   }
 
   @override
@@ -807,7 +820,19 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                                 color: Colors.white
                                             )
                                         ),
+                                        onLongPress: () {
+                                          openLocalWaveApplication = true;
+                                          if((artisanToManage.statut_paiement == 2) &&
+                                              (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)){
+                                            montantArtisan = 1500;
+                                            displayWaintingPayingInterface(1500, 0);
+                                          }
+                                          else {
+                                            displayAmount(sommeApayer.seul);
+                                          }
+                                        },
                                         onPressed: () {
+                                          openLocalWaveApplication = false;
                                           if((artisanToManage.statut_paiement == 2) &&
                                               (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)){
                                             montantArtisan = 1500;
