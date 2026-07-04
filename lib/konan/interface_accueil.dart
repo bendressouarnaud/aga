@@ -219,7 +219,8 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
             Visibility(
                 visible: globalUser!.profil == "ROLE_ADMINISTRATEUR_CONTROLE_MANAGER" ||
                     globalUser!.profil == "ROLE_SUPER_ADMIN" ||
-                    globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE",
+                    globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE" ||
+                    globalUser!.profil == "ROLE_AGENT_ENROLEMENT",
                 child: IconButton(
                     onPressed: () {
                       Navigator.push(context,

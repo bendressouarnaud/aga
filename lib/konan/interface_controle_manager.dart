@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:money_formatter/money_formatter.dart';
 
+import '../main.dart';
 import 'beans/daily_payment_bean.dart';
 import 'beans/stats_bean.dart';
 import 'beans/stats_bean_manager.dart';
@@ -139,7 +140,18 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
               });
             },
             selectedIndex: currentPageIndex,
-            destinations:[
+            destinations: globalUser!.profil == "ROLE_AGENT_ENROLEMENT" ? [
+              NavigationDestination(
+                selectedIcon: Icon(Icons.show_chart), //Icon(Icons.announcement),
+                icon: Icon(Icons.show_chart_outlined),//Icon(Icons.announcement_outlined),
+                label: 'Statistiques',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.person_search_sharp), //Icon(Icons.announcement),
+                icon: Icon(Icons.person_search_outlined),//Icon(Icons.announcement_outlined),
+                label: 'Recherche',
+              )
+            ] : [
               NavigationDestination(
                 selectedIcon: Icon(Icons.show_chart), //Icon(Icons.announcement),
                 icon: Icon(Icons.show_chart_outlined),//Icon(Icons.announcement_outlined),
@@ -163,13 +175,16 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
             ]
         ),
       appBar: AppBar(
-        title: Text(currentPageIndex < 3 ?
+        title: globalUser!.profil != "ROLE_AGENT_ENROLEMENT" ? Text(currentPageIndex < 3 ?
           "Statistiques" : "Historique",
+          textAlign: TextAlign.left,
+        ) :
+        Text("Statistiques",
           textAlign: TextAlign.left,
         ),
         actions: [
           Visibility(
-            visible: currentPageIndex == 3,
+            visible: globalUser!.profil != "ROLE_AGENT_ENROLEMENT" && currentPageIndex == 3,
               child: IconButton(
                   onPressed: () {
                     displayWaintingForStatusPayment();
@@ -180,7 +195,7 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
         ],
       ),
 
-      body: <Widget>[
+      body: globalUser!.profil != "ROLE_AGENT_ENROLEMENT" ? <Widget>[
         FutureBuilder(
           future: Future.wait([getStatsBean(), getDailyPayment()]),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
@@ -353,6 +368,178 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
         InterfaceControleSermente(),
         SearchEntityManager(),
         InterfaceHistoryActionTerrain()
+      ][currentPageIndex] :
+      <Widget>[
+        FutureBuilder(
+            future: Future.wait([getStatsBean(), getDailyPayment()]),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
+              if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
+                // Process DATA from there :
+                List<StatsBean> pickedData = snapshot.data[0];
+                // Daily PAYMENT :
+                pickedDailyPayment = snapshot.data[1];
+                var listeTamp = pickedDailyPayment.map((p) => p.total).toList();
+                listeTamp.sort();
+                maxAmount = listeTamp.last;
+                tranche = (maxAmount / 3);
+                maxAmountString = (maxAmount * 100).toString();
+
+                return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text('Progression des paiements (10K)',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.brown,
+                              fontSize: 16
+                          ),),
+                        AspectRatio(
+                          aspectRatio: 1.70,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              right: 18,
+                              left: 12,
+                              top: 24,
+                              bottom: 12,
+                            ),
+                            child: LineChart(
+                                mainData()
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        Text('Résumé des statistiques',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.brown,
+                              fontSize: 16
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: pickedData.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Container(
+                                width: MediaQuery.of(context).size.width ,
+                                padding: EdgeInsets.all(7),
+                                margin: EdgeInsets.all(7),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(8.0)
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(pickedData[index].libelle,
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(formatValue(pickedData[index].population),
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold
+                                                )),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            getAppropriateIcon(pickedData[index].libelle)
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('Frais attendus',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                          ),),
+                                        Text('${formatValue(pickedData[index].attendu)} f',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold
+                                            )),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('Frais réglés',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                          ),),
+                                        Text('${formatValue(pickedData[index].paye)} f',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                //fontWeight: FontWeight.bold,
+                                                color: Colors.red
+                                            )),
+                                      ],
+                                    ),
+                                    Divider(
+                                      height: 7,
+                                      color: Colors.brown,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('Taux recouvrement',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                          ),),
+                                        Row(
+                                          children: [
+                                            Text('${pickedData[index].pourcentage} %'),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Icon( pickedData[index].pourcentage < 50 ?
+                                            Icons.show_chart : Icons.stacked_line_chart,
+                                              color: pickedData[index].pourcentage < 50 ?
+                                              Colors.red : Colors.green,
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              );
+                            }
+                        )
+                      ],
+                    )
+                );
+              }
+              else{
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            }
+        ),
+        SearchEntityManager()
       ][currentPageIndex]
     );
 

@@ -46,6 +46,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   ];
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
+  bool openLocalWaveApplication = false;
 
 
   // METHODS :
@@ -360,7 +361,12 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
           timer.cancel();
 
           if (!flagSendData) {
-            if(!envoiLienPaiement) {
+            if(openLocalWaveApplication){
+              //
+              openLocalWaveApplication = false;
+              openWaveApplication();
+            }
+            else if(!envoiLienPaiement) {
               // Display QRCODE :
               MesServices().displayDialog(context, paymentUrl);
             }
@@ -368,6 +374,11 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
         }
       },
     );
+  }
+
+  void openWaveApplication() async{
+    final Uri url = Uri.parse(paymentUrl);
+    await launchUrl(url);
   }
 
   /*Future<void> getAmountToPay() async {
@@ -537,7 +548,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
           title: Text('Visualisation'),
           actions: [
             Visibility(
-              visible: statsBeanManager.type == 'Artisans',
+              visible: statsBeanManager.type == 'Artisans' && globalUser!.profil != "ROLE_AGENT_ENROLEMENT",
               child: IconButton(
                   onPressed: () {
                     displayEntityRequesting(statsBeanManager.id);
@@ -546,7 +557,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
               ),
             ),
             Visibility(
-                visible: statsBeanManager.type != 'Compagnons',
+                visible: statsBeanManager.type != 'Compagnons' && globalUser!.profil != "ROLE_AGENT_ENROLEMENT",
                 child: IconButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -764,6 +775,10 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                             style: TextStyle(
                                 color: Colors.white
                             )),
+                        onLongPress: () {
+                          openLocalWaveApplication = true;
+                          displayAmount(statsBeanManager.montant);
+                        },
                         onPressed: () async {
                           displayAmount(statsBeanManager.montant);
                           //displayDataRequesting();
@@ -808,7 +823,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Visibility(
-                        visible: statsBeanManager.paiement != 2,
+                        visible: statsBeanManager.paiement != 2 && globalUser!.profil != "ROLE_AGENT_ENROLEMENT",
                           child: ElevatedButton.icon(
                             style: ButtonStyle(
                                 backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blueGrey)

@@ -776,8 +776,9 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                          visible: artisanToManage.statut_paiement < 2 ||
-                              (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
+                          visible: (artisanToManage.statut_paiement < 2 ||
+                              (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)) &&
+                              artisanToManage.synchronized == 1,
                             child: Container(
                               alignment: Alignment.topLeft,
                               margin: EdgeInsets.only(right: 10, left: 10, top: 25),
@@ -791,8 +792,9 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                            visible: artisanToManage.statut_paiement < 2 ||
-                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
+                            visible: (artisanToManage.statut_paiement < 2 ||
+                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)) &&
+                                artisanToManage.synchronized == 1,
                             child: Container(
                               margin: EdgeInsets.only(right: 10, left: 10, top: 5),
                               child: Divider(
@@ -802,8 +804,9 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                            visible: artisanToManage.statut_paiement < 2 ||
-                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
+                            visible: (artisanToManage.statut_paiement < 2 ||
+                                (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)) &&
+                            artisanToManage.synchronized == 1,
                             child: Container(
                                 alignment: Alignment.topLeft,
                                 margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
@@ -867,7 +870,21 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                          visible: artisanToManage.statut_paiement < 2,
+                            visible: artisanToManage.synchronized == 0,
+                            child: Container(
+                              margin: EdgeInsets.only(top: 30),
+                              child: Text('Veuillez synchroniser cet Artisan',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold
+                              ),
+                              ),
+                            )
+                        ),
+
+                        Visibility(
+                          visible: artisanToManage.statut_paiement < 2 && artisanToManage.synchronized == 1,
                             child: CheckboxListTile(
                               title: const Text('Envoi lien de paiement'),
                               value: envoiLienPaiement,

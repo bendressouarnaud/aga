@@ -3,25 +3,19 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
-import 'package:cnmci/konan/beans/stats_bean_manager.dart';
-import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 
-import '../getxcontroller/artisan_controller_x.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
-import 'model/artisan.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
-import 'package:geolocator/geolocator.dart';
 
 class InterfacePriseEntreprisePhoto extends StatefulWidget {
   const InterfacePriseEntreprisePhoto({Key? key}) : super(key: key);
@@ -76,7 +70,7 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
   TextEditingController photoRectoController = TextEditingController();
   TextEditingController photoVersoController = TextEditingController();
 
-  double _currentDiscreteSliderValue = 8.0;
+  double _currentDiscreteSliderValue = gpsPrecisionAccuracyMin;
   //final ArtisanRepository _artisanRepository = ArtisanRepository();
   //final ArtisanControllerX _artisanControllerX = Get.put(ArtisanControllerX());
 
@@ -764,9 +758,9 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
           child: Slider(
             activeColor: Colors.brown,
               value: _currentDiscreteSliderValue,
-              min: 5,
-              divisions: 5,
-              max: 20,
+              min: gpsPrecisionAccuracyMin,
+              divisions: gpsPrecisionAccuracyDivision,
+              max: gpsPrecisionAccuracyMax,
               onChanged: (double valeur){
                 setState(() {
                   _currentDiscreteSliderValue = valeur;

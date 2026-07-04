@@ -80,7 +80,7 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
   TextEditingController photoVersoController = TextEditingController();
   TextEditingController photoAutreController = TextEditingController();
 
-  double _currentDiscreteSliderValue = 8.0;
+  double _currentDiscreteSliderValue = gpsPrecisionAccuracyMin;
   int offlineMode = 0;
 
 
@@ -883,9 +883,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
           child: Slider(
             activeColor: Colors.brown,
               value: _currentDiscreteSliderValue,
-              min: 5,
-              divisions: 5,
-              max: 20,
+              min: gpsPrecisionAccuracyMin,
+              divisions: gpsPrecisionAccuracyDivision,
+              max: gpsPrecisionAccuracyMax,
               onChanged: (double valeur){
                 setState(() {
                   _currentDiscreteSliderValue = valeur;

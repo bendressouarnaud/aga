@@ -1,6 +1,5 @@
-import 'package:cnmci/getxcontroller/entreprise_controller_x.dart';
-import 'package:cnmci/konan/historique/historique_artisan.dart';
-import 'package:cnmci/konan/interface_entreprise.dart';
+import 'dart:convert';
+
 import 'package:cnmci/konan/interface_view_apprenti.dart';
 import 'package:cnmci/konan/interface_view_artisan.dart';
 import 'package:cnmci/konan/interface_view_compagnon.dart';
@@ -8,9 +7,12 @@ import 'package:cnmci/konan/interface_view_entreprise.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart';
 
 import 'beans/search_response_data.dart';
+import 'beans/stats_bean_manager.dart';
+import 'objets/constants.dart';
 
 class SearchEntity extends StatefulWidget {
   final int screen;
@@ -24,12 +26,12 @@ class _SearchEntity extends State<SearchEntity> {
 
   // ATTRIBUTES :
   List<SearchResponseData> liste = [];
-  /*final EntrepriseControllerX _entrepriseControllerX = Get.put(EntrepriseControllerX());
-  late BuildContext dialogContext;*/
+  bool foreignData = false;
 
 
   // METHODS :
-  List<SearchResponseData> lookForEntity(String textToSearch){
+  void lookForEntity(String textToSearch) async{
+    foreignData = false;
     liste = [];
     switch(widget.screen){
       case 1:
@@ -102,7 +104,57 @@ class _SearchEntity extends State<SearchEntity> {
         ).toList();
         break;
     }
-    return liste;
+
+    // From there, look on WEB :
+    if(liste.isEmpty){
+      try{
+        var localToken = await MesServices().checkJwtExpiration();
+        final url = Uri.parse('${dotenv.env['URL_BACKEND_STAT']}look-for-any-entity/$textToSearch');
+        var response = await get(url,
+            headers: {
+              "Content-Type": "application/json",
+              'Authorization': 'Bearer $localToken'
+            }
+        ).timeout(const Duration(seconds: timeOutValue));
+        if(response.statusCode == 200){
+          final List result = json.decode(response.body);
+          setState(() {
+            var listeTampon = result.map((e) => StatsBeanManager.fromJson(e)).toList();
+            setState(() {
+              if(listeTampon.isNotEmpty){
+                liste = listeTampon.map((donnee) => SearchResponseData(
+                    nom: donnee.nom,
+                    metier: donnee.metier,
+                    date: donnee.datenrolement,
+                    contact: donnee.contact,
+                    id: donnee.id
+                )).toList();
+                //
+                foreignData = true;
+              }
+              else{
+                liste = [];
+              }
+            });
+          });
+        }
+        else{
+          setState(() {
+            liste = [];
+          });
+        }
+      }
+      catch(e){
+        setState(() {
+          liste = [];
+        });
+      }
+    }
+    else{
+      setState(() {
+        // Just notify because the liste is full
+      });
+    }
   }
 
 
@@ -126,9 +178,7 @@ class _SearchEntity extends State<SearchEntity> {
               child: TextField(
                 onChanged: (value){
                   if(value.trim().length > 2){
-                    setState(() {
-                      lookForEntity(value);
-                    });
+                    lookForEntity(value);
                   }
                   else{
                     // Hide history if needed
@@ -159,30 +209,52 @@ class _SearchEntity extends State<SearchEntity> {
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
                         onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                                if(widget.screen == 1){
-                                  // ARTISAN
-                                  artisanToManage = artisanControllerX.data.where((a) => a.id == liste[index].id).first;
-                                  return InterfaceViewArtisan();
-                                }
-                                else if(widget.screen == 2){
-                                  // APPRENTI
-                                  return InterfaceViewApprenti(
-                                      apprenti: apprentiControllerX.data.where((a) => a.id == liste[index].id).first);
-                                }
-                                else if(widget.screen == 3){
-                                  // COMPAGNON
-                                  return InterfaceViewCompagnon(
-                                      compagnon: compagnonControllerX.data.where((a) => a.id == liste[index].id).first);
-                                }
-                                else{
-                                  // ENTREPRISE
-                                  return InterfaceViewEntreprise(
-                                      entreprise: entrepriseControllerX.data.where((a) => a.id == liste[index].id).first);
-                                }
-                              })
-                          );
+                          if(!foreignData) {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  if (widget.screen == 1) {
+                                    // ARTISAN
+                                    artisanToManage = artisanControllerX.data
+                                        .where((a) => a.id == liste[index].id)
+                                        .first;
+                                    return InterfaceViewArtisan();
+                                  }
+                                  else if (widget.screen == 2) {
+                                    // APPRENTI
+                                    return InterfaceViewApprenti(
+                                        apprenti: apprentiControllerX.data
+                                            .where((a) =>
+                                        a.id == liste[index].id)
+                                            .first);
+                                  }
+                                  else if (widget.screen == 3) {
+                                    // COMPAGNON
+                                    return InterfaceViewCompagnon(
+                                        compagnon: compagnonControllerX.data
+                                            .where((a) =>
+                                        a.id == liste[index].id)
+                                            .first);
+                                  }
+                                  else {
+                                    // ENTREPRISE
+                                    return InterfaceViewEntreprise(
+                                        entreprise: entrepriseControllerX.data
+                                            .where((a) =>
+                                        a.id == liste[index].id)
+                                            .first);
+                                  }
+                                })
+                            );
+                          }
+                          else{
+                            // Display SNACKBAR :
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Cette entité ne figure pas dans vos données. '
+                                    'Elle a été enregistrée par une tierce personne.'),
+                              ),
+                            );
+                          }
                         },
                         child: Card(
                           color: Colors.brown[50],
@@ -198,10 +270,22 @@ class _SearchEntity extends State<SearchEntity> {
                                     Container(
                                         margin: EdgeInsets.only(right: 10, left: 10),
                                         alignment: Alignment.topLeft,
-                                        child: Text(liste[index].nom,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold
-                                          ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(liste[index].nom,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                            ),
+                                            Visibility(
+                                              visible: foreignData,
+                                                child: Icon(
+                                                  Icons.network_wifi,
+                                                  color: Colors.red
+                                                )
+                                            )
+                                          ],
                                         )
                                     ),
                                     Container(
