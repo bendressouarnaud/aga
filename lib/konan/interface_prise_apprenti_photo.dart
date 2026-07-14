@@ -1224,7 +1224,10 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
             livraisonCarte: apprentiToManage.livraisonCarte,
             optinMail: apprentiToManage.optinMail,
             optinSms: apprentiToManage.optinSms,
-            optinWhatsapp: apprentiToManage.optinWhatsapp
+            optinWhatsapp: apprentiToManage.optinWhatsapp,
+            statutLivraison: apprentiToManage.statutLivraison,
+            confirmationLivraison: apprentiToManage.confirmationLivraison,
+            photoSignatureLivraison: apprentiToManage.photoSignatureLivraison
         );
         // Update 'APPRENTI :
         apprentiToManage.id == 0

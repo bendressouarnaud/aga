@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:io' as io;
-import 'dart:typed_data';
-import 'package:camera/camera.dart';
+
 import 'package:cnmci/konan/beans/generic_data.dart';
 import 'package:cnmci/konan/interface_prise_apprenti_photo.dart';
-import 'package:cnmci/konan/interface_prise_artisan_photo.dart';
 import 'package:cnmci/konan/local_data/niveau_equipement.dart';
 import 'package:cnmci/konan/model/apprenti.dart';
-import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/commune.dart';
 import 'package:cnmci/konan/model/departement.dart';
 import 'package:cnmci/konan/model/diplome.dart';
@@ -17,21 +13,18 @@ import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/niveau_etude.dart';
 import 'package:cnmci/konan/model/pays.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
-import 'package:cnmci/konan/model/statut_matrimonial.dart';
 import 'package:cnmci/konan/model/type_compte_bancaire.dart';
 import 'package:cnmci/konan/model/type_document.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as https;
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:http/http.dart';
-import 'package:http/http.dart' as http;
 
 import '../getxcontroller/date_debut_activite_controller.dart';
 import '../getxcontroller/date_delivre_controller.dart';
@@ -41,13 +34,7 @@ import 'beans/message_response.dart';
 import 'factorise_widgets/custom_optin_checkbox.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
-as picker;
-
-import 'objets/amountseparator.dart';
 import 'objets/constants.dart';
-import 'package:money_formatter/money_formatter.dart';
-import 'package:flutter/services.dart';
 
 class InterfaceApprentiPersonne extends StatefulWidget {
   final int artisanId;
@@ -395,7 +382,10 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
             optinMail: optinEmail ? 1 : 0,
             optinSms: optinSms ? 1 : 0,
             optinWhatsapp: 0,
-            photoAutre: widget.lApprenti!.photoAutre
+            photoAutre: widget.lApprenti!.photoAutre,
+            statutLivraison: widget.lApprenti!.statutLivraison,
+            confirmationLivraison: widget.lApprenti!.confirmationLivraison,
+            photoSignatureLivraison: widget.lApprenti!.photoSignatureLivraison
         );
         // Update 'APPRENTI :
         apprentiToManage.id == 0
@@ -461,7 +451,10 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
         optinMail: optinEmail ? 1 : 0,
         optinSms: optinSms ? 1 : 0,
         optinWhatsapp: 0,
-        photoAutre: ""
+        photoAutre: "",
+        statutLivraison: widget.lApprenti != null ? widget.lApprenti!.statutLivraison : 0,
+        confirmationLivraison: widget.lApprenti != null ? widget.lApprenti!.confirmationLivraison : 0,
+        photoSignatureLivraison: widget.lApprenti != null ? widget.lApprenti!.photoSignatureLivraison : ''
     );
 
     final result = await Navigator.push(context,

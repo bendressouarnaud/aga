@@ -1291,7 +1291,11 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
             photoCniVerso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 1),
             photoRegistreCommerce: factoriseDocumentProcessing(photoCommerceController, uploadPhotoCommerce, fileUploadPhotoCommerce, photoCommerce, 2),
             photoDfe: factoriseDocumentProcessing(photoDfeController, uploadPhotoDfe, fileUploadPhotoDfe, photoDfe, 3),
-            qualification: entrepriseToManage.qualification
+            qualification: entrepriseToManage.qualification,
+
+            statutLivraison: entrepriseToManage.statutLivraison,
+            confirmationLivraison: entrepriseToManage.confirmationLivraison,
+            photoSignatureLivraison: entrepriseToManage.photoSignatureLivraison
         );
         entrepriseToManage.id == 0 ? 
         entrepriseControllerX.addItem(entreprise) : 

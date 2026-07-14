@@ -59,6 +59,11 @@ class Compagnon {
   final int optinSms;
   final int optinWhatsapp;
 
+  // 13/07/26
+  final int statutLivraison;
+  final int confirmationLivraison;
+  final String photoSignatureLivraison;
+
   // M e t h o d s  :
   Compagnon({required this.id, required this.nom, required this.prenom, required this.contact1,
     required this.contact2, required this.email, required this.numero_immatriculation, required this.lieu_naissance_autre,
@@ -71,7 +76,8 @@ class Compagnon {
     required this.statut_kyc, required this.statut_paiement, required this.longitude, required this.latitude,
     required this.cnps, required this.cmu, required this.artisan_id, required this.entreprise_id,
     required this.millisecondes, required this.statut_compagnon, required this.livraisonCarte,
-    required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre
+    required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre,
+    required this.confirmationLivraison, required this.photoSignatureLivraison, required this.statutLivraison
   });
   factory Compagnon.fromDatabaseJson(Map<String, dynamic> data) => Compagnon(
       id: data['id'],
@@ -119,7 +125,11 @@ class Compagnon {
       optinMail: data['optin_mail'],
       optinSms: data['optin_sms'],
       optinWhatsapp: data['optin_whatsapp'],
-      photoAutre: data['photo_autre']
+      photoAutre: data['photo_autre'],
+
+      confirmationLivraison: data['confirmation_livraison'],
+      photoSignatureLivraison: data['photo_signature_livraison'],
+    statutLivraison: data['statut_livraison'],
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -168,6 +178,10 @@ class Compagnon {
     "optin_mail": optinMail,
     "optin_sms": optinSms,
     "optin_whatsapp": optinWhatsapp,
-    "photo_autre": photoAutre
+    "photo_autre": photoAutre,
+
+    "confirmation_livraison": confirmationLivraison,
+    "photo_signature_livraison": photoSignatureLivraison,
+    "statut_livraison": statutLivraison
   };
 }

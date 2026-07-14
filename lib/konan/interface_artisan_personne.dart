@@ -468,7 +468,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             qualification: qualificationController.text,
             statutLivraison: widget.lArtisan!.statutLivraison,
             print: widget.lArtisan!.print,
-            synchronized: widget.lArtisan!.synchronized
+            synchronized: widget.lArtisan!.synchronized,
+            confirmationLivraison: widget.lArtisan!.confirmationLivraison,
+            photoSignatureLivraison: widget.lArtisan!.photoSignatureLivraison
         );
         if(setOriginFromCallArtisan == 0) {
           artisanToManage = artisan;
@@ -492,7 +494,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               amende: tampStats.amende,
               latitude: tampStats.latitude,
               longitude: tampStats.longitude,
-              montant: tampStats.montant
+              montant: tampStats.montant,
+              statutLivraison: tampStats.statutLivraison,
+              confirmationLivraison: tampStats.confirmationLivraison
           );
           // Reset :
           setOriginFromCallArtisan = 0;
@@ -582,7 +586,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         qualification: qualificationController.text,
         statutLivraison: widget.lArtisan == null ? 0 : widget.lArtisan!.statutLivraison,
       print: widget.lArtisan == null ? 0 : widget.lArtisan!.print,
-        synchronized: widget.lArtisan == null ? 0 : widget.lArtisan!.synchronized
+        synchronized: widget.lArtisan == null ? 0 : widget.lArtisan!.synchronized,
+        confirmationLivraison: widget.lArtisan == null ? 0 : widget.lArtisan!.confirmationLivraison,
+        photoSignatureLivraison: widget.lArtisan == null ? '' : widget.lArtisan!.photoSignatureLivraison
     );
 
     final result = await Navigator.push(context,

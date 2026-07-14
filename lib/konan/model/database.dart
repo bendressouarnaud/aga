@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 7;
+  static final _databaseVersion = 8;
 
 
   // Make this a singleton class.
@@ -83,6 +83,10 @@ class DatabaseHelper {
         await _addSynchronizedToArtisanTable(db);
         break;
 
+      case 8:
+        await _addLivraisonColumnsToEntitiesTable(db);
+        break;
+
       default:
         // todo
         break;
@@ -118,6 +122,38 @@ class DatabaseHelper {
   Future _addSynchronizedToArtisanTable(Database db) async {
     await db.execute('ALTER TABLE artisan ADD COLUMN synchronized integer');
     await db.execute("UPDATE artisan SET synchronized = 1");
+  }
+
+  Future _addLivraisonColumnsToEntitiesTable(Database db) async {
+    // ARTISAN
+    await db.execute('ALTER TABLE artisan ADD COLUMN confirmation_livraison integer');
+    await db.execute('ALTER TABLE artisan ADD COLUMN photo_signature_livraison TEXT');
+    await db.execute("UPDATE artisan SET confirmation_livraison = 0");
+    await db.execute("UPDATE artisan SET photo_signature_livraison = ''");
+
+    // APPRENTI :
+    await db.execute('ALTER TABLE apprenti ADD COLUMN statut_livraison integer');
+    await db.execute('ALTER TABLE apprenti ADD COLUMN confirmation_livraison integer');
+    await db.execute('ALTER TABLE apprenti ADD COLUMN photo_signature_livraison TEXT');
+    await db.execute("UPDATE apprenti SET statut_livraison = 0");
+    await db.execute("UPDATE apprenti SET confirmation_livraison = 0");
+    await db.execute("UPDATE apprenti SET photo_signature_livraison = ''");
+
+    // COMPAGNON :
+    await db.execute('ALTER TABLE compagnon ADD COLUMN statut_livraison integer');
+    await db.execute('ALTER TABLE compagnon ADD COLUMN confirmation_livraison integer');
+    await db.execute('ALTER TABLE compagnon ADD COLUMN photo_signature_livraison TEXT');
+    await db.execute("UPDATE compagnon SET statut_livraison = 0");
+    await db.execute("UPDATE compagnon SET confirmation_livraison = 0");
+    await db.execute("UPDATE compagnon SET photo_signature_livraison = ''");
+
+    // ENTREPRISE :
+    await db.execute('ALTER TABLE entreprise ADD COLUMN statut_livraison integer');
+    await db.execute('ALTER TABLE entreprise ADD COLUMN confirmation_livraison integer');
+    await db.execute('ALTER TABLE entreprise ADD COLUMN photo_signature_livraison TEXT');
+    await db.execute("UPDATE entreprise SET statut_livraison = 0");
+    await db.execute("UPDATE entreprise SET confirmation_livraison = 0");
+    await db.execute("UPDATE entreprise SET photo_signature_livraison = ''");
   }
 
   Future _createDatabase(Database db) async {

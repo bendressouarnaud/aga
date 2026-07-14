@@ -547,6 +547,53 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
           centerTitle: true,
           title: Text('Visualisation'),
           actions: [
+
+            Visibility(
+              visible: statsBeanManager.paiement == 2 &&
+                  statsBeanManager.statutLivraison == 1 &&
+                  statsBeanManager.confirmationLivraison == 0,
+              child: IconButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                          return InterfaceSignature(id: statsBeanManager.id,
+                              requester: getAppropriatePrefix(statsBeanManager.type),
+                              operationType: 1
+                          );
+                        })
+                    );
+
+                    // Close the DOORS :
+                    if (result != null) {
+                      // Refresh :
+                      setState(() {
+                        statsBeanManager = StatsBeanManager(
+                            id: statsBeanManager.id,
+                            nom: statsBeanManager.nom,
+                            contact: statsBeanManager.contact,
+                            datenaissance: statsBeanManager.datenaissance,
+                            metier: statsBeanManager.metier,
+                            paiement: statsBeanManager.paiement,
+                            commune: statsBeanManager.commune,
+                            type: statsBeanManager.type,
+                            image: statsBeanManager.image,
+                            datenrolement: statsBeanManager.datenrolement,
+                            quartier: statsBeanManager.quartier,
+                            amende: statsBeanManager.amende,
+                            latitude: statsBeanManager.latitude,
+                            longitude: statsBeanManager.longitude,
+                            montant: statsBeanManager.montant,
+                            // 13/07/2026
+                            statutLivraison: 1,
+                            confirmationLivraison: 1
+                        );
+                      });
+                    }
+                  },
+                  icon: Icon(Icons.waving_hand, color: Colors.green)
+              ),
+            ),
+
             Visibility(
               visible: statsBeanManager.type == 'Artisans' && globalUser!.profil != "ROLE_AGENT_ENROLEMENT",
               child: IconButton(
@@ -556,6 +603,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   icon: Icon(Icons.edit, color: Colors.brown)
               ),
             ),
+
             Visibility(
                 visible: statsBeanManager.type != 'Compagnons' && globalUser!.profil != "ROLE_AGENT_ENROLEMENT",
                 child: IconButton(
@@ -563,7 +611,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                             return InterfaceSignature(id: statsBeanManager.id,
-                                requester: getAppropriatePrefix(statsBeanManager.type)
+                                requester: getAppropriatePrefix(statsBeanManager.type),
+                                operationType: 0
                             );
                           })
                       );

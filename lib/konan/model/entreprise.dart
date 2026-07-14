@@ -60,6 +60,11 @@ class Entreprise {
   final String photoRegistreCommerce;
   final String photoDfe;
 
+  // 13/07/26
+  final int statutLivraison;
+  final int confirmationLivraison;
+  final String photoSignatureLivraison;
+
 
   // M e t h o d s  :
   Entreprise({required this.id, required this.crm, required this.departement, required this.sous_prefecture,
@@ -78,7 +83,8 @@ class Entreprise {
     required this.quartier_siege_id, required this.livraisonCarte,
     required this.photoCniRecto, required this.photoCniVerso,
     required this.photoRegistreCommerce, required this.photoDfe,
-    required this.qualification
+    required this.qualification, required this.statutLivraison, required this.confirmationLivraison,
+    required this.photoSignatureLivraison
   });
   factory Entreprise.fromDatabaseJson(Map<String, dynamic> data) => Entreprise(
       id: data['id'],
@@ -134,7 +140,11 @@ class Entreprise {
       photoCniVerso: data['photo_cni_verso'],
       photoRegistreCommerce: data['photo_registre_commerce'],
       photoDfe: data['photo_dfe'],
-    qualification: data['qualification']
+    qualification: data['qualification'],
+
+      statutLivraison: data['statut_livraison'],
+      confirmationLivraison: data['confirmation_livraison'],
+      photoSignatureLivraison: data['photo_signature_livraison']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -191,6 +201,10 @@ class Entreprise {
     "photo_cni_verso": photoCniVerso,
     "photo_registre_commerce": photoRegistreCommerce,
     "photo_dfe": photoDfe,
-    "qualification": qualification
+    "qualification": qualification,
+
+    "statut_livraison": statutLivraison,
+    "confirmation_livraison": confirmationLivraison,
+    "photo_signature_livraison": photoSignatureLivraison
   };
 }

@@ -371,7 +371,10 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
 
             optinMail: optinEmail ? 1 : 0,
             optinSms: optinSms ? 1 : 0,
-            optinWhatsapp: widget.compagnon!.optinWhatsapp
+            optinWhatsapp: widget.compagnon!.optinWhatsapp,
+            confirmationLivraison: widget.compagnon!.confirmationLivraison,
+            photoSignatureLivraison: widget.compagnon!.photoSignatureLivraison,
+          statutLivraison: widget.compagnon!.statutLivraison
         );
         // Update 'APPRENTI :
         compagnonControllerX.updateData(compagnon);
@@ -432,7 +435,10 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
         optinMail: optinEmail ? 1 : 0,
         optinSms: optinSms ? 1 : 0,
         optinWhatsapp: 0,
-        photoAutre: ""
+        photoAutre: "",
+        confirmationLivraison: widget.compagnon == null ? 0 : widget.compagnon!.confirmationLivraison,
+        photoSignatureLivraison: widget.compagnon == null ? '' : widget.compagnon!.photoSignatureLivraison,
+        statutLivraison: widget.compagnon == null ? 0 : widget.compagnon!.statutLivraison
     );
 
     final result = await Navigator.push(context,

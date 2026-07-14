@@ -81,6 +81,10 @@ class Artisan {
   final int print;
   final int synchronized;
 
+  // 13/07/26
+  final int confirmationLivraison;
+  final String photoSignatureLivraison;
+
   // M e t h o d s  :
   Artisan({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance, required this.numero_registre,
     required this.lieu_naissance_autre, required this.lieu_naissance, required this.nationalite, required this.statut_matrimonial,
@@ -100,7 +104,7 @@ class Artisan {
     required this.statut_artisan, required this.livraisonCarte,
     required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre,
     required this.regimeFiscal, required this.qualification, required this.statutLivraison
-    , required this.print, required this.synchronized
+    , required this.print, required this.synchronized, required this.confirmationLivraison, required this.photoSignatureLivraison
   });
   factory Artisan.fromDatabaseJson(Map<String, dynamic> data) => Artisan(
     id: data['id'],
@@ -176,7 +180,10 @@ class Artisan {
     qualification: data['qualification'],
     statutLivraison: data['statut_livraison'],
     print: data['print'],
-    synchronized: data['synchronized']
+    synchronized: data['synchronized'],
+
+    confirmationLivraison: data['confirmation_livraison'],
+    photoSignatureLivraison: data['photo_signature_livraison']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -255,5 +262,8 @@ class Artisan {
     "statut_livraison": statutLivraison,
     "print": print,
     "synchronized": synchronized,
+
+    "confirmation_livraison": confirmationLivraison,
+    "photo_signature_livraison": photoSignatureLivraison
   };
 }

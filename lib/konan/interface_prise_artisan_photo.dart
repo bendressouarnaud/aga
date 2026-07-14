@@ -1470,7 +1470,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               qualification: artisanToManage.qualification,
               statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison,
               print: artisanToManage.print,
-              synchronized: 1
+              synchronized: 1,
+              confirmationLivraison: artisanToManage.confirmationLivraison,
+              photoSignatureLivraison: artisanToManage.photoSignatureLivraison
           );
           if(setOriginFromCallArtisan == 0) {
             artisanToManage.id == 0
@@ -1495,7 +1497,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                 amende: tampStats.amende,
                 latitude: tampStats.latitude,
                 longitude: tampStats.longitude,
-                montant: tampStats.montant);
+                montant: tampStats.montant,
+                statutLivraison: tampStats.statutLivraison,
+                confirmationLivraison: tampStats.confirmationLivraison
+            );
             // Reset :
             setOriginFromCallArtisan = 0;
           }
@@ -1617,7 +1622,9 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         qualification: artisanToManage.qualification,
         statutLivraison: artisanToManage.id == 0 ? 0 : artisanToManage.statutLivraison,
         print: artisanToManage.print,
-        synchronized: 0 // Means to SYNCHRONIZE
+        synchronized: 0, // Means to SYNCHRONIZE
+        confirmationLivraison: artisanToManage.confirmationLivraison,
+        photoSignatureLivraison: artisanToManage.photoSignatureLivraison
     );
     // KEEP :
     artisanControllerX.addItem(artisan);

@@ -455,7 +455,11 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             photoCniVerso: widget.entreprise!.photoCniVerso,
             photoRegistreCommerce: widget.entreprise!.photoRegistreCommerce,
             photoDfe: widget.entreprise!.photoDfe,
-            qualification: qualificationController.text
+            qualification: qualificationController.text,
+
+            statutLivraison: widget.entreprise!.statutLivraison,
+            confirmationLivraison: widget.entreprise!.confirmationLivraison,
+            photoSignatureLivraison: widget.entreprise!.photoSignatureLivraison
         );
         entrepriseControllerX.updateData(entrepriseToManage);
         flagSendData = false;
@@ -525,7 +529,11 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
         photoCniVerso: '',
         photoRegistreCommerce: '',
         photoDfe: '',
-        qualification: qualificationController.text
+        qualification: qualificationController.text,
+
+        statutLivraison: widget.entreprise == null ? 0 : widget.entreprise!.statutLivraison,
+        confirmationLivraison: widget.entreprise == null ? 0 : widget.entreprise!.confirmationLivraison,
+        photoSignatureLivraison: widget.entreprise == null ? '' : widget.entreprise!.photoSignatureLivraison
     );
 
     final result = await Navigator.push(context,

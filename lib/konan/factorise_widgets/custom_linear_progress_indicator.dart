@@ -204,7 +204,10 @@ class _CustomLinearProgressIndicatorState extends State<CustomLinearProgressIndi
               qualification: artisan.qualification,
               statutLivraison: artisan.statutLivraison,
               print: artisan.print,
-              synchronized: 1
+              synchronized: 1,
+
+              confirmationLivraison: artisan.confirmationLivraison,
+              photoSignatureLivraison: artisan.photoSignatureLivraison
           );
           // Persist the new ONE :
           artisanControllerX.addItem(artisanNew);

@@ -63,6 +63,11 @@ class Apprenti {
   final int optinSms;
   final int optinWhatsapp;
 
+  // 13/07/26
+  final int statutLivraison;
+  final int confirmationLivraison;
+  final String photoSignatureLivraison;
+
   // M e t h o d s  :
   Apprenti({required this.id, required this.nom, required this.prenom, required this.civilite, required this.date_naissance,
     required this.numero_immatriculation, required this.lieu_naissance_autre, required this.lieu_naissance, required this.nationalite,
@@ -76,7 +81,8 @@ class Apprenti {
     required this.formation_metier_terminee, required this.diplome_obtenu_metier,
     required this.cnps, required this.cmu, required this.artisan_id, required this.entreprise_id,
     required this.millisecondes, required this.statut_apprenti, required this.livraisonCarte,
-    required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre
+    required this.optinMail, required this.optinSms, required this.optinWhatsapp, required this.photoAutre,
+    required this.statutLivraison, required this.confirmationLivraison, required this.photoSignatureLivraison
   });
   factory Apprenti.fromDatabaseJson(Map<String, dynamic> data) => Apprenti(
     id: data['id'],
@@ -128,7 +134,10 @@ class Apprenti {
     optinMail: data['optin_mail'],
     optinSms: data['optin_sms'],
     optinWhatsapp: data['optin_whatsapp'],
-      photoAutre: data['photo_autre']
+    photoAutre: data['photo_autre'],
+    statutLivraison: data['statut_livraison'],
+    confirmationLivraison: data['confirmation_livraison'],
+    photoSignatureLivraison: data['photo_signature_livraison']
   );
 
   Map<String, dynamic> toDatabaseJson() => {
@@ -181,6 +190,10 @@ class Apprenti {
     "optin_mail": optinMail,
     "optin_sms": optinSms,
     "optin_whatsapp": optinWhatsapp,
-    "photo_autre": photoAutre
+    "photo_autre": photoAutre,
+
+    "statut_livraison": statutLivraison,
+    "confirmation_livraison": confirmationLivraison,
+    "photo_signature_livraison": photoSignatureLivraison
   };
 }

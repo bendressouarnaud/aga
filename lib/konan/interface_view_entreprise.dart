@@ -42,9 +42,17 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
   bool flagServerResponse = false;
   String paymentUrl = "";
   int montantEntreprise = 0;
+  bool paiementFraisLivraison = false;
 
 
   // M E T H O D S :
+  @override
+  void initState() {
+    super.initState();
+
+    paiementFraisLivraison = widget.entreprise.livraisonCarte == 1;
+  }
+
   void displayToast(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -118,6 +126,7 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
             "requester": "ENT",
             "amount": montant,
             "choix": choix,
+            "payment_type": paiementFraisLivraison ? 2 : 0
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
@@ -224,7 +233,10 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                   onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                          return InterfaceSignature(id: widget.entreprise.id, requester: 'ENT');
+                          return InterfaceSignature(
+                              id: widget.entreprise.id,
+                              requester: 'ENT',
+                              operationType: 0);
                         })
                     );
                   },
@@ -399,7 +411,8 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                                             )
                                         ),
                                         onPressed: () {
-                                          displayWaintingPayingInterface(sommeApayer.seul, 0);
+                                          displayWaintingPayingInterface(
+                                              paiementFraisLivraison ? (sommeApayer.seul + 1500) : sommeApayer.seul, 0);
                                         },
                                         icon: Icon(
                                           Icons.money,
@@ -417,6 +430,33 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                                 )
                             )
                         ),
+
+                        SizedBox(
+                          height: 3,
+                        ),
+
+                        // This ONE should be added to the GBOBAL AMOUNT to PAY
+                        Visibility(
+                            visible: widget.entreprise.statut_paiement != 2 && widget.entreprise.livraisonCarte == 1 &&
+                                widget.entreprise.statutLivraison == 0,
+                            child: CheckboxListTile(
+                              title: const Text('Paiement frais Livraison'),
+                              value: paiementFraisLivraison,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  paiementFraisLivraison = !paiementFraisLivraison;
+                                });
+                              },
+                              secondary: const Icon(Icons.share,
+                                color: Colors.orange,
+                              ),
+                            )
+                        ),
+
+                        SizedBox(
+                          height: 2,
+                        ),
+
                         /*Container(
                             margin: const EdgeInsets.only(right: 10, left: 10, top: 5),
                             padding: EdgeInsets.all(5),

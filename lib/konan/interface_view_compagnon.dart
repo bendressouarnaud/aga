@@ -43,9 +43,17 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
   ];
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
+  bool paiementFraisLivraison = false;
 
 
   // M E T H O D S :
+  @override
+  void initState() {
+    super.initState();
+
+    paiementFraisLivraison = widget.compagnon.livraisonCarte == 1;
+  }
+
   void displayToast(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -107,6 +115,7 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
             "requester": "COM",
             "amount": montant,
             "choix": choix,
+            "payment_type": paiementFraisLivraison ? 2 : 0
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
@@ -182,7 +191,8 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                           onChanged: (int? value) {
                             valeurParDefaut = value!;
                             Navigator.pop(dialogContext);
-                            displayWaintingPayingInterface(valeurParDefaut, 0);
+                            displayWaintingPayingInterface(
+                                paiementFraisLivraison ? (valeurParDefaut + 1500) : valeurParDefaut, 0);
                           },
                           child: ListView.builder(
                               physics: const NeverScrollableScrollPhysics(),
@@ -203,7 +213,21 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                           )
                       ),
                       SizedBox(
-                        height: 25,
+                        height: 15,
+                      ),
+
+                      Visibility(
+                          visible: paiementFraisLivraison,
+                          child: Text('+ 1.500 FCFA (Livraison)',
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold
+                            ),
+                          )
+                      ),
+
+                      SizedBox(
+                        height: 10,
                       ),
                       Container(
                         margin: EdgeInsets.only(bottom: 10),
@@ -626,7 +650,29 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
                         ),
 
                         SizedBox(
-                          height: 5,
+                          height: 3,
+                        ),
+
+                        // This ONE should be added to the GBOBAL AMOUNT to PAY
+                        Visibility(
+                            visible: widget.compagnon.statut_paiement != 2 && widget.compagnon.livraisonCarte == 1 &&
+                                widget.compagnon.statutLivraison == 0,
+                            child: CheckboxListTile(
+                              title: const Text('Paiement frais Livraison'),
+                              value: paiementFraisLivraison,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  paiementFraisLivraison = !paiementFraisLivraison;
+                                });
+                              },
+                              secondary: const Icon(Icons.share,
+                                color: Colors.orange,
+                              ),
+                            )
+                        ),
+
+                        SizedBox(
+                          height: 2,
                         ),
 
                         Visibility(

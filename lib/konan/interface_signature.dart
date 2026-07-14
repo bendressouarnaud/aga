@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cnmci/konan/services.dart';
+import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,7 +15,8 @@ import 'objets/constants.dart';
 class InterfaceSignature extends StatefulWidget {
   final int id;
   final String requester;
-  const InterfaceSignature({super.key, required this.id, required this.requester});
+  final int operationType; // 0 : Signature , 1 : Livraison
+  const InterfaceSignature({super.key, required this.id, required this.requester, required this.operationType});
 
   @override
   State<InterfaceSignature> createState() => _InterfaceSignatureState();
@@ -97,7 +99,13 @@ class _InterfaceSignatureState extends State<InterfaceSignature> {
           timer.cancel();
 
           if (!flagSendData) {
-            Navigator.pop(context);
+            if(widget.operationType == 1){
+              // Return ELEMENTS to UPDATE INTERFACE :
+              Navigator.pop(context, 1);
+            }
+            else{
+              Navigator.pop(context);
+            }
           } else {
             displayToast('Traitement impossible');
           }
@@ -110,7 +118,9 @@ class _InterfaceSignatureState extends State<InterfaceSignature> {
   {
     // First Call this :
     var localToken = await MesServices().checkJwtExpiration();
-    final url = Uri.parse('${dotenv.env['URL_BACKEND']}manage-signature');
+    final url = widget.operationType == 0 ?
+      Uri.parse('${dotenv.env['URL_BACKEND']}manage-signature') :
+      Uri.parse('${dotenv.env['URL_BACKEND']}confirm-document-delivery');
     try {
       var response = await post(url,
           headers: {

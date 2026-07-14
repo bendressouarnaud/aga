@@ -52,6 +52,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   ];
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
+  bool paiementFraisLivraison = artisanToManage.livraisonCarte == 1;
   bool openLocalWaveApplication = false;
 
 
@@ -162,84 +163,84 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
         PaymentLivraisonStatus paymentLivraisonStatus = PaymentLivraisonStatus.fromJson(json.decode(response.body));
-        if(paymentLivraisonStatus.statutPaiement != artisanToManage.statut_paiement){
-          // Update this :
-          Artisan updateArtisan = Artisan(
-              id: artisanToManage.id,
-              nom: artisanToManage.nom,
-              prenom: artisanToManage.prenom,
-              civilite: artisanToManage.civilite,
-              date_naissance: artisanToManage.date_naissance,
-              numero_registre: artisanToManage.numero_registre,
-              lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
-              lieu_naissance: artisanToManage.lieu_naissance,
-              nationalite: artisanToManage.nationalite,
-              statut_matrimonial: artisanToManage.statut_matrimonial,
-              type_document: artisanToManage.type_document,
-              niveau_etude: artisanToManage.niveau_etude,
-              formation: artisanToManage.formation,
-              classe: artisanToManage.classe,
-              diplome: artisanToManage.diplome,
-              commune_residence: artisanToManage.commune_residence,
-              activite: artisanToManage.activite,
-              sexe: '',
-              numero_piece: artisanToManage.numero_piece,
-              piece_delivre: artisanToManage.piece_delivre,
-              date_emission_piece: artisanToManage.date_emission_piece,
-              metier: artisanToManage.metier,
-              quartier_residence: artisanToManage.quartier_residence,
-              adresse_postal: artisanToManage.adresse_postal,
-              contact1: artisanToManage.contact1,
-              contact2: artisanToManage.contact2,
-              email: artisanToManage.email,
-              photo_artisan: artisanToManage.photo_artisan,
-              photo_cni_recto: artisanToManage.photo_cni_recto,
-              photo_cni_verso: artisanToManage.photo_cni_verso,
-              photo_diplome: artisanToManage.photo_diplome,
-              date_expiration_carte: artisanToManage.date_expiration_carte,
-              statut_kyc: artisanToManage.statut_kyc,
-              statut_paiement: paymentLivraisonStatus.statutPaiement,
-              longitude: artisanToManage.longitude,
-              latitude: artisanToManage.latitude,
-              regime_social: artisanToManage.regime_social,
-              regime_travailleur: artisanToManage.regime_travailleur,
-              regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
-              regime_imposition_micro_entreprise: artisanToManage.regime_imposition_micro_entreprise,
-              comptabilite: artisanToManage.comptabilite,
-              chiffre_affaire: artisanToManage.chiffre_affaire,
-              cnps: artisanToManage.cnps,
-              cmu: artisanToManage.cmu,
-              presence_compte_bancaire: artisanToManage.presence_compte_bancaire,
-              type_compte_bancaire: artisanToManage.type_compte_bancaire,
-              crm: artisanToManage.crm,
-              departement: artisanToManage.departement,
-              sous_prefecture: artisanToManage.sous_prefecture,
+        // Update this :
+        Artisan updateArtisan = Artisan(
+            id: artisanToManage.id,
+            nom: artisanToManage.nom,
+            prenom: artisanToManage.prenom,
+            civilite: artisanToManage.civilite,
+            date_naissance: artisanToManage.date_naissance,
+            numero_registre: artisanToManage.numero_registre,
+            lieu_naissance_autre: artisanToManage.lieu_naissance_autre,
+            lieu_naissance: artisanToManage.lieu_naissance,
+            nationalite: artisanToManage.nationalite,
+            statut_matrimonial: artisanToManage.statut_matrimonial,
+            type_document: artisanToManage.type_document,
+            niveau_etude: artisanToManage.niveau_etude,
+            formation: artisanToManage.formation,
+            classe: artisanToManage.classe,
+            diplome: artisanToManage.diplome,
+            commune_residence: artisanToManage.commune_residence,
+            activite: artisanToManage.activite,
+            sexe: '',
+            numero_piece: artisanToManage.numero_piece,
+            piece_delivre: artisanToManage.piece_delivre,
+            date_emission_piece: artisanToManage.date_emission_piece,
+            metier: artisanToManage.metier,
+            quartier_residence: artisanToManage.quartier_residence,
+            adresse_postal: artisanToManage.adresse_postal,
+            contact1: artisanToManage.contact1,
+            contact2: artisanToManage.contact2,
+            email: artisanToManage.email,
+            photo_artisan: artisanToManage.photo_artisan,
+            photo_cni_recto: artisanToManage.photo_cni_recto,
+            photo_cni_verso: artisanToManage.photo_cni_verso,
+            photo_diplome: artisanToManage.photo_diplome,
+            date_expiration_carte: artisanToManage.date_expiration_carte,
+            statut_kyc: artisanToManage.statut_kyc,
+            statut_paiement: paymentLivraisonStatus.statutPaiement,
+            longitude: artisanToManage.longitude,
+            latitude: artisanToManage.latitude,
+            regime_social: artisanToManage.regime_social,
+            regime_travailleur: artisanToManage.regime_travailleur,
+            regime_imposition_taxe_communale: artisanToManage.regime_imposition_taxe_communale,
+            regime_imposition_micro_entreprise: artisanToManage.regime_imposition_micro_entreprise,
+            comptabilite: artisanToManage.comptabilite,
+            chiffre_affaire: artisanToManage.chiffre_affaire,
+            cnps: artisanToManage.cnps,
+            cmu: artisanToManage.cmu,
+            presence_compte_bancaire: artisanToManage.presence_compte_bancaire,
+            type_compte_bancaire: artisanToManage.type_compte_bancaire,
+            crm: artisanToManage.crm,
+            departement: artisanToManage.departement,
+            sous_prefecture: artisanToManage.sous_prefecture,
 
-              activite_principale: artisanToManage.activite_principale,
-              activite_secondaire: artisanToManage.activite_secondaire,
-              raison_social: artisanToManage.raison_social,
-              sigle: artisanToManage.sigle,
-              date_creation: artisanToManage.date_creation,
-              commune_activite: artisanToManage.commune_activite,
-              quartier_activite: artisanToManage.quartier_activite,
-              rccm: artisanToManage.rccm,
-              niveau_equipement: artisanToManage.niveau_equipement,
-              millisecondes: artisanToManage.millisecondes,
-              quartier_activite_id: artisanToManage.quartier_activite_id,
-              statut_artisan: artisanToManage.statut_artisan,
-              livraisonCarte: artisanToManage.livraisonCarte,
-              optinMail: artisanToManage.optinMail,
-              optinSms: artisanToManage.optinSms,
-              optinWhatsapp: artisanToManage.optinWhatsapp,
-              photoAutre: artisanToManage.photoAutre,
-              regimeFiscal: artisanToManage.regimeFiscal,
-              qualification: artisanToManage.qualification,
-              statutLivraison: paymentLivraisonStatus.statutLivraison,
+            activite_principale: artisanToManage.activite_principale,
+            activite_secondaire: artisanToManage.activite_secondaire,
+            raison_social: artisanToManage.raison_social,
+            sigle: artisanToManage.sigle,
+            date_creation: artisanToManage.date_creation,
+            commune_activite: artisanToManage.commune_activite,
+            quartier_activite: artisanToManage.quartier_activite,
+            rccm: artisanToManage.rccm,
+            niveau_equipement: artisanToManage.niveau_equipement,
+            millisecondes: artisanToManage.millisecondes,
+            quartier_activite_id: artisanToManage.quartier_activite_id,
+            statut_artisan: artisanToManage.statut_artisan,
+            livraisonCarte: artisanToManage.livraisonCarte,
+            optinMail: artisanToManage.optinMail,
+            optinSms: artisanToManage.optinSms,
+            optinWhatsapp: artisanToManage.optinWhatsapp,
+            photoAutre: artisanToManage.photoAutre,
+            regimeFiscal: artisanToManage.regimeFiscal,
+            qualification: artisanToManage.qualification,
+            statutLivraison: paymentLivraisonStatus.statutLivraison,
             print: artisanToManage.print,
-              synchronized: 1
-          );
-          artisanControllerX.updateData(updateArtisan);
-        }
+            synchronized: 1,
+            confirmationLivraison: paymentLivraisonStatus.confirmationLivraison,
+            photoSignatureLivraison: artisanToManage.photoSignatureLivraison
+        );
+        artisanControllerX.updateData(updateArtisan);
         flagSendData = false;
       }
     }
@@ -293,7 +294,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             "requester": "ART",
             "amount": montant,
             "choix": choix,
-            "payment_type": ((artisanToManage.statut_paiement == 2) &&
+            "payment_type": paiementFraisLivraison ? 2 :
+            ((artisanToManage.statut_paiement == 2) &&
                 (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)) ? 1 : 0,
           })
       ).timeout(const Duration(seconds: timeOutValue));
@@ -367,7 +369,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                           onChanged: (int? value) {
                             valeurParDefaut = value!;
                             Navigator.pop(dialogContext);
-                            displayWaintingPayingInterface(valeurParDefaut, 0);
+                            displayWaintingPayingInterface(
+                                paiementFraisLivraison ? (valeurParDefaut + 1500) : valeurParDefaut, 0);
                           },
                           child: ListView.builder(
                               physics: const NeverScrollableScrollPhysics(),
@@ -390,6 +393,21 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                       SizedBox(
                         height: 25,
                       ),
+
+                      Visibility(
+                        visible: paiementFraisLivraison,
+                          child: Text('+ 1.500 FCFA (Livraison)',
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold
+                            ),
+                          )
+                      ),
+
+                      SizedBox(
+                        height: 20,
+                      ),
+
                       Container(
                         margin: EdgeInsets.only(bottom: 10),
                         child: ElevatedButton.icon(
@@ -511,7 +529,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                 onPressed: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) {
-                        return InterfaceSignature(id: artisanToManage.id, requester: 'ART');
+                        return InterfaceSignature(id: artisanToManage.id, requester: 'ART', operationType: 0);
                       })
                   );
                 },
@@ -879,6 +897,24 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                                 fontSize: 19,
                                 fontWeight: FontWeight.bold
                               ),
+                              ),
+                            )
+                        ),
+
+                        // This ONE should be added to the GBOBAL AMOUNT to PAY
+                        Visibility(
+                            visible: artisanToManage.statut_paiement != 2 && artisanToManage.livraisonCarte == 1 &&
+                            artisanToManage.statutLivraison == 0 && artisanToManage.synchronized != 0,
+                            child: CheckboxListTile(
+                              title: const Text('Paiement frais Livraison'),
+                              value: paiementFraisLivraison,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  paiementFraisLivraison = !paiementFraisLivraison;
+                                });
+                              },
+                              secondary: const Icon(Icons.share,
+                                color: Colors.orange,
                               ),
                             )
                         ),
