@@ -73,6 +73,11 @@ late EntrepriseControllerX entrepriseControllerX;
 late ActionTerrainControllerX actionTerrainControllerX;
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
+bool addingExterneApprenti = false;
+int totalExterneApprenti = 0;
+bool addingExterneCompagnon = false;
+int totalExterneCompagnon = 0;
+
 
 Future<void> main() async {
 

@@ -1175,64 +1175,79 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
       ).timeout(const Duration(seconds: timeOutValue));
 
       if (response.statusCode == 200) {
-        MessageResponse reponse = MessageResponse.fromJson(json.decode(response.body));
-        Apprenti apprenti = Apprenti(
-            id: apprentiToManage.id == 0 ? reponse.id : apprentiToManage.id,
-            nom: apprentiToManage.nom,
-            prenom: apprentiToManage.prenom,
-            civilite: apprentiToManage.civilite,
-            date_naissance: apprentiToManage.date_naissance,
-            numero_immatriculation: apprentiToManage.numero_immatriculation,
-            lieu_naissance_autre: apprentiToManage.lieu_naissance_autre,
-            lieu_naissance: apprentiToManage.lieu_naissance,
-            nationalite: apprentiToManage.nationalite,
-            type_document: apprentiToManage.type_document,
-            niveau_etude: apprentiToManage.niveau_etude,
-            classe: apprentiToManage.classe,
-            diplome: apprentiToManage.diplome,
-            date_debut_apprentissage: apprentiToManage.date_debut_apprentissage,
-            commune_residence: apprentiToManage.commune_residence,
-            metier: apprentiToManage.metier,
-            sexe: '',
-            numero_piece: apprentiToManage.numero_piece,
-            piece_delivre: apprentiToManage.piece_delivre,
-            date_emission_piece: apprentiToManage.date_emission_piece,
-            quartier_residence: apprentiToManage.quartier_residence,
-            adresse_postal: apprentiToManage.adresse_postal,
-            contact1: apprentiToManage.contact1,
-            contact2: apprentiToManage.contact2,
-            email: apprentiToManage.email,
-            photo: checkPhotoApprenti(),
-            photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 1),
-            photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 2),
-            photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 3),
-            statut_kyc: apprentiToManage.statut_kyc,
-            statut_paiement: apprentiToManage.statut_paiement,
-            longitude: longitude,
-            latitude: latitude,
-            a_suivi_formation: apprentiToManage.a_suivi_formation,
-            centre_formation_metier: apprentiToManage.centre_formation_metier,
-            intitule_formation_metier: apprentiToManage.intitule_formation_metier,
-            formation_metier_terminee: apprentiToManage.formation_metier_terminee,
-            diplome_obtenu_metier: apprentiToManage.diplome_obtenu_metier,
-            cnps: apprentiToManage.cnps,
-            cmu: apprentiToManage.cmu,
-            artisan_id: apprentiToManage.artisan_id,
-            entreprise_id: apprentiToManage.entreprise_id,
-            millisecondes: apprentiToManage.millisecondes,
-            statut_apprenti: apprentiToManage.statut_apprenti,
-            livraisonCarte: apprentiToManage.livraisonCarte,
-            optinMail: apprentiToManage.optinMail,
-            optinSms: apprentiToManage.optinSms,
-            optinWhatsapp: apprentiToManage.optinWhatsapp,
-            statutLivraison: apprentiToManage.statutLivraison,
-            confirmationLivraison: apprentiToManage.confirmationLivraison,
-            photoSignatureLivraison: apprentiToManage.photoSignatureLivraison
-        );
-        // Update 'APPRENTI :
-        apprentiToManage.id == 0
-            ? apprentiControllerX.addItem(apprenti)
-            : apprentiControllerX.updateData(apprenti);
+        if(!addingExterneApprenti) {
+          MessageResponse reponse = MessageResponse.fromJson(
+              json.decode(response.body));
+          Apprenti apprenti = Apprenti(
+              id: apprentiToManage.id == 0 ? reponse.id : apprentiToManage.id,
+              nom: apprentiToManage.nom,
+              prenom: apprentiToManage.prenom,
+              civilite: apprentiToManage.civilite,
+              date_naissance: apprentiToManage.date_naissance,
+              numero_immatriculation: apprentiToManage.numero_immatriculation,
+              lieu_naissance_autre: apprentiToManage.lieu_naissance_autre,
+              lieu_naissance: apprentiToManage.lieu_naissance,
+              nationalite: apprentiToManage.nationalite,
+              type_document: apprentiToManage.type_document,
+              niveau_etude: apprentiToManage.niveau_etude,
+              classe: apprentiToManage.classe,
+              diplome: apprentiToManage.diplome,
+              date_debut_apprentissage: apprentiToManage
+                  .date_debut_apprentissage,
+              commune_residence: apprentiToManage.commune_residence,
+              metier: apprentiToManage.metier,
+              sexe: '',
+              numero_piece: apprentiToManage.numero_piece,
+              piece_delivre: apprentiToManage.piece_delivre,
+              date_emission_piece: apprentiToManage.date_emission_piece,
+              quartier_residence: apprentiToManage.quartier_residence,
+              adresse_postal: apprentiToManage.adresse_postal,
+              contact1: apprentiToManage.contact1,
+              contact2: apprentiToManage.contact2,
+              email: apprentiToManage.email,
+              photo: checkPhotoApprenti(),
+              photo_cni_recto: factoriseDocumentProcessing(
+                  photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto,
+                  photoRecto, 1),
+              photo_cni_verso: factoriseDocumentProcessing(
+                  photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso,
+                  photoVerso, 2),
+              photoAutre: factoriseDocumentProcessing(
+                  photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre,
+                  photoAutre, 3),
+              statut_kyc: apprentiToManage.statut_kyc,
+              statut_paiement: apprentiToManage.statut_paiement,
+              longitude: longitude,
+              latitude: latitude,
+              a_suivi_formation: apprentiToManage.a_suivi_formation,
+              centre_formation_metier: apprentiToManage.centre_formation_metier,
+              intitule_formation_metier: apprentiToManage
+                  .intitule_formation_metier,
+              formation_metier_terminee: apprentiToManage
+                  .formation_metier_terminee,
+              diplome_obtenu_metier: apprentiToManage.diplome_obtenu_metier,
+              cnps: apprentiToManage.cnps,
+              cmu: apprentiToManage.cmu,
+              artisan_id: apprentiToManage.artisan_id,
+              entreprise_id: apprentiToManage.entreprise_id,
+              millisecondes: apprentiToManage.millisecondes,
+              statut_apprenti: apprentiToManage.statut_apprenti,
+              livraisonCarte: apprentiToManage.livraisonCarte,
+              optinMail: apprentiToManage.optinMail,
+              optinSms: apprentiToManage.optinSms,
+              optinWhatsapp: apprentiToManage.optinWhatsapp,
+              statutLivraison: apprentiToManage.statutLivraison,
+              confirmationLivraison: apprentiToManage.confirmationLivraison,
+              photoSignatureLivraison: apprentiToManage.photoSignatureLivraison
+          );
+          // Update 'APPRENTI :
+          apprentiToManage.id == 0
+              ? apprentiControllerX.addItem(apprenti)
+              : apprentiControllerX.updateData(apprenti);
+        }
+        else{
+          addingExterneApprenti = false;
+        }
         flagSendData = false;
       }
       else if(response.statusCode == 404){

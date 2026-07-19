@@ -6,18 +6,26 @@ import 'package:cnmci/konan/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:http/http.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../getxcontroller/apprenti_controller_x.dart';
+import '../getxcontroller/compagnon_controller_x.dart';
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/generic_data_amount.dart';
 import 'beans/stats_bean_manager.dart';
 import 'beans/wave_payment_response.dart';
+import 'historique/historique_apprenti.dart';
+import 'historique/historique_compagnon.dart';
+import 'interface_apprenti_personne.dart';
 import 'interface_artisan_personne.dart';
+import 'interface_compagnon_personne.dart';
 import 'interface_manage_amende.dart';
 import 'interface_signature.dart';
+import 'model/entreprise.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewEntity extends StatefulWidget {
@@ -47,6 +55,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
   bool openLocalWaveApplication = false;
+  bool paiementFraisLivraison = statsBeanManager.livraisonCarte == 1;
 
 
   // METHODS :
@@ -90,7 +99,9 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                           onChanged: (int? value) {
                             valeurParDefaut = value!;
                             Navigator.pop(dialogContext);
-                            displayDataRequesting(valeurParDefaut);
+                            displayDataRequesting(
+                                paiementFraisLivraison ? (valeurParDefaut + 1500) : valeurParDefaut
+                            );
                           },
                           child: ListView.builder(
                               physics: const NeverScrollableScrollPhysics(),
@@ -113,8 +124,19 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                       SizedBox(
                         height: 25,
                       ),
+
+                      Visibility(
+                          visible: paiementFraisLivraison,
+                          child: Text('+ 1.500 FCFA (Livraison)',
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold
+                            ),
+                          )
+                      ),
+
                       Container(
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: EdgeInsets.only(bottom: 10, top: 20),
                         child: ElevatedButton.icon(
                             style: ButtonStyle(
                                 backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orange)
@@ -429,6 +451,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
             "requester": getAppropriatePrefix(statsBeanManager.type),
             "amount": montant,
             "choix": 0,
+            "payment_type": paiementFraisLivraison ? 2 : 0
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
@@ -537,8 +560,156 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
     }
   }
 
+  Artisan generatePartialArtisan(){
+    return Artisan(
+        id: statsBeanManager.id,
+        nom: '',
+        prenom: '',
+        civilite: '',
+        date_naissance: '',
+        numero_registre: '',
+        lieu_naissance_autre: '',
+        lieu_naissance: 0,
+        nationalite: 0,
+        statut_matrimonial: 0,
+        type_document: 0,
+        niveau_etude: 0,
+        formation: 0,
+        classe: 0,
+        diplome: 0,
+        commune_residence: 0,
+        activite: 0,
+        sexe: '',
+        numero_piece: '',
+        piece_delivre: 0,
+        date_emission_piece: '',
+        metier: 0,
+        quartier_residence: '',
+        adresse_postal: '',
+        contact1: '',
+        contact2: '',
+        email: '',
+        photo_artisan: '',
+        photo_cni_recto: '',
+        photo_cni_verso: '',
+        photo_diplome: '',
+        photoAutre: '',
+        date_expiration_carte: '',
+        statut_kyc: 0,
+        statut_paiement: 0,
+        longitude: 0.0,
+        latitude: 0.0,
+        regime_social: 0,
+        regime_travailleur: 0,
+        regime_imposition_taxe_communale: 0,
+        regime_imposition_micro_entreprise: 0,
+        comptabilite: 0,
+        chiffre_affaire: 0,
+        cnps: '',
+        cmu: '',
+        presence_compte_bancaire: 0,
+        type_compte_bancaire: 0,
+        crm: 0,
+        departement: 0,
+        sous_prefecture: 0,
+
+        activite_principale: 0,
+        activite_secondaire: '',
+        raison_social: '',
+        sigle: '',
+        date_creation: '',
+        commune_activite: 0,
+        quartier_activite: '',
+        rccm: '',
+        niveau_equipement: 0,
+        millisecondes: 0,
+        quartier_activite_id: 0,
+        statut_artisan: 0,
+        livraisonCarte: 0,
+        optinMail: 0,
+        optinSms: 0,
+        optinWhatsapp: 0,
+        regimeFiscal: 0,
+        qualification: '',
+        statutLivraison: 0,
+        print: 0,
+        synchronized: 1,
+
+        confirmationLivraison: 0,
+        photoSignatureLivraison: ''
+    );
+  }
+
+  Entreprise generatePartialEntreprise(){
+    return Entreprise(
+        id: statsBeanManager.id,
+        crm: 0,
+        departement: 0,
+        sous_prefecture: 0,
+        civilite: '',
+        nom: '',
+        prenom: '',
+        date_naissance: '',
+        lieu_naissance: 0,
+        lieu_naissance_autre: '',
+        nationalite: 0,
+        statut_matrimonial: 0,
+        type_document: 0,
+        numero_piece: '',
+        piece_delivre: 0,
+        date_emission_piece: '',
+        commune_residence: 0,
+        quartier_residence: '',
+        adresse_postal: '',
+        contact1: '',
+        contact2: '',
+        email: '',
+
+        forme_juridique: 0,
+        activite_principale: 0,
+        activite_secondaire: 0,
+        denomination: '',
+        sigle: '',
+        date_creation: '',
+        objet_social: '',
+        rccm: '',
+        date_rccm: '',
+        capital_social: 0,
+        regime_fiscal: 0,
+        duree_personne_morale: 0,
+        cnps_entreprise: '',
+        compte_contribuable: '',
+        total_associe: 0,
+        commune_siege: 0,
+        quartier_siege: '',
+        lot: '',
+        telephone: '',
+        statut_kyc: 0,
+        statut_paiement: 0,
+        longitude: 0.0,
+        latitude: 0.0,
+        millisecondes: DateTime.now().millisecondsSinceEpoch,
+        quartier_siege_id: 0,
+        livraisonCarte: 0,
+
+        photoCniRecto: '',
+        photoCniVerso: '',
+        photoRegistreCommerce: '',
+        photoDfe: '',
+        qualification: '',
+
+        statutLivraison: 0,
+        confirmationLivraison: 0,
+        photoSignatureLivraison: ''
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    // Refresh :
+    totalExterneApprenti = statsBeanManager.totalApprenti;
+    totalExterneCompagnon = statsBeanManager.totalCompagnon;
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -585,7 +756,10 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                             montant: statsBeanManager.montant,
                             // 13/07/2026
                             statutLivraison: 1,
-                            confirmationLivraison: 1
+                            confirmationLivraison: 1,
+                            livraisonCarte: statsBeanManager.livraisonCarte,
+                            totalApprenti: statsBeanManager.totalApprenti,
+                            totalCompagnon: statsBeanManager.totalCompagnon
                         );
                       });
                     }
@@ -846,6 +1020,23 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
               ),
 
               Visibility(
+                  visible: statsBeanManager.paiement != 2 &&
+                      (statsBeanManager.livraisonCarte == 1 && statsBeanManager.statutLivraison == 0),
+                  child: CheckboxListTile(
+                    title: const Text('Paiement frais Livraison'),
+                    value: paiementFraisLivraison,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        paiementFraisLivraison = !paiementFraisLivraison;
+                      });
+                    },
+                    secondary: const Icon(Icons.share,
+                      color: Colors.orange,
+                    ),
+                  )
+              ),
+
+              Visibility(
                   visible: statsBeanManager.paiement < 2,
                   child: CheckboxListTile(
                     title: const Text('Envoi lien de paiement'),
@@ -929,6 +1120,205 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                           )
                       ),
                     ],
+                  )
+              ),
+              /*Container(
+                  margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                  alignment: Alignment.topLeft,
+                  child: Divider(
+                      height: 5
+                  )
+              ),*/
+
+              Visibility(
+                  visible: statsBeanManager.type == 'Artisans' || statsBeanManager.type == 'Entreprises',
+                  child: Container(
+                    alignment: Alignment.topLeft,
+                    margin: EdgeInsets.only(right: 10, left: 10, top: 10),
+                    child: Text('Gestion des équipes',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.lightBlue
+                      ),
+                    ),
+                  )
+              ),
+
+              Visibility(
+                  visible: statsBeanManager.type == 'Artisans' || statsBeanManager.type == 'Entreprises',
+                  child: Container(
+                    margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                    child: Divider(
+                      height: 3,
+                    ),
+                  )
+              ),
+
+              Visibility(
+                  visible: statsBeanManager.type == 'Artisans' || statsBeanManager.type == 'Entreprises',
+                  child: SafeArea(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              addingExterneApprenti = true;
+                              final result = await Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                    if(statsBeanManager.type == 'Artisans') {
+                                      return InterfaceApprentiPersonne(
+                                        artisanId: generatePartialArtisan().id,
+                                        entrepriseId: 0,
+                                      );
+                                    }
+                                    else{
+                                      return InterfaceApprentiPersonne(
+                                        artisanId: 0,
+                                        entrepriseId: generatePartialEntreprise().id,
+                                      );
+                                    }
+                                  })
+                              );
+
+                              if (result != null) {
+                                // We can INCREMENT :
+                                setState(() {
+                                  totalExterneApprenti++;
+                                });
+                              }
+                              else{
+                                addingExterneApprenti = false;
+                              }
+                            },
+                            child: Container(
+                              width: (MediaQuery.of(context).size.width / 2) - 20,
+                              margin: EdgeInsets.all(10),
+                              padding: EdgeInsets.all(5),
+                              height: 100,
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                    colors: [
+                                      Colors.red.shade50,
+                                      Colors.blue.shade100
+                                    ],
+                                  ),
+                                  //color: Colors.brown[100],
+                                  borderRadius: BorderRadius.circular(8.0)
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.people_alt,
+                                    size: 50,
+                                  ),
+                                  Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text('Apprentis',
+                                            style: TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          Text('   ($totalExterneApprenti)',
+                                              style: TextStyle(
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold
+                                              )
+                                          )
+                                        ],
+                                      )
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              addingExterneCompagnon = true;
+                              final result = await Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                    if(statsBeanManager.type == 'Artisans') {
+                                      return InterfaceCompagnonPersonne(
+                                          artisanId: generatePartialArtisan().id,
+                                          entrepriseId: 0,
+                                          compagnon: null
+                                      );
+                                    }
+                                    else{
+                                      return InterfaceCompagnonPersonne(
+                                          artisanId: 0,
+                                          entrepriseId: generatePartialEntreprise().id,
+                                          compagnon: null
+                                      );
+                                      return HistoriqueCompagnon(
+                                          entreprise: generatePartialEntreprise());
+                                    }
+                                  })
+                              );
+
+                              if (result != null) {
+                                // We can INCREMENT :
+                                setState(() {
+                                  totalExterneCompagnon++;
+                                });
+                              }
+                              else{
+                                addingExterneCompagnon = false;
+                              }
+                            },
+                            child: Container(
+                              width: (MediaQuery.of(context).size.width / 2) - 20,
+                              margin: EdgeInsets.all(10),
+                              padding: EdgeInsets.all(5),
+                              height: 100,
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                    colors: [
+                                      Colors.blue.shade100,
+                                      Colors.red.shade50,
+                                    ],
+                                  ),
+                                  //color: Colors.brown[100],
+                                  borderRadius: BorderRadius.circular(8.0)
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.people_outline,
+                                    size: 50,
+                                  ),
+                                  Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text('Compagnons',
+                                            style: TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          Text('   ($totalExterneCompagnon)',
+                                              style: TextStyle(
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold
+                                              )
+                                          )
+                                        ],
+                                      )
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
                   )
               )
             ],

@@ -17,6 +17,9 @@ class StatsBeanManager {
   // 13/07/2026
   final int statutLivraison;
   final int confirmationLivraison;
+  final int livraisonCarte;
+  final int totalApprenti;
+  final int totalCompagnon;
 
   const StatsBeanManager({
     required this.id,
@@ -37,6 +40,9 @@ class StatsBeanManager {
     // 13/07/2026
     required this.statutLivraison,
     required this.confirmationLivraison,
+    required this.livraisonCarte,
+    required this.totalApprenti,
+    required this.totalCompagnon,
   });
 
   factory StatsBeanManager.fromJson(Map<String, dynamic> json) {
@@ -57,7 +63,10 @@ class StatsBeanManager {
       longitude: json['longitude'],
       montant: json['montant'],
       statutLivraison: json['statut_livraison'],
-      confirmationLivraison: json['confirmation_livraison']
+      confirmationLivraison: json['confirmation_livraison'],
+        livraisonCarte: json['livraison_carte'],
+      totalApprenti: json['total_apprenti'],
+      totalCompagnon: json['total_compagnon'],
     );
   }
 
@@ -81,6 +90,9 @@ class StatsBeanManager {
 
     data['statut_livraison'] = statutLivraison;
     data['confirmation_livraison'] = confirmationLivraison;
+    data['livraison_carte'] = livraisonCarte;
+    data['total_apprenti'] = totalApprenti;
+    data['total_compagnon'] = totalCompagnon;
     return data;
   }
 }

@@ -1300,63 +1300,78 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
       ).timeout(const Duration(seconds: timeOutValue));
 
       if (response.statusCode == 200) {
-        MessageResponse reponse = MessageResponse.fromJson(
-            json.decode(response.body));
-        Compagnon compagnon = Compagnon(
-            id: reponse.id,
-            nom: compagnonToManage.nom,
-            prenom: compagnonToManage.prenom,
-            civilite: compagnonToManage.civilite,
-            date_naissance: compagnonToManage.date_naissance,
-            numero_immatriculation: compagnonToManage.numero_immatriculation,
-            lieu_naissance_autre: compagnonToManage.lieu_naissance_autre,
-            lieu_naissance: compagnonToManage.lieu_naissance,
-            nationalite: compagnonToManage.nationalite,
-            sexe: '',
-            type_document: compagnonToManage.type_document,
-            niveau_etude: compagnonToManage.niveau_etude,
-            specialite: compagnonToManage.specialite,
-            classe: compagnonToManage.classe,
-            diplome: compagnonToManage.diplome,
-            apprentissage_metier: compagnonToManage.apprentissage_metier,
-            date_debut_compagnonnage: compagnonToManage.date_debut_compagnonnage,
-            commune_residence: compagnonToManage.commune_residence,
-            quartier_residence: compagnonToManage.quartier_residence,
-            adresse_postal: compagnonToManage.adresse_postal,
-            numero_piece: compagnonToManage.numero_piece,
-            piece_delivre: compagnonToManage.piece_delivre,
-            date_emission_piece: compagnonToManage.date_emission_piece,
-            photo: checkPhotoCompagnon(),
-            photo_cni_recto: factoriseDocumentProcessing(photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto, photoRecto, 1),
-            photo_cni_verso: factoriseDocumentProcessing(photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso, photoVerso, 2),
-            photo_diplome: factoriseDocumentProcessing(photoDiplomeController, uploadPhotoDiplome, fileUploadPhotoDiplome, photoDiplome, 3),
-            photoAutre: factoriseDocumentProcessing(photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre, photoAutre, 4),
-            contact1: compagnonToManage.contact1,
-            contact2: compagnonToManage.contact2,
-            email: compagnonToManage.email,
-            statut_kyc: 0,
-            statut_paiement: 0,
-            longitude: longitude,
-            latitude: latitude,
-            cnps: compagnonToManage.cnps,
-            cmu: compagnonToManage.cmu,
-            artisan_id: compagnonToManage.artisan_id,
-            entreprise_id: compagnonToManage.entreprise_id,
-            millisecondes: compagnonToManage.millisecondes,
-            statut_compagnon: compagnonToManage.statut_compagnon,
-            livraisonCarte: compagnonToManage.livraisonCarte,
+        if(!addingExterneCompagnon) {
+          MessageResponse reponse = MessageResponse.fromJson(
+              json.decode(response.body));
+          Compagnon compagnon = Compagnon(
+              id: reponse.id,
+              nom: compagnonToManage.nom,
+              prenom: compagnonToManage.prenom,
+              civilite: compagnonToManage.civilite,
+              date_naissance: compagnonToManage.date_naissance,
+              numero_immatriculation: compagnonToManage.numero_immatriculation,
+              lieu_naissance_autre: compagnonToManage.lieu_naissance_autre,
+              lieu_naissance: compagnonToManage.lieu_naissance,
+              nationalite: compagnonToManage.nationalite,
+              sexe: '',
+              type_document: compagnonToManage.type_document,
+              niveau_etude: compagnonToManage.niveau_etude,
+              specialite: compagnonToManage.specialite,
+              classe: compagnonToManage.classe,
+              diplome: compagnonToManage.diplome,
+              apprentissage_metier: compagnonToManage.apprentissage_metier,
+              date_debut_compagnonnage: compagnonToManage
+                  .date_debut_compagnonnage,
+              commune_residence: compagnonToManage.commune_residence,
+              quartier_residence: compagnonToManage.quartier_residence,
+              adresse_postal: compagnonToManage.adresse_postal,
+              numero_piece: compagnonToManage.numero_piece,
+              piece_delivre: compagnonToManage.piece_delivre,
+              date_emission_piece: compagnonToManage.date_emission_piece,
+              photo: checkPhotoCompagnon(),
+              photo_cni_recto: factoriseDocumentProcessing(
+                  photoRectoController, uploadPhotoRecto, fileUploadPhotoRecto,
+                  photoRecto, 1),
+              photo_cni_verso: factoriseDocumentProcessing(
+                  photoVersoController, uploadPhotoVerso, fileUploadPhotoVerso,
+                  photoVerso, 2),
+              photo_diplome: factoriseDocumentProcessing(
+                  photoDiplomeController, uploadPhotoDiplome,
+                  fileUploadPhotoDiplome, photoDiplome, 3),
+              photoAutre: factoriseDocumentProcessing(
+                  photoAutreController, uploadPhotoAutre, fileUploadPhotoAutre,
+                  photoAutre, 4),
+              contact1: compagnonToManage.contact1,
+              contact2: compagnonToManage.contact2,
+              email: compagnonToManage.email,
+              statut_kyc: 0,
+              statut_paiement: 0,
+              longitude: longitude,
+              latitude: latitude,
+              cnps: compagnonToManage.cnps,
+              cmu: compagnonToManage.cmu,
+              artisan_id: compagnonToManage.artisan_id,
+              entreprise_id: compagnonToManage.entreprise_id,
+              millisecondes: compagnonToManage.millisecondes,
+              statut_compagnon: compagnonToManage.statut_compagnon,
+              livraisonCarte: compagnonToManage.livraisonCarte,
 
-            optinMail: compagnonToManage.optinMail,
-            optinSms: compagnonToManage.optinSms,
-            optinWhatsapp: compagnonToManage.optinWhatsapp,
+              optinMail: compagnonToManage.optinMail,
+              optinSms: compagnonToManage.optinSms,
+              optinWhatsapp: compagnonToManage.optinWhatsapp,
 
-            confirmationLivraison: compagnonToManage.confirmationLivraison,
-            photoSignatureLivraison: compagnonToManage.photoSignatureLivraison,
-          statutLivraison: compagnonToManage.statutLivraison
-        );
-        compagnonToManage.id == 0 ?
-        compagnonControllerX.addItem(compagnon) :
-        compagnonControllerX.updateData(compagnon);
+              confirmationLivraison: compagnonToManage.confirmationLivraison,
+              photoSignatureLivraison: compagnonToManage
+                  .photoSignatureLivraison,
+              statutLivraison: compagnonToManage.statutLivraison
+          );
+          compagnonToManage.id == 0 ?
+          compagnonControllerX.addItem(compagnon) :
+          compagnonControllerX.updateData(compagnon);
+        }
+        else{
+          addingExterneCompagnon = false;
+        }
         flagSendData = false;
       }
       else if(response.statusCode == 404){
