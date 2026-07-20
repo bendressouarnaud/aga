@@ -4,6 +4,7 @@ import 'package:cnmci/konan/historique/historique_apprenti.dart';
 import 'package:cnmci/konan/historique/historique_compagnon.dart';
 import 'package:cnmci/konan/historique/historique_entreprise.dart';
 import 'package:cnmci/konan/interface_gestion_utilisateur.dart';
+import 'package:cnmci/konan/interface_serach_ia.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/repositories/parametre_repository.dart';
 import 'package:cnmci/konan/search_entity.dart';
@@ -214,8 +215,20 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
                     },
                     icon: const Icon(Icons.people_alt, color: Colors.brown)
                 )
-            )
-            ,
+            ),
+            Visibility(
+                visible: globalUser!.profil == "ROLE_SUPER_ADMIN",
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return InterfaceSerachIa();
+                          })
+                      );
+                    },
+                    icon: const Icon(Icons.hotel_class_outlined, color: Colors.green)
+                )
+            ),
             Visibility(
                 visible: globalUser!.profil == "ROLE_ADMINISTRATEUR_CONTROLE_MANAGER" ||
                     globalUser!.profil == "ROLE_SUPER_ADMIN" ||
