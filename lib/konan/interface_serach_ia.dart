@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 
+import 'beans/beanresponseanthropic.dart';
 import 'beans/stats_bean_manager.dart';
 import 'interface_view_entity.dart';
 import 'objets/constants.dart';
@@ -47,22 +48,27 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
     // Apply REGEX on it :
     String pattern = r'^[0-9]{10}$';
     RegExp regExp = RegExp(pattern);
-    for(dynamic valeur in tab){
-      // Put Number in BOLD
-      var stringValue = '$valeur';
-      // Launch RESEARCH
-      if(regExp.hasMatch(stringValue)){
-        retour.add(
-            Text('$valeur',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black
-            ),)
-        );
-      }
-      else{
-        retour.add(Text('$valeur'));
+    if(tab is String){
+      retour.add(Text(tab));
+    }
+    else {
+      for (dynamic valeur in tab) {
+        // Put Number in BOLD
+        var stringValue = '$valeur';
+        // Launch RESEARCH
+        if (regExp.hasMatch(stringValue)) {
+          retour.add(
+              Text('$valeur',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black
+                ),)
+          );
+        }
+        else {
+          retour.add(Text('$valeur'));
+        }
       }
     }
     return retour;
@@ -83,11 +89,9 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
-        final Map<String, dynamic> result = json.decode(response.body);
-        //print('Taille : ${result.length}');
-        // Browse this :
 
-        //print('Taille tableaux : ${liste.length}');
+        BeanResponseAnthropic beanResponseAnthropic = BeanResponseAnthropic.fromJson(json.decode(response.body));
+        //final Map<String, dynamic> result = json.decode(response.body);
 
         /*for(dynamic tab in liste){
           for(dynamic valeur in tab){
@@ -95,17 +99,13 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
           }
           break;
         }
-
         print('1 er élément : ${liste[0]}');
         print('1 er élément : ${liste[0][0]}');*/
         flagSendData = false;
         setState(() {
-          liste = result['result'].cast<dynamic>();
+          //liste = result['result'].cast<dynamic>();
+          liste = beanResponseAnthropic.result;
         });
-
-        /*setState(() {
-          liste = result.map((data) => data.cast<dynamic>()).toList();
-        });*/
       }
       else{
         setState(() {
