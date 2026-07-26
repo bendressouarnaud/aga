@@ -920,7 +920,10 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                         ),
 
                         Visibility(
-                          visible: artisanToManage.statut_paiement < 2 && artisanToManage.synchronized == 1,
+                          // artisanToManage.statut_paiement < 2 && artisanToManage.synchronized == 1
+                          visible: (artisanToManage.statut_paiement < 2 ||
+                              (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0)) &&
+                              artisanToManage.synchronized == 1,
                             child: CheckboxListTile(
                               title: const Text('Envoi lien de paiement'),
                               value: envoiLienPaiement,
@@ -937,7 +940,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                           height: 5,
                         ),
 
-                        Visibility(
+                        /*Visibility(
                             visible: artisanToManage.statut_paiement == 2 &&
                                 (artisanToManage.livraisonCarte == 1 && artisanToManage.statutLivraison == 0),
                             child: CheckboxListTile(
@@ -952,7 +955,7 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
                               color: Colors.orange,
                               ),
                             )
-                        ),
+                        ),*/
 
                         Container(
                           alignment: Alignment.topLeft,

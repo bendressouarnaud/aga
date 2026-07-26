@@ -298,14 +298,27 @@ class _InterfaceHistoriqueArtisanStatut extends State<InterfaceHistoriqueArtisan
             selectedIndex: currentPageIndex,
             destinations:[
               NavigationDestination(
-                selectedIcon: Icon(Icons.dangerous_outlined), //Icon(Icons.announcement),
-                icon: Icon(Icons.dangerous),//Icon(Icons.announcement_outlined),
+                selectedIcon: Icon(Icons.dangerous_outlined,
+                    color: Colors.orange), //Icon(Icons.announcement),
+                icon: Icon(Icons.dangerous,
+                    color: Colors.black),//Icon(Icons.announcement_outlined),
                 label: 'Aucun',
               ),
               NavigationDestination(
-                selectedIcon: Icon(Icons.money_sharp), //Icon(Icons.announcement),
-                icon: Icon(Icons.money),//Icon(Icons.announcement_outlined),
+                selectedIcon: Icon(Icons.money_sharp,
+                    color: Colors.orange), //Icon(Icons.announcement),
+                icon: Icon(Icons.money,
+                    color: Colors.black),//Icon(Icons.announcement_outlined),
                 label: 'Paiement en cours',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.check_circle,
+                  color: Colors.orange,
+                ), //Icon(Icons.announcement),
+                icon: Icon(Icons.check,
+                color: Colors.black,
+                ),//Icon(Icons.announcement_outlined),
+                label: 'Soldé',
               )
             ]
         ),
@@ -401,7 +414,8 @@ class _InterfaceHistoriqueArtisanStatut extends State<InterfaceHistoriqueArtisan
 
       body: <Widget>[
         getPaiementFiltered(0),
-        getPaiementFiltered(1)
+        getPaiementFiltered(1),
+        getPaiementFiltered(2)
       ][currentPageIndex]
     );
 

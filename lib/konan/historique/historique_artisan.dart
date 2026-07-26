@@ -64,6 +64,8 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
           children: [
             FloatingActionButton.small(
               // shape: const CircleBorder(),
+              backgroundColor: Colors.lightBlue,
+              foregroundColor: Colors.white,
               heroTag: null,
               child: const Icon(Icons.add),
               onPressed: () {
@@ -78,6 +80,8 @@ class _HistoriqueArtisan extends State<HistoriqueArtisan> {
             ),
             FloatingActionButton.small(
               // shape: const CircleBorder(),
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
               heroTag: null,
               child: const Icon(Icons.history),
               onPressed: () {
