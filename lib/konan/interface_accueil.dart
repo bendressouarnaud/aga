@@ -46,10 +46,6 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
       // Handle internet status changes :
       switch(status){
         case InternetStatus.connected:
-          if(defaultTargetPlatform == TargetPlatform.android){
-            // Check if 'INITIALIZATION has been done :
-            checkParametreInitialization();
-          }
 
           // FRom there, check if we have values to SEND :
           List<Artisan> listeArtisanToSend = artisanControllerX.data.where((a) => a.synchronized == 0).toList();
@@ -71,20 +67,6 @@ class _InterfaceAccueil extends State<InterfaceAccueil> {
     });
 
     super.initState();
-  }
-
-  void checkParametreInitialization() async{
-    try {
-      Parametre? parametre = await outil.findParameter();
-      if(parametre == null){
-        await FirebaseMessaging.instance.subscribeToTopic('${dotenv.env['SIGA_TOPIC']}');
-        // Persist :
-        Parametre newParam = Parametre(id: 1,
-            topicSubscription: 1, param1: 0, param2: 0, param3: '');
-        outil.insertParameter(newParam);
-      }
-    }
-    catch(e){}
   }
 
   @override

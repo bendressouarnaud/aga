@@ -35,6 +35,7 @@ import 'package:cnmci/konan/repositories/type_document_repository.dart';
 import 'package:cnmci/konan/repositories/user_repository.dart';
 import 'package:cnmci/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -45,6 +46,7 @@ import '../getxcontroller/internet_access_controller_x.dart';
 import 'beans/accountsigninresponse.dart';
 import 'beans/donnees_referentielles.dart';
 import 'model/crm.dart';
+import 'model/parametre.dart';
 import 'model/user.dart';
 import 'objets/constants.dart';
 
@@ -204,9 +206,34 @@ class _ConnexionViewState extends State<ConnexionView> {
   void generateTokenSuscription() async {
     String? getToken = '';
     try {
-      getToken = await FirebaseMessaging.instance.getToken();
-    } catch (e) {}
-    sendLoginRequest(getToken!);
+      if(defaultTargetPlatform == TargetPlatform.android){
+        getToken = await FirebaseMessaging.instance.getToken();
+      }
+      // Todo : REMOVE this before PRODUCTION :
+      else if(defaultTargetPlatform == TargetPlatform.iOS){
+        // iOS
+        getToken = await FirebaseMessaging.instance.getAPNSToken();
+      }
+
+      // From there, try to SUBSCRIBE to TOPIC :
+      try {
+        await FirebaseMessaging.instance.subscribeToTopic(
+            '${dotenv.env['SIGA_TOPIC']}');
+      }
+      catch (e) {
+        //print('Exception occurend during TOPIC SUBSCRIPTION  *********   $e');
+      }
+    } catch (e) {
+      //print('Exception occurend during TOKEN Reading *********   $e');
+    }
+    finally{
+      // Persist :
+      Parametre newParam = Parametre(id: 1,
+          topicSubscription: 1, param1: 0, param2: 0, param3: '');
+      outil.insertParameter(newParam);
+    }
+    getToken = getToken ?? '';
+    sendLoginRequest(getToken);
   }
 
   Future<void> sendLoginRequest(String token) async {

@@ -119,19 +119,13 @@ class _WidgetAccueil extends State<WidgetAccueil> {
                                     style: TextStyle(
                                         fontSize: 25
                                     ),),
-                                  GetBuilder(
-                                      builder: (ArtisanControllerX dataX){
-
-                                        artisanDuJour = dataX.data.where((d) =>
+                                  GetBuilder<ArtisanControllerX>(
+                                      builder: (artisanControllerX){
+                                        artisanDuJour = artisanControllerX.data.where((d) =>
                                         checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
                                             DateTime.now()) == true).length;
-
                                         donnesDuJour += artisanDuJour;
-                                        /*setState(() {
-                                donnesDuJour += artisanDuJour;
-                              });*/
-
-                                        return Text('${dataX.data.length}',
+                                        return Text('${artisanControllerX.data.length}',
                                             style: TextStyle(
                                                 fontSize: 25
                                             )
@@ -157,19 +151,13 @@ class _WidgetAccueil extends State<WidgetAccueil> {
                                       style: TextStyle(
                                           fontSize: 25
                                       ),),
-                                    GetBuilder(
-                                        builder: (ApprentiControllerX dataX){
-
-                                          apprentiDuJour = dataX.data.where((d) =>
+                                    GetBuilder<ApprentiControllerX>(
+                                        builder: (apprentiControllerX){
+                                          apprentiDuJour = apprentiControllerX.data.where((d) =>
                                           checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
                                               DateTime.now()) == true).length;
-
                                           donnesDuJour += apprentiDuJour;
-                                          /*setState(() {
-                                  donnesDuJour += apprentiDuJour;
-                                });*/
-
-                                          return Text('${dataX.data.length}',
+                                          return Text('${apprentiControllerX.data.length}',
                                               style: TextStyle(
                                                   fontSize: 25
                                               )
@@ -195,19 +183,13 @@ class _WidgetAccueil extends State<WidgetAccueil> {
                                       style: TextStyle(
                                           fontSize: 25
                                       ),),
-                                    GetBuilder(
-                                        builder: (CompagnonControllerX dataX){
-
-                                          compagnonDuJour = dataX.data.where((d) =>
+                                    GetBuilder<CompagnonControllerX>(
+                                        builder: (compagnonControllerX){
+                                          compagnonDuJour = compagnonControllerX.data.where((d) =>
                                           checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
                                               DateTime.now()) == true).length;
-
                                           donnesDuJour += compagnonDuJour;
-                                          /*setState(() {
-                                  donnesDuJour += compagnonDuJour;
-                                });*/
-
-                                          return Text('${dataX.data.length}',
+                                          return Text('${compagnonControllerX.data.length}',
                                               style: TextStyle(
                                                   fontSize: 25
                                               )
@@ -233,19 +215,13 @@ class _WidgetAccueil extends State<WidgetAccueil> {
                                       style: TextStyle(
                                           fontSize: 25
                                       ),),
-                                    GetBuilder(
-                                        builder: (EntrepriseControllerX dataX){
-
-                                          entrepriseDuJour = dataX.data.where((d) =>
+                                    GetBuilder<EntrepriseControllerX>(
+                                        builder: (entrepriseControllerX){
+                                          entrepriseDuJour = entrepriseControllerX.data.where((d) =>
                                           checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
                                               DateTime.now()) == true).length;
-
                                           donnesDuJour += entrepriseDuJour;
-                                          /*setState(() {
-                                  donnesDuJour += entrepriseDuJour;
-                                });*/
-
-                                          return Text('${dataX.data.length}',
+                                          return Text('${entrepriseControllerX.data.length}',
                                               style: TextStyle(
                                                   fontSize: 25
                                               )
