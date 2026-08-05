@@ -611,7 +611,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
       context: context,
       initialDate: initialDate,
       firstDate: now,
-      lastDate: DateTime(2007, 12, 31, 00, 00)// DateTime.fromMillisecondsSinceEpoch(globalReservation!.fin),
+      lastDate: DateTime((DateTime.now().year - 16), 12, 31, 00, 00)// DateTime.fromMillisecondsSinceEpoch(globalReservation!.fin),
     );
     if (selectedDate == null) return;
     _dateNaissanceController.addData(selectedDate);

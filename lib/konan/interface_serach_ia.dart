@@ -51,6 +51,9 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
     if(tab is String){
       retour.add(Text(tab));
     }
+    else if(tab is int || tab is double || tab is bool){
+      retour.add(Text('$tab'));
+    }
     else {
       for (dynamic valeur in tab) {
         // Put Number in BOLD
