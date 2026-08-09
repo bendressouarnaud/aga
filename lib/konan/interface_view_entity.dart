@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cnmci/konan/interface_history_proces_verbal.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import '../getxcontroller/compagnon_controller_x.dart';
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/generic_data_amount.dart';
+import 'beans/proces_verbal_hisory_data.dart';
 import 'beans/stats_bean_manager.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
@@ -24,6 +26,7 @@ import 'interface_apprenti_personne.dart';
 import 'interface_artisan_personne.dart';
 import 'interface_compagnon_personne.dart';
 import 'interface_manage_amende.dart';
+import 'interface_proces_verbal.dart';
 import 'interface_signature.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
@@ -56,6 +59,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   bool envoiLienPaiement = false;
   bool openLocalWaveApplication = false;
   bool paiementFraisLivraison = statsBeanManager.livraisonCarte == 1;
+  List<ProcesVerbalHisoryData> listeHistoPvData = [];
 
 
   // METHODS :
@@ -398,6 +402,91 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
     );
   }
 
+  void displayHistoricPvDataRequesting(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        });
+
+    flagSendData = true;
+    flagServerResponse = true;
+    listeHistoPvData = [];
+    getHistoricPvData();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (!flagSendData && listeHistoPvData.isNotEmpty) {
+            // DISPLAY Data :
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return InterfaceHistoryProcesVerbal(listeHistoPvData: listeHistoPvData);
+                }
+                )
+            );
+          }
+        }
+      },
+    );
+  }
+
+  void getHistoricPvData() async {
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}get-proces-verbal-history/${statsBeanManager.id}/${getAppropriatePrefix(statsBeanManager.type)}');
+      var response = await get(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          }
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        final List result = json.decode(response.body);
+        listeHistoPvData = result.map((e) => ProcesVerbalHisoryData.fromJson(e)).toList();
+        flagSendData = false;
+      }
+    }
+    catch(e){
+      // Connexion PROBLEM :
+    }
+    finally{
+      flagServerResponse = false;
+    }
+  }
+
   void openWaveApplication() async{
     final Uri url = Uri.parse(paymentUrl);
     await launchUrl(url);
@@ -498,6 +587,19 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
     catch(e){}
     finally{
       flagServerResponse = false;
+    }
+  }
+
+  bool showProcesVerbalButton(String date, int paiement){
+    String dateCreation = '${date}T00+00:00';
+    DateTime dateTimeCreation = DateTime.parse(dateCreation);
+    DateTime dateTimeNow = DateTime.now();
+    int difference = dateTimeNow.difference(dateTimeCreation).inDays;
+    if(paiement != 2 && difference >= 90){
+      return true;
+    }
+    else{
+      return false;
     }
   }
 
@@ -759,7 +861,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                             confirmationLivraison: 1,
                             livraisonCarte: statsBeanManager.livraisonCarte,
                             totalApprenti: statsBeanManager.totalApprenti,
-                            totalCompagnon: statsBeanManager.totalCompagnon
+                            totalCompagnon: statsBeanManager.totalCompagnon,
+                            totalProcesVerbal: statsBeanManager.totalProcesVerbal
                         );
                       });
                     }
@@ -1014,7 +1117,6 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                       )
                   )
               ),
-
               SizedBox(
                 height: 5,
               ),
@@ -1056,6 +1158,81 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                     height: 5
                   )
               ),
+
+              // Title PROCèS-VERBAL
+              Visibility(
+                visible: showProcesVerbalButton(statsBeanManager.datenrolement, statsBeanManager.paiement) ||
+                  (statsBeanManager.paiement != 2 && globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE"),
+                child: Container(
+                    margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                    alignment: Alignment.topLeft,
+                    child: Text('Procès verbal & Amende',
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold
+                      ),
+                    )
+                )
+              ),
+
+              Visibility(
+                  visible: showProcesVerbalButton(statsBeanManager.datenrolement, statsBeanManager.paiement) ||
+                      (statsBeanManager.paiement != 2 && globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE"),
+                  child: Container(
+                      margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                      width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton.icon(
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blue)
+                          ),
+                          label: Text('Historique (${statsBeanManager.totalProcesVerbal})',
+                              style: TextStyle(
+                                  color: Colors.white
+                              )
+                          ),
+                          onPressed: () async {
+                            // Look to DISPLAY ALL PV :
+                            displayHistoricPvDataRequesting();
+                          },
+                          icon: const Icon(
+                            Icons.history_toggle_off,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orangeAccent)
+                          ),
+                          label: Text('Procès Verbal',
+                              style: TextStyle(
+                                  color: Colors.white
+                              )
+                          ),
+                          onPressed: () async {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  return InterfaceProcesVerbal(
+                                      requesterType: getAppropriatePrefix(statsBeanManager.type),
+                                      requesterId: statsBeanManager.id
+                                  );
+                                })
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.policy,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        )
+                      ],
+                    )
+                  )
+              ),
+
               Container(
                   margin: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 30),
                   alignment: Alignment.topLeft,
@@ -1103,7 +1280,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                                 iconAlignment: IconAlignment.end,
                                 backgroundColor: WidgetStateColor.resolveWith((states) => Colors.brown)
                             ),
-                            label: Text("Affichez",
+                            label: Text("Affichez position",
                                 style: TextStyle(
                                     color: Colors.white
                                 )

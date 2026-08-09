@@ -20,6 +20,7 @@ class StatsBeanManager {
   final int livraisonCarte;
   final int totalApprenti;
   final int totalCompagnon;
+  final int totalProcesVerbal;
 
   const StatsBeanManager({
     required this.id,
@@ -43,6 +44,7 @@ class StatsBeanManager {
     required this.livraisonCarte,
     required this.totalApprenti,
     required this.totalCompagnon,
+    required this.totalProcesVerbal
   });
 
   factory StatsBeanManager.fromJson(Map<String, dynamic> json) {
@@ -67,6 +69,7 @@ class StatsBeanManager {
         livraisonCarte: json['livraison_carte'],
       totalApprenti: json['total_apprenti'],
       totalCompagnon: json['total_compagnon'],
+      totalProcesVerbal: json['total_proces_verbal'],
     );
   }
 
@@ -93,6 +96,7 @@ class StatsBeanManager {
     data['livraison_carte'] = livraisonCarte;
     data['total_apprenti'] = totalApprenti;
     data['total_compagnon'] = totalCompagnon;
+    data['total_proces_verbal'] = totalProcesVerbal;
     return data;
   }
 }

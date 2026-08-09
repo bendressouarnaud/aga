@@ -499,7 +499,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               confirmationLivraison: tampStats.confirmationLivraison,
             livraisonCarte: tampStats.livraisonCarte,
               totalApprenti: tampStats.totalApprenti,
-              totalCompagnon: tampStats.totalCompagnon
+              totalCompagnon: tampStats.totalCompagnon,
+              totalProcesVerbal: tampStats.totalProcesVerbal
           );
           // Reset :
           setOriginFromCallArtisan = 0;

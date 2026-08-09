@@ -1502,7 +1502,8 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                 confirmationLivraison: tampStats.confirmationLivraison,
                 livraisonCarte: tampStats.livraisonCarte,
                 totalApprenti: tampStats.totalApprenti,
-                totalCompagnon: tampStats.totalCompagnon
+                totalCompagnon: tampStats.totalCompagnon,
+                totalProcesVerbal: tampStats.totalProcesVerbal
             );
             // Reset :
             setOriginFromCallArtisan = 0;
