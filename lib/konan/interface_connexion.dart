@@ -6,15 +6,18 @@ import 'package:cnmci/konan/model/action_terrain.dart';
 import 'package:cnmci/konan/model/apprenti.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/classe.dart';
+import 'package:cnmci/konan/model/co_gerant.dart';
 import 'package:cnmci/konan/model/commune.dart';
 import 'package:cnmci/konan/model/compagnon.dart';
 import 'package:cnmci/konan/model/departement.dart';
 import 'package:cnmci/konan/model/diplome.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
+import 'package:cnmci/konan/model/gerant_entreprise.dart';
 import 'package:cnmci/konan/model/metier.dart';
 import 'package:cnmci/konan/model/niveau_etude.dart';
 import 'package:cnmci/konan/model/pays.dart';
 import 'package:cnmci/konan/model/quartier.dart';
+import 'package:cnmci/konan/model/requete_sql.dart';
 import 'package:cnmci/konan/model/sous_prefecture.dart';
 import 'package:cnmci/konan/model/statut_matrimonial.dart';
 import 'package:cnmci/konan/model/type_compte_bancaire.dart';
@@ -228,6 +231,7 @@ class _ConnexionViewState extends State<ConnexionView> {
     }
     finally{
       // Persist :
+      outil.deleteParameter();
       Parametre newParam = Parametre(id: 1,
           topicSubscription: 1, param1: 0, param2: 0, param3: '');
       outil.insertParameter(newParam);
@@ -285,6 +289,18 @@ class _ConnexionViewState extends State<ConnexionView> {
           for (ActionTerrain actionTerrain in donnee.actionterrains) {
             //
             actionTerrainControllerX.addItem(actionTerrain);
+          }
+          // CoGerant
+          for (CoGerant coGerant in donnee.cogerants) {
+            cogerantControllerX.addItem(coGerant);
+          }
+          // GerantEntreprise
+          for (GerantEntreprise gerantEntreprise in donnee.gerantentreprises) {
+            gerantEntrepriseControllerX.addItem(gerantEntreprise);
+          }
+          // RequeteSql
+          for (RequeteSql data in donnee.requetesql) {
+            requeteSqlControllerX.addItem(data);
           }
         }
         catch(e){

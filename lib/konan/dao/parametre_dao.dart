@@ -26,4 +26,10 @@ class ParametreDao {
         where: "id = ?", whereArgs: [data.id]);
     return result;
   }
+
+  Future<int> delete() async {
+    final db = await dbProvider.database;
+    var result = await db.delete("parametre");
+    return result;
+  }
 }

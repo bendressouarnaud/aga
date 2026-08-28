@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:cnmci/getxcontroller/action_terrain_controller_x.dart';
+import 'package:cnmci/getxcontroller/requete_sql_controller_x.dart';
 import 'package:cnmci/konan/interface_accueil.dart';
+import 'package:cnmci/konan/model/co_gerant.dart';
 import 'package:cnmci/konan/model/compagnon.dart';
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/classe.dart';
@@ -24,8 +26,10 @@ import 'package:get/get_core/src/get_main.dart';
 import 'firebase_options.dart';
 import 'getxcontroller/apprenti_controller_x.dart';
 import 'getxcontroller/artisan_controller_x.dart';
+import 'getxcontroller/cogerant_controller_x.dart';
 import 'getxcontroller/compagnon_controller_x.dart';
 import 'getxcontroller/entreprise_controller_x.dart';
+import 'getxcontroller/gerant_entreprise_controller_x.dart';
 import 'konan/beans/stats_bean_manager.dart';
 import 'konan/interface_connexion.dart';
 import 'konan/model/apprenti.dart';
@@ -65,12 +69,16 @@ int setOriginFromCallArtisan = 0;
 late Apprenti apprentiToManage;
 late Compagnon compagnonToManage;
 late Entreprise entrepriseToManage;
+late CoGerant coGerantToManage;
 
 late ArtisanControllerX artisanControllerX;
 late ApprentiControllerX apprentiControllerX;
 late CompagnonControllerX compagnonControllerX;
 late EntrepriseControllerX entrepriseControllerX;
+late CogerantControllerX cogerantControllerX;
+late GerantEntrepriseControllerX gerantEntrepriseControllerX;
 late ActionTerrainControllerX actionTerrainControllerX;
+late RequeteSqlControllerX requeteSqlControllerX;
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 bool addingExterneApprenti = false;
@@ -104,7 +112,10 @@ Future<void> main() async {
   apprentiControllerX = Get.put(ApprentiControllerX());
   compagnonControllerX = Get.put(CompagnonControllerX());
   entrepriseControllerX = Get.put(EntrepriseControllerX());
+  cogerantControllerX = Get.put(CogerantControllerX());
+  gerantEntrepriseControllerX = Get.put(GerantEntrepriseControllerX());
   actionTerrainControllerX = Get.put(ActionTerrainControllerX());
+  requeteSqlControllerX = Get.put(RequeteSqlControllerX());
 
   // Pick DATA :
   globalUser = await outil.findUser();
@@ -162,7 +173,7 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate
         ],
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
       home: lesPays.isNotEmpty ? const InterfaceAccueil() : const ConnexionView(),
     );

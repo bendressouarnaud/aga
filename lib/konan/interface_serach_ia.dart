@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cnmci/konan/model/requete_sql.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:cnmci/main.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +30,22 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
   late BuildContext dialogContext;
   bool flagSendData = false;
   bool flagServerResponse = false;
+  //
+  RequeteSql? laRequeteSql;
+  TextEditingController laRequeteController = TextEditingController();
 
 
   // METHODS :
+  @override
+  void initState() {
+    super.initState();
+
+    requeteController.text = "";
+    laRequeteSql = requeteSqlControllerX.data.isNotEmpty ?
+    requeteSqlControllerX.data.first : null;
+    requeteController.text = laRequeteSql != null ? laRequeteSql!.phrase : "";
+  }
+
   void displayToast(String message) {
     Fluttertoast.showToast(
         msg: message,
@@ -274,13 +288,6 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    requeteController.text = "";
-  }
-
-  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
@@ -294,6 +301,35 @@ class _InterfaceSerachIa extends State<InterfaceSerachIa> {
         body: SingleChildScrollView(
           child: Column(
             children: [
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+                  child: DropdownMenu<RequeteSql>(
+                      width: MediaQuery.of(context).size.width,
+                      menuHeight: 250,
+                      initialSelection: laRequeteSql,
+                      controller: laRequeteController,
+                      hintText: "Historique des requêtes",
+                      requestFocusOnTap: false,
+                      enableSearch: false,
+                      enableFilter: false,
+                      label: const Text('Historique des requêtes'),
+                      // Initial Value
+                      onSelected: (RequeteSql? value) {
+                        setState(() {
+                          // Set value to 0
+                          requeteController.text = value!.phrase;
+                        });
+                      },
+                      dropdownMenuEntries:
+                      requeteSqlControllerX.data.map<DropdownMenuEntry<RequeteSql>>((RequeteSql menu) {
+                        return DropdownMenuEntry<RequeteSql>(
+                            value: menu,
+                            label: menu.phrase,
+                            leadingIcon: Icon(Icons.circle_outlined));
+                      }).toList()
+                  )
+              ),
               Container(
                   margin: const EdgeInsets.only(top: 20, left: 10, right: 10),
                   //alignment: Alignment.center,

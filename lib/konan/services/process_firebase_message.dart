@@ -1,6 +1,7 @@
 import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
 import 'package:cnmci/konan/model/quartier.dart';
+import 'package:cnmci/konan/model/requete_sql.dart';
 import 'package:cnmci/konan/repositories/quartier_repository.dart';
 import 'package:cnmci/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -744,6 +745,19 @@ class FirebaseProcessMessage{
           );
           entrepriseControllerX.updateData(updateEntreprise);
         }
+        break;
+
+      case 6:
+        try{
+          requeteSqlControllerX.addItem(
+              RequeteSql(
+                  id: int.parse(message.data['id']),
+                  phrase: message.data['phrase'],
+                  requete: message.data['requete']
+              )
+          );
+        }
+        catch(e){}
         break;
 
       default:

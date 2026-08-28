@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 8;
+  static final _databaseVersion = 9;
 
 
   // Make this a singleton class.
@@ -87,6 +87,10 @@ class DatabaseHelper {
         await _addLivraisonColumnsToEntitiesTable(db);
         break;
 
+      case 9:
+        await _addCoGerantObjects(db);
+        break;
+
       default:
         // todo
         break;
@@ -154,6 +158,22 @@ class DatabaseHelper {
     await db.execute("UPDATE entreprise SET statut_livraison = 0");
     await db.execute("UPDATE entreprise SET confirmation_livraison = 0");
     await db.execute("UPDATE entreprise SET photo_signature_livraison = ''");
+  }
+
+  Future _addCoGerantObjects(Database db) async {
+    // CO_GERANT
+    await db.execute('CREATE TABLE co_gerant (id INTEGER PRIMARY KEY, '
+        'civilite TEXT, nom TEXT, prenom TEXT, date_naissance TEXT, lieu_naissance INTEGER,'
+        'lieu_naissance_autre TEXT, nationalite INTEGER, statut_matrimonial INTEGER, type_document INTEGER,'
+        'numero_piece TEXT, piece_delivre INTEGER, date_emission_piece TEXT, commune_residence INTEGER,'
+        'quartier_residence TEXT, adresse_postal TEXT, contact1 TEXT, contact2 TEXT, email TEXT,'
+        'qualification TEXT, livraison_carte integer, piece_identite_recto TEXT, piece_identite_verso TEXT,'
+        'optin_mail int, optin_sms int, optin_whatsapp int, signature TEXT)');
+    // GERANT_ENTREPRISE
+    await db.execute('CREATE TABLE gerant_entreprise (id INTEGER PRIMARY KEY,'
+        'actif integer, co_gerant INTEGER, entreprise INTEGER)');
+    // Requete_SQL
+    await db.execute('CREATE TABLE requete_sql (id INTEGER PRIMARY KEY, phrase TEXT, requete TEXT)');
   }
 
   Future _createDatabase(Database db) async {

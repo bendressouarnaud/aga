@@ -17,10 +17,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../getxcontroller/apprenti_controller_x.dart';
 import '../getxcontroller/compagnon_controller_x.dart';
+import '../getxcontroller/gerant_entreprise_controller_x.dart';
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
+import 'historique/historique_cogerant.dart';
+import 'interface_cogerant_personne.dart';
 import 'interface_entreprise.dart';
 import 'interface_signature.dart';
 import 'model/entreprise.dart';
@@ -600,6 +603,98 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                                   )
                               )
                             ],
+                          ),
+                        ),
+
+                        Container(
+                          alignment: Alignment.topLeft,
+                          margin: EdgeInsets.only(right: 10, left: 10, top: 40),
+                          child: Text('Gestion des cogérants',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+
+                        Container(
+                          margin: EdgeInsets.only(right: 10, left: 10, top: 5),
+                          child: Divider(
+                            height: 3,
+                          ),
+                        ),
+
+                        GestureDetector(
+                          onTap: (){
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+
+                                  return HistoriqueCogerant(
+                                      entrepriseId: widget.entreprise.id
+                                  );
+
+                                  return InterfaceCogerantPersonne(
+                                      coGerant: null,
+                                      entrepriseId: widget.entreprise.id
+                                  );
+                                })
+                            );
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(5),
+                            height: 100,
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topRight,
+                                  end: Alignment.bottomLeft,
+                                  colors: [
+                                    Colors.blue.shade100,
+                                    Colors.red.shade50,
+                                  ],
+                                ),
+                                //color: Colors.brown[100],
+                                borderRadius: BorderRadius.circular(8.0)
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.people_alt,
+                                  size: 50,
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('Cogérant(s)',
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                    GetBuilder<GerantEntrepriseControllerX>(
+                                        builder: (gerantEntrepriseControllerX) {
+                                          // Process :
+                                          var totalCogerant = gerantEntrepriseControllerX.data.where(
+                                                  (a) => a.entreprise == widget.entreprise.id
+                                          ).toList().length;
+
+                                          return Text('   ($totalCogerant)',
+                                              style: TextStyle(
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold
+                                              )
+                                          );
+                                        }
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
 

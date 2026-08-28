@@ -106,6 +106,10 @@ class Outil {
     await _parametreRepository.insert(param);
   }
 
+  void deleteParameter() async{
+    await _parametreRepository.delete();
+  }
+
   void updateParameter(Parametre param) async{
     await _parametreRepository.update(param);
   }
