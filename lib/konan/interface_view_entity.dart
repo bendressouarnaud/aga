@@ -83,90 +83,107 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
 
   void displayAmount(int amountToPay){
     // Depending on the amount to PAY, adjust the list :
-    var amountsToDisplay = lesGenericLivraisons.where((amount) => amountToPay >= amount.valeur).toList();
-    valeurParDefaut = amountsToDisplay.first.valeur;
+    if(statsBeanManager.paiement != 2) {
+      var amountsToDisplay = lesGenericLivraisons.where((
+          amount) => amountToPay >= amount.valeur).toList();
+      valeurParDefaut = amountsToDisplay.first.valeur;
 
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          dialogContext = context;
-          return AlertDialog(
-              title: Text('Sélectionner un montant'),
-              content: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
-                width: MediaQuery.of(context).size.width, // 400
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      RadioGroup<int>(
-                          onChanged: (int? value) {
-                            valeurParDefaut = value!;
-                            Navigator.pop(dialogContext);
-                            displayDataRequesting(
-                                paiementFraisLivraison ? (valeurParDefaut + 1500) : valeurParDefaut
-                            );
-                          },
-                          child: ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: amountsToDisplay.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return ListTile(
-                                  title: Text(amountsToDisplay[index].libelle,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20
-                                    ),
-                                  ),
-                                  leading: Radio<int>(value: amountsToDisplay[index].valeur),
-                                );
-                              }
-                          )
-                      ),
-                      SizedBox(
-                        height: 25,
-                      ),
-
-                      Visibility(
-                          visible: paiementFraisLivraison,
-                          child: Text('+ 1.500 FCFA (Livraison)',
-                            style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold
-                            ),
-                          )
-                      ),
-
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10, top: 20),
-                        child: ElevatedButton.icon(
-                            style: ButtonStyle(
-                                backgroundColor: WidgetStateColor.resolveWith((states) => Colors.orange)
-                            ),
-                            label: Text("Fermer",
-                                style: const TextStyle(
-                                    color: Colors.white
-                                )
-                            ),
-                            onPressed: () {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            dialogContext = context;
+            return AlertDialog(
+                title: Text('Sélectionner un montant'),
+                content: SizedBox(
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.4,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width, // 400
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        RadioGroup<int>(
+                            onChanged: (int? value) {
+                              valeurParDefaut = value!;
                               Navigator.pop(dialogContext);
+                              displayDataRequesting(
+                                  paiementFraisLivraison ? (valeurParDefaut +
+                                      1500) : valeurParDefaut
+                              );
                             },
-                            icon: Icon(
-                              Icons.close,
-                              size: 20,
-                              color: Colors.white,
+                            child: ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: amountsToDisplay.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return ListTile(
+                                    title: Text(amountsToDisplay[index].libelle,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20
+                                      ),
+                                    ),
+                                    leading: Radio<int>(
+                                        value: amountsToDisplay[index].valeur),
+                                  );
+                                }
                             )
                         ),
-                      )
-                    ],
+                        SizedBox(
+                          height: 25,
+                        ),
+
+                        Visibility(
+                            visible: paiementFraisLivraison,
+                            child: Text('+ 1.500 FCFA (Livraison)',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            )
+                        ),
+
+                        Container(
+                          margin: EdgeInsets.only(bottom: 10, top: 20),
+                          child: ElevatedButton.icon(
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateColor
+                                      .resolveWith((states) => Colors.orange)
+                              ),
+                              label: Text("Fermer",
+                                  style: const TextStyle(
+                                      color: Colors.white
+                                  )
+                              ),
+                              onPressed: () {
+                                Navigator.pop(dialogContext);
+                              },
+                              icon: Icon(
+                                Icons.close,
+                                size: 20,
+                                color: Colors.white,
+                              )
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              )
-          );
-        }
-    );
+                )
+            );
+          }
+      );
+    }
+    else{
+      // DEFAULT for PAYMENT :
+      paiementFraisLivraison = true;
+      displayDataRequesting(1500);
+    }
   }
 
   void displayEntityRequesting(int id){
@@ -540,7 +557,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
             "requester": getAppropriatePrefix(statsBeanManager.type),
             "amount": montant,
             "choix": 0,
-            "payment_type": paiementFraisLivraison ? 2 : 0
+            "payment_type": statsBeanManager.paiement != 2 ? (paiementFraisLivraison ? 2 : 0) : 1
           })
       ).timeout(const Duration(seconds: timeOutValue));
       if(response.statusCode == 200){
@@ -1092,21 +1109,23 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                   margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   alignment: Alignment.center,
                   child: Visibility(
-                      visible: statsBeanManager.paiement != 2,
+                      visible: statsBeanManager.paiement != 2 ||
+                          (statsBeanManager.paiement == 2 &&
+                              (statsBeanManager.livraisonCarte == 1 && statsBeanManager.statutLivraison == 0)),
                       child: ElevatedButton.icon(
                         style: ButtonStyle(
                             backgroundColor: WidgetStateColor.resolveWith((states) => Colors.green)
                         ),
-                        label: Text("Régularisation (${statsBeanManager.montant} CFA)",
+                        label: Text("${statsBeanManager.paiement != 2 ? 'Régularisation' : 'Frais de livraison'} (${statsBeanManager.paiement != 2 ? statsBeanManager.montant : 1500} CFA)",
                             style: TextStyle(
                                 color: Colors.white
                             )),
                         onLongPress: () {
                           openLocalWaveApplication = true;
-                          displayAmount(statsBeanManager.montant);
+                          displayAmount(statsBeanManager.paiement != 2 ? statsBeanManager.montant : 1500);
                         },
                         onPressed: () async {
-                          displayAmount(statsBeanManager.montant);
+                          displayAmount(statsBeanManager.paiement != 2 ? statsBeanManager.montant : 1500);
                           //displayDataRequesting();
                         },
                         icon: const Icon(
