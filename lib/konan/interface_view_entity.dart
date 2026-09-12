@@ -50,6 +50,7 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   int amountToPay = 0;
   String paymentUrl = "";
   List<GenericDataAmount> lesGenericLivraisons = [
+    GenericDataAmount(libelle: '1000 CFA', valeur: 1000, active: true),
     GenericDataAmount(libelle: '3000 CFA', valeur: 3000, active: true),
     GenericDataAmount(libelle: '5000 CFA', valeur: 5000, active: true),
     GenericDataAmount(libelle: '10000 CFA', valeur: 10000, active: true),
