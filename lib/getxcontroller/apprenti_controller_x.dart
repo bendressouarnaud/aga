@@ -26,6 +26,14 @@ class ApprentiControllerX extends GetxController {
     update();
   }
 
+  Future<void> cleanAndRefreshData() async{
+    data.clear();
+    var tmp = await _repository.findAll();
+    tmp.sort((a,b) => b.id.compareTo(a.id)); // Reversed
+    data.addAll(tmp);
+    update();
+  }
+
   void addItem(Apprenti data) async{
     this.data.add(data);
     this.data.sort((a,b) => b.id.compareTo(a.id)); // Reversed

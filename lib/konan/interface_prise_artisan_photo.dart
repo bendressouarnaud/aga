@@ -1525,14 +1525,14 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
         }
       }
       on ClientException catch(e){
-        persistLocally();
+        displayToast("Enregistrement impossible. Veuillez vérifier votre connexion !");
       }
       on TimeoutException catch(e){
-        persistLocally();
+        displayToast("Impossible d'enregistrer la donnée. Le serveur a mis trop de temps à répondre !");
       }
       catch (e) {
-        persistLocally();
-        //displayToast("Impossible de traiter les données de référence : $e");
+        //persistLocally();
+        displayToast("Enregistrement impossible, une erreur est survenue : $e");
       } finally {
         streamGps = false;
         flagServerResponse = false;

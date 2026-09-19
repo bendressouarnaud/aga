@@ -38,7 +38,7 @@ class _WidgetAccueil extends State<WidgetAccueil> {
         currentDateTime.day == fromDatabase.day;
   }
 
-  Future<int> getAppropriateCrmId() async {
+  /*Future<int> getAppropriateCrmId() async {
     if(globalUser!.crm == -1) {
       try {
         var localToken = await MesServices().checkJwtExpiration();
@@ -80,307 +80,315 @@ class _WidgetAccueil extends State<WidgetAccueil> {
     else{
       return globalUser!.crm;
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-          future: Future.wait([getAppropriateCrmId()]),
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
-            if(snapshot.connectionState == ConnectionState.done && snapshot.hasData){
-              return SingleChildScrollView(
-                  child: Column(
-                    children: [
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          // Réacutaliser :
+          artisanControllerX.cleanAndRefreshData();
+          apprentiControllerX.cleanAndRefreshData();
+          compagnonControllerX.cleanAndRefreshData();
+          entrepriseControllerX.cleanAndRefreshData();
+        },
+        backgroundColor: Colors.blue,
+        tooltip: 'Continuer',
+        label: Text('Rafraîchir',
+          style: const TextStyle(
+              color: Colors.white
+          ),
+        ),
+        icon: const Icon(
+          Icons.sync,
+          color: Colors.white,
+        ),
+      ),
+      body: SingleChildScrollView(
+          child: Column(
+            children: [
 
-                      Container(
-                        margin: EdgeInsets.only(top: 10),
-                        height: 450,
-                        child: GridView.count(
-                          primary: false,
-                          padding: const EdgeInsets.all(10),
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          crossAxisCount: 2,
-                          children: <Widget>[
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color: Colors.brown[50],
-                                  borderRadius: BorderRadius.circular(8.0)
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.person,
-                                    size: 60,),
-                                  Text('Artisan',
+              Container(
+                margin: EdgeInsets.only(top: 10),
+                height: 450,
+                child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.all(10),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 2,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Colors.brown[50],
+                          borderRadius: BorderRadius.circular(8.0)
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person,
+                            size: 60,),
+                          Text('Artisan',
+                            style: TextStyle(
+                                fontSize: 25
+                            ),),
+                          GetBuilder<ArtisanControllerX>(
+                              builder: (artisanControllerX){
+                                artisanDuJour = artisanControllerX.data.where((d) =>
+                                checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                                    DateTime.now()) == true).length;
+                                donnesDuJour += artisanDuJour;
+                                return Text('${artisanControllerX.data.length}',
                                     style: TextStyle(
                                         fontSize: 25
-                                    ),),
-                                  GetBuilder<ArtisanControllerX>(
-                                      builder: (artisanControllerX){
-                                        artisanDuJour = artisanControllerX.data.where((d) =>
-                                        checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                            DateTime.now()) == true).length;
-                                        donnesDuJour += artisanDuJour;
-                                        return Text('${artisanControllerX.data.length}',
-                                            style: TextStyle(
-                                                fontSize: 25
-                                            )
-                                        );
-                                      }
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: Colors.brown[100],
-                                    borderRadius: BorderRadius.circular(8.0)
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.people_alt,
-                                      size: 60,),
-                                    Text('Apprenti',
+                                    )
+                                );
+                              }
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            color: Colors.brown[100],
+                            borderRadius: BorderRadius.circular(8.0)
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.people_alt,
+                              size: 60,),
+                            Text('Apprenti',
+                              style: TextStyle(
+                                  fontSize: 25
+                              ),),
+                            GetBuilder<ApprentiControllerX>(
+                                builder: (apprentiControllerX){
+                                  apprentiDuJour = apprentiControllerX.data.where((d) =>
+                                  checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                                      DateTime.now()) == true).length;
+                                  donnesDuJour += apprentiDuJour;
+                                  return Text('${apprentiControllerX.data.length}',
                                       style: TextStyle(
                                           fontSize: 25
-                                      ),),
-                                    GetBuilder<ApprentiControllerX>(
-                                        builder: (apprentiControllerX){
-                                          apprentiDuJour = apprentiControllerX.data.where((d) =>
-                                          checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                              DateTime.now()) == true).length;
-                                          donnesDuJour += apprentiDuJour;
-                                          return Text('${apprentiControllerX.data.length}',
-                                              style: TextStyle(
-                                                  fontSize: 25
-                                              )
-                                          );
-                                        }
-                                    )
-                                  ],
+                                      )
+                                  );
+                                }
+                            )
+                          ],
+                        )
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8.0)
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.people_outline_outlined,
+                              size: 60,),
+                            Text('Compagnon',
+                              style: TextStyle(
+                                  fontSize: 25
+                              ),),
+                            GetBuilder<CompagnonControllerX>(
+                                builder: (compagnonControllerX){
+                                  compagnonDuJour = compagnonControllerX.data.where((d) =>
+                                  checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                                      DateTime.now()) == true).length;
+                                  donnesDuJour += compagnonDuJour;
+                                  return Text('${compagnonControllerX.data.length}',
+                                      style: TextStyle(
+                                          fontSize: 25
+                                      )
+                                  );
+                                }
+                            )
+                          ],
+                        )
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8.0)
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.warehouse,
+                              size: 60,),
+                            Text('Entreprise',
+                              style: TextStyle(
+                                  fontSize: 25
+                              ),),
+                            GetBuilder<EntrepriseControllerX>(
+                                builder: (entrepriseControllerX){
+                                  entrepriseDuJour = entrepriseControllerX.data.where((d) =>
+                                  checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                                      DateTime.now()) == true).length;
+                                  donnesDuJour += entrepriseDuJour;
+                                  return Text('${entrepriseControllerX.data.length}',
+                                      style: TextStyle(
+                                          fontSize: 25
+                                      )
+                                  );
+                                }
+                            )
+                          ],
+                        )
+                    )
+                  ],
+                ),
+              ),
+
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+                  child: Text('Statistiques du jour',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20
+                      )
+                  )
+              ),
+
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+                  child: Divider(
+                    height: 3,
+                    color: Colors.black,
+                  )
+              ),
+
+              GetBuilder(
+                  builder: (ArtisanControllerX dataX){
+
+                    artisanDuJour = dataX.data.where((d) =>
+                    checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                        DateTime.now()) == true).length;
+
+                    return Container(
+                        alignment: Alignment.topLeft,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(top: 15, left: 10, right: 10),
+                        child: Row(
+                          children: [
+                            Text('Artisan(s) : ',
+                                style: TextStyle(
+                                    fontSize: 20
                                 )
-                            ),
-                            Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(8.0)
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.people_outline_outlined,
-                                      size: 60,),
-                                    Text('Compagnon',
-                                      style: TextStyle(
-                                          fontSize: 25
-                                      ),),
-                                    GetBuilder<CompagnonControllerX>(
-                                        builder: (compagnonControllerX){
-                                          compagnonDuJour = compagnonControllerX.data.where((d) =>
-                                          checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                              DateTime.now()) == true).length;
-                                          donnesDuJour += compagnonDuJour;
-                                          return Text('${compagnonControllerX.data.length}',
-                                              style: TextStyle(
-                                                  fontSize: 25
-                                              )
-                                          );
-                                        }
-                                    )
-                                  ],
-                                )
-                            ),
-                            Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8.0)
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.warehouse,
-                                      size: 60,),
-                                    Text('Entreprise',
-                                      style: TextStyle(
-                                          fontSize: 25
-                                      ),),
-                                    GetBuilder<EntrepriseControllerX>(
-                                        builder: (entrepriseControllerX){
-                                          entrepriseDuJour = entrepriseControllerX.data.where((d) =>
-                                          checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                              DateTime.now()) == true).length;
-                                          donnesDuJour += entrepriseDuJour;
-                                          return Text('${entrepriseControllerX.data.length}',
-                                              style: TextStyle(
-                                                  fontSize: 25
-                                              )
-                                          );
-                                        }
-                                    )
-                                  ],
+                            ),Text('$artisanDuJour',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
                                 )
                             )
                           ],
-                        ),
-                      ),
+                        )
+                    );
+                  }
+              ),
 
-                      Container(
-                          width: MediaQuery.of(context).size.width,
-                          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-                          child: Text('Statistiques du jour',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20
-                              )
-                          )
-                      ),
+              GetBuilder(
+                  builder: (ApprentiControllerX dataX){
 
-                      Container(
-                          width: MediaQuery.of(context).size.width,
-                          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-                          child: Divider(
-                            height: 3,
-                            color: Colors.black,
-                          )
-                      ),
+                    apprentiDuJour = dataX.data.where((d) =>
+                    checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                        DateTime.now()) == true).length;
 
-                      GetBuilder(
-                          builder: (ArtisanControllerX dataX){
-
-                            artisanDuJour = dataX.data.where((d) =>
-                            checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                DateTime.now()) == true).length;
-
-                            return Container(
-                                alignment: Alignment.topLeft,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.only(top: 15, left: 10, right: 10),
-                                child: Row(
-                                  children: [
-                                    Text('Artisan(s) : ',
-                                        style: TextStyle(
-                                            fontSize: 20
-                                        )
-                                    ),Text('$artisanDuJour',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    )
-                                  ],
+                    return Container(
+                        alignment: Alignment.topLeft,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(top: 15, left: 10, right: 10),
+                        child: Row(
+                          children: [
+                            Text('Apprenti(s) : ',
+                                style: TextStyle(
+                                    fontSize: 20
                                 )
-                            );
-                          }
-                      ),
-
-                      GetBuilder(
-                          builder: (ApprentiControllerX dataX){
-
-                            apprentiDuJour = dataX.data.where((d) =>
-                            checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                DateTime.now()) == true).length;
-
-                            return Container(
-                                alignment: Alignment.topLeft,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.only(top: 15, left: 10, right: 10),
-                                child: Row(
-                                  children: [
-                                    Text('Apprenti(s) : ',
-                                        style: TextStyle(
-                                            fontSize: 20
-                                        )
-                                    ),Text('$apprentiDuJour',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    )
-                                  ],
+                            ),Text('$apprentiDuJour',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
                                 )
-                            );
-                          }
-                      ),
+                            )
+                          ],
+                        )
+                    );
+                  }
+              ),
 
-                      GetBuilder(
-                          builder: (CompagnonControllerX dataX){
+              GetBuilder(
+                  builder: (CompagnonControllerX dataX){
 
-                            compagnonDuJour = dataX.data.where((d) =>
-                            checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                DateTime.now()) == true).length;
+                    compagnonDuJour = dataX.data.where((d) =>
+                    checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                        DateTime.now()) == true).length;
 
-                            return Container(
-                                alignment: Alignment.topLeft,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.only(top: 15, left: 10, right: 10),
-                                child: Row(
-                                  children: [
-                                    Text('Compagnon(s) : ',
-                                        style: TextStyle(
-                                            fontSize: 20
-                                        )
-                                    ),Text('$compagnonDuJour',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    )
-                                  ],
+                    return Container(
+                        alignment: Alignment.topLeft,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(top: 15, left: 10, right: 10),
+                        child: Row(
+                          children: [
+                            Text('Compagnon(s) : ',
+                                style: TextStyle(
+                                    fontSize: 20
                                 )
-                            );
-                          }
-                      ),
-
-                      GetBuilder(
-                          builder: (EntrepriseControllerX dataX){
-
-                            entrepriseDuJour = dataX.data.where((d) =>
-                            checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
-                                DateTime.now()) == true).length;
-
-                            return Container(
-                                alignment: Alignment.topLeft,
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.only(top: 15, left: 10, right: 10),
-                                child: Row(
-                                  children: [
-                                    Text('Entreprise(s) : ',
-                                        style: TextStyle(
-                                            fontSize: 20
-                                        )
-                                    ),Text('$entrepriseDuJour',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    )
-                                  ],
+                            ),Text('$compagnonDuJour',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
                                 )
-                            );
-                          }
-                      ),
+                            )
+                          ],
+                        )
+                    );
+                  }
+              ),
 
-                    ],
-                  )
-              );
-            }
-            else{
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          }
+              GetBuilder(
+                  builder: (EntrepriseControllerX dataX){
+
+                    entrepriseDuJour = dataX.data.where((d) =>
+                    checkDateTime(DateTime.fromMillisecondsSinceEpoch(d.millisecondes),
+                        DateTime.now()) == true).length;
+
+                    return Container(
+                        alignment: Alignment.topLeft,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(top: 15, left: 10, right: 10),
+                        child: Row(
+                          children: [
+                            Text('Entreprise(s) : ',
+                                style: TextStyle(
+                                    fontSize: 20
+                                )
+                            ),Text('$entrepriseDuJour',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold
+                                )
+                            )
+                          ],
+                        )
+                    );
+                  }
+              ),
+
+            ],
+          )
       )
     );
   }
