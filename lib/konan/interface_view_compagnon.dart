@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
 import 'beans/generic_data_amount.dart';
+import 'beans/payment_livraison_status.dart';
 import 'beans/wave_payment_response.dart';
 import 'interface_compagnon_personne.dart';
 import 'objets/constants.dart';
@@ -326,12 +327,163 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
     Navigator.pop(context);
   }
 
+  void displayWaintingForStatusPayment(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        }
+    );
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    getStatusPayment();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (flagSendData) {
+            // Open WEBVIEW :
+            displayToast('Impossible d\'obtenir le statut');
+          }
+        }
+      },
+    );
+  }
+
+  // Pick PAYMENT STATUS :
+  Future<void> getStatusPayment() async {
+    // Reset :
+    //statutPaiement = 0;
+
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}get-status-payment');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id": compagnonToManage.id,
+            "requester": "COM",
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        PaymentLivraisonStatus paymentLivraisonStatus = PaymentLivraisonStatus.fromJson(json.decode(response.body));
+        // Update this :
+        Compagnon updateCompagnon = Compagnon(
+            id: compagnonToManage.id,
+            nom: compagnonToManage.nom,
+            prenom: compagnonToManage.prenom,
+            civilite: compagnonToManage.civilite,
+            date_naissance: compagnonToManage.date_naissance,
+            numero_immatriculation: compagnonToManage.numero_immatriculation,
+            lieu_naissance_autre: compagnonToManage.lieu_naissance_autre,
+            lieu_naissance: compagnonToManage.lieu_naissance,
+            nationalite: compagnonToManage.nationalite,
+            sexe: '',
+            type_document: compagnonToManage.type_document,
+            niveau_etude: compagnonToManage.niveau_etude,
+            specialite: compagnonToManage.specialite,
+            classe: compagnonToManage.classe,
+            diplome: compagnonToManage.diplome,
+            apprentissage_metier: compagnonToManage.apprentissage_metier,
+            date_debut_compagnonnage: compagnonToManage.date_debut_compagnonnage,
+            commune_residence: compagnonToManage.commune_residence,
+            quartier_residence: compagnonToManage.quartier_residence,
+            adresse_postal: compagnonToManage.adresse_postal,
+            numero_piece: compagnonToManage.numero_piece,
+            piece_delivre: compagnonToManage.piece_delivre,
+            date_emission_piece: compagnonToManage.date_emission_piece,
+            photo: compagnonToManage.photo,
+            photo_cni_recto: compagnonToManage.photo_cni_recto,
+            photo_cni_verso: compagnonToManage.photo_cni_verso,
+            photo_diplome: compagnonToManage.photo_diplome,
+            photoAutre: compagnonToManage.photoAutre,
+            contact1: compagnonToManage.contact1,
+            contact2: compagnonToManage.contact2,
+            email: compagnonToManage.email,
+            statut_kyc: compagnonToManage.statut_kyc,
+            statut_paiement: paymentLivraisonStatus.statutPaiement,
+            longitude: compagnonToManage.longitude,
+            latitude: compagnonToManage.latitude,
+            cnps: compagnonToManage.cnps,
+            cmu: compagnonToManage.cmu,
+            artisan_id: compagnonToManage.artisan_id,
+            entreprise_id: compagnonToManage.entreprise_id,
+            millisecondes: compagnonToManage.millisecondes,
+            statut_compagnon: compagnonToManage.statut_compagnon,
+            livraisonCarte: compagnonToManage.livraisonCarte,
+
+            optinMail: compagnonToManage.optinMail,
+            optinSms: compagnonToManage.optinSms,
+            optinWhatsapp: compagnonToManage.optinWhatsapp,
+            confirmationLivraison: paymentLivraisonStatus.confirmationLivraison,
+            photoSignatureLivraison: compagnonToManage.photoSignatureLivraison,
+            statutLivraison: paymentLivraisonStatus.statutLivraison
+        );
+        // Update 'APPRENTI :
+        compagnonControllerX.updateData(updateCompagnon);
+        flagSendData = false;
+      }
+    }
+    catch(e){}
+    finally{
+      flagServerResponse = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(widget.compagnon.nom),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    displayWaintingForStatusPayment();
+                  },
+                  icon: Icon(Icons.sync
+                    , color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  )
+              )
+            ]
         ),
         body: FutureBuilder(
             future: Future.wait([getAmountToPay()]),

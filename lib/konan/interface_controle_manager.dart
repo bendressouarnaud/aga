@@ -140,7 +140,9 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
               });
             },
             selectedIndex: currentPageIndex,
-            destinations: globalUser!.profil == "ROLE_AGENT_ENROLEMENT" ? [
+            destinations:
+              (globalUser!.profil == "ROLE_AGENT_ENROLEMENT" ||
+                  globalUser!.profil == "ROLE_AGENT_CONTROLE") ? [
               NavigationDestination(
                 selectedIcon: Icon(Icons.show_chart), //Icon(Icons.announcement),
                 icon: Icon(Icons.show_chart_outlined),//Icon(Icons.announcement_outlined),
@@ -175,7 +177,8 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
             ]
         ),
       appBar: AppBar(
-        title: globalUser!.profil != "ROLE_AGENT_ENROLEMENT" ? Text(currentPageIndex < 3 ?
+        title: (globalUser!.profil != "ROLE_AGENT_ENROLEMENT" &&
+            globalUser!.profil != "ROLE_AGENT_CONTROLE") ? Text(currentPageIndex < 3 ?
           "Statistiques" : "Historique",
           textAlign: TextAlign.left,
         ) :
@@ -184,7 +187,8 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
         ),
         actions: [
           Visibility(
-            visible: globalUser!.profil != "ROLE_AGENT_ENROLEMENT" && currentPageIndex == 3,
+            visible: (globalUser!.profil != "ROLE_AGENT_ENROLEMENT" &&
+                globalUser!.profil != "ROLE_AGENT_CONTROLE") && currentPageIndex == 3,
               child: IconButton(
                   onPressed: () {
                     displayWaintingForStatusPayment();
@@ -195,7 +199,8 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
         ],
       ),
 
-      body: globalUser!.profil != "ROLE_AGENT_ENROLEMENT" ? <Widget>[
+      body: (globalUser!.profil != "ROLE_AGENT_ENROLEMENT" &&
+          globalUser!.profil != "ROLE_AGENT_CONTROLE") ? <Widget>[
         FutureBuilder(
           future: Future.wait([getStatsBean(), getDailyPayment()]),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
@@ -544,7 +549,6 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
     );
 
   }
-
 
   LineChartData mainData() {
     return LineChartData(

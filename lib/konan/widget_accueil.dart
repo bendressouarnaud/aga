@@ -85,7 +85,7 @@ class _WidgetAccueil extends State<WidgetAccueil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      /*floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           // Réacutaliser :
           artisanControllerX.cleanAndRefreshData();
@@ -104,7 +104,7 @@ class _WidgetAccueil extends State<WidgetAccueil> {
           Icons.sync,
           color: Colors.white,
         ),
-      ),
+      ),*/
       body: SingleChildScrollView(
           child: Column(
             children: [

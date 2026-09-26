@@ -83,6 +83,7 @@ class _HistoriqueEntreprise extends State<HistoriqueEntreprise> {
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
+                            entrepriseToManage = currentData[index];
                             return InterfaceViewEntreprise(entreprise: currentData[index]);
                           })
                       );

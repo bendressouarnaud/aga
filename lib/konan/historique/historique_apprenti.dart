@@ -107,6 +107,7 @@ class _HistoriqueApprenti extends State<HistoriqueApprenti> {
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
+                            apprentiToManage = currentData[index];
                             return InterfaceViewApprenti(apprenti: currentData[index]);
                           })
                       );

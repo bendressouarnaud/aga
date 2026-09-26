@@ -1918,10 +1918,11 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       ),
       Container(
           alignment: Alignment.topLeft,
-          margin: EdgeInsets.only(top: 20, left: 10),
+          //margin: EdgeInsets.only(top: 20, left: 10),
           width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
           child: SizedBox(
-            width: (MediaQuery.of(context).size.width / 2) - 20,
+            //width: (MediaQuery.of(context).size.width / 2) - 20,
             child: TextField(
               onChanged: (value) {
                 setState(() {
@@ -1940,7 +1941,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                   Colors.red : Colors.black, width: 1.0),
                 ),
                 border: OutlineInputBorder(),
-                labelText: 'Chiffre d\'affaire',
+                labelText: 'Chiffre d\'affaire MENSUEL',
               ),
               style: const TextStyle(
                   height: 1.5
@@ -1949,6 +1950,18 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               textAlign: TextAlign.center,
               textInputAction: TextInputAction.next,
             ),
+          )
+      ),
+      Visibility(
+          visible: chiffreAffaireController.text.replaceAll(',', '').trim().length < 5 ,
+          child: Container(
+              padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+              child: Text('Le chiffre d\'affaire doit être supérieur 9990 f',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold
+              ),
+              )
           )
       ),
       Container(

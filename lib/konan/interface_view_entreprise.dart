@@ -20,6 +20,7 @@ import '../getxcontroller/compagnon_controller_x.dart';
 import '../getxcontroller/gerant_entreprise_controller_x.dart';
 import '../main.dart';
 import 'beans/enrolement_amount_to_pay.dart';
+import 'beans/payment_livraison_status.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
 import 'historique/historique_cogerant.dart';
@@ -225,6 +226,156 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
     Navigator.pop(context);
   }
 
+  void displayWaintingForStatusPayment(){
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return PopScope(
+              canPop: false,
+              child: AlertDialog(
+                  title: Text('Information'),
+                  content: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          Text('Veuillez patienter ...'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child:
+                              CircularProgressIndicator(
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(Colors.blue),
+                                strokeWidth: 3.0,
+                              ))
+                        ],
+                      )
+                  )
+              )
+          );
+        }
+    );
+
+    flagSendData = true;
+    flagServerResponse = true;
+
+    getStatusPayment();
+
+    Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (!flagServerResponse) {
+          Navigator.pop(dialogContext);
+          timer.cancel();
+
+          if (flagSendData) {
+            // Open WEBVIEW :
+            displayToast('Impossible d\'obtenir le statut');
+          }
+        }
+      },
+    );
+  }
+
+  // Pick PAYMENT STATUS :
+  Future<void> getStatusPayment() async {
+    // Reset :
+    //statutPaiement = 0;
+
+    try{
+      var localToken = await MesServices().checkJwtExpiration();
+      final url = Uri.parse('${dotenv.env['URL_BACKEND']}get-status-payment');
+      var response = await post(url,
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $localToken'
+          },
+          body: jsonEncode({
+            "id": entrepriseToManage.id,
+            "requester": "ENT",
+          })
+      ).timeout(const Duration(seconds: timeOutValue));
+      if(response.statusCode == 200){
+        PaymentLivraisonStatus paymentLivraisonStatus = PaymentLivraisonStatus.fromJson(json.decode(response.body));
+        // Update this :
+        Entreprise updateEntreprise = Entreprise(
+            id: entrepriseToManage.id,
+            crm: entrepriseToManage.crm,
+            departement: entrepriseToManage.departement,
+            sous_prefecture: entrepriseToManage.sous_prefecture,
+            civilite: entrepriseToManage.civilite,
+            nom: entrepriseToManage.nom,
+            prenom: entrepriseToManage.prenom,
+            date_naissance: entrepriseToManage.date_naissance,
+            lieu_naissance: entrepriseToManage.lieu_naissance,
+            lieu_naissance_autre: entrepriseToManage.lieu_naissance_autre,
+            nationalite: entrepriseToManage.nationalite,
+            statut_matrimonial: entrepriseToManage.statut_matrimonial,
+            type_document: entrepriseToManage.type_document,
+            numero_piece: entrepriseToManage.numero_piece,
+            piece_delivre: entrepriseToManage.piece_delivre,
+            date_emission_piece: entrepriseToManage.date_emission_piece,
+            commune_residence: entrepriseToManage.commune_residence,
+            quartier_residence: entrepriseToManage.quartier_residence,
+            adresse_postal: entrepriseToManage.adresse_postal,
+            contact1: entrepriseToManage.contact1,
+            contact2: entrepriseToManage.contact2,
+            email: entrepriseToManage.email,
+
+            forme_juridique: entrepriseToManage.forme_juridique,
+            activite_principale: entrepriseToManage.activite_principale,
+            activite_secondaire: entrepriseToManage.activite_secondaire,
+            denomination: entrepriseToManage.denomination,
+            sigle: entrepriseToManage.sigle,
+            date_creation: entrepriseToManage.date_creation,
+            objet_social: entrepriseToManage.objet_social,
+            rccm: entrepriseToManage.rccm,
+            date_rccm: entrepriseToManage.date_rccm,
+            capital_social: entrepriseToManage.capital_social,
+            regime_fiscal: entrepriseToManage.regime_fiscal,
+            duree_personne_morale: entrepriseToManage.duree_personne_morale,
+            cnps_entreprise: entrepriseToManage.cnps_entreprise,
+            compte_contribuable: entrepriseToManage.compte_contribuable,
+            total_associe: entrepriseToManage.total_associe,
+            commune_siege: entrepriseToManage.commune_siege,
+            quartier_siege: entrepriseToManage.quartier_siege,
+            lot: entrepriseToManage.lot,
+            telephone: entrepriseToManage.telephone,
+            statut_kyc: entrepriseToManage.statut_kyc,
+            statut_paiement: paymentLivraisonStatus.statutPaiement,
+            longitude: entrepriseToManage.longitude,
+            latitude: entrepriseToManage.latitude,
+            millisecondes: entrepriseToManage.millisecondes,
+            quartier_siege_id: entrepriseToManage.quartier_siege_id,
+            livraisonCarte: entrepriseToManage.livraisonCarte,
+
+            photoCniRecto: entrepriseToManage.photoCniRecto,
+            photoCniVerso: entrepriseToManage.photoCniVerso,
+            photoRegistreCommerce: entrepriseToManage.photoRegistreCommerce,
+            photoDfe: entrepriseToManage.photoDfe,
+            qualification: entrepriseToManage.qualification,
+
+            statutLivraison: paymentLivraisonStatus.statutLivraison,
+            confirmationLivraison: paymentLivraisonStatus.confirmationLivraison,
+            photoSignatureLivraison: entrepriseToManage.photoSignatureLivraison
+        );
+        // Update 'APPRENTI :
+        entrepriseControllerX.updateData(updateEntreprise);
+        flagSendData = false;
+      }
+    }
+    catch(e){}
+    finally{
+      flagServerResponse = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,7 +398,16 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
                     , color: Colors.black,
                     fontWeight: FontWeight.bold,
                   )
-              )
+              ),
+            IconButton(
+                onPressed: () {
+                  displayWaintingForStatusPayment();
+                },
+                icon: Icon(Icons.sync
+                  , color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                )
+            )
             ]
         ),
         body: FutureBuilder(

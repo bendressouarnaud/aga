@@ -105,6 +105,7 @@ class _HistoriqueCompagnon extends State<HistoriqueCompagnon> {
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
+                            compagnonToManage = currentData[index];
                             return InterfaceViewCompagnon(compagnon: currentData[index]);
                           })
                       );
