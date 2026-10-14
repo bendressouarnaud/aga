@@ -776,7 +776,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<GenericData>(
                   mode: Mode.form,
-                  onChanged: (GenericData? value) => {
+                  onSelected: (GenericData? value) => {
                     setState(() {
                       leStatutApprenti = value!;
                     })
@@ -845,7 +845,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<GenericData>(
                   mode: Mode.form,
-                  onChanged: (GenericData? value) => {
+                  onSelected: (GenericData? value) => {
                     setState(() {
                       laLivraison = value!;
                     })
@@ -985,7 +985,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
+                  onSelected: (Commune? value) => {
                     setState(() {
                       laCommune = value!;
                     })
@@ -1159,7 +1159,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
+                  onSelected: (Commune? value) => {
                     laVilleResidence = value!
                   },
                   compareFn: (Commune? a, Commune? b){
@@ -1431,7 +1431,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Metier>(
                   mode: Mode.form,
-                  onChanged: (Metier? value) => {
+                  onSelected: (Metier? value) => {
                     laSpecialite = value!
                   },
                   compareFn: (Metier? a, Metier? b){
@@ -1715,7 +1715,7 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
           width: (MediaQuery.of(context).size.width / 2) - 20,
           child: DropdownSearch<Commune>(
             mode: Mode.form,
-            onChanged: (Commune? value) => {
+            onSelected: (Commune? value) => {
               laPieceDelivre = value!
             },
             compareFn: (Commune? a, Commune? b){

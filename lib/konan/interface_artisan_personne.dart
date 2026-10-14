@@ -901,7 +901,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
       context: context,
       initialDate: initialDate,
       firstDate: now,
-      lastDate: DateTime(2008, 12, 31, 00, 00)// DateTime.fromMillisecondsSinceEpoch(globalReservation!.fin),
+      lastDate: DateTime(2009, 12, 31, 00, 00)// DateTime.fromMillisecondsSinceEpoch(globalReservation!.fin),
     );
     if (selectedDate == null) return;
     _dateNaissanceController.addData(selectedDate);
@@ -1082,7 +1082,10 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               DropdownMenu<Crm>(
-                  enabled: globalUser!.crm > 0 ? false : true,
+                  enabled: (globalUser!.profil == "ROLE_SUPER_ADMIN" ||
+                      globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE" ||
+                      globalUser!.profil == "ROLE_AGENT_CONTROLE" ||
+                      globalUser!.profil == "ROLE_RESPONSABLE_AGENT_ASSERMENTE") ? true : false,
                   width: (MediaQuery.of(context).size.width / 2) - 20,
                   menuHeight: 250,
                   initialSelection: leCrm,
@@ -1177,7 +1180,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<GenericData>(
                   mode: Mode.form,
-                  onChanged: (GenericData? value) => {
+                  onSelected: (GenericData? value) => {
                     setState(() {
                       leStatutArtisan = value!;
                     })
@@ -1246,7 +1249,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<GenericData>(
                   mode: Mode.form,
-                  onChanged: (GenericData? value) => {
+                  onSelected: (GenericData? value) => {
                     setState(() {
                       laLivraison = value!;
                     })
@@ -1386,11 +1389,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
-                    //laCommune = value!
-                    setState(() {
-                      laCommune = value!;
-                    })
+                  onSelected: (Commune? value) => {
+                    laCommune = value!
                   },
                   compareFn: (Commune? a, Commune? b){
                     if(a == null || b == null){
@@ -1569,7 +1569,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
+                  onSelected: (Commune? value) => {
                     laVilleResidence = value!
                   },
                   compareFn: (Commune? a, Commune? b){
@@ -2044,7 +2044,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               width: (MediaQuery.of(context).size.width / 2) - 20,
               child: DropdownSearch<Commune>(
                 mode: Mode.form,
-                onChanged: (Commune? value) => {
+                onSelected: (Commune? value) => {
                   laPieceDelivre = value!
                 },
                 compareFn: (Commune? a, Commune? b){
@@ -2388,7 +2388,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
               width: (MediaQuery.of(context).size.width / 2) - 20,
               child:DropdownSearch<Metier>(
                     mode: Mode.form,
-                    onChanged: (Metier? value) => {
+                    onSelected: (Metier? value) => {
                       leMetier = value!
                     },
                     compareFn: (Metier? a, Metier? b){
@@ -2609,12 +2609,8 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
-                    //laCommune = value!
+                  onSelected: (Commune? value) => {
                     refreshVilleActivite(value!)
-                    /*setState(() {
-                      laVilleCommune = value!;
-                    })*/
                   },
                   compareFn: (Commune? a, Commune? b){
                     if(a == null || b == null){
@@ -2650,7 +2646,7 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Quartier>(
                   mode: Mode.form,
-                  onChanged: (Quartier? value) => {
+                  onSelected: (Quartier? value) => {
                     leQuartierActivite = value!
                   },
                   compareFn: (Quartier? a, Quartier? b){

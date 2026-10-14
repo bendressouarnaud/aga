@@ -55,7 +55,7 @@ class LocalNotificationsService{
 
     // Initialize plugin with settings
     await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response){
         // Handle notification in forground
         //print('Foreground notification LOCAL : ${response.payload}');
@@ -93,11 +93,11 @@ class LocalNotificationsService{
 
     // Display the notification
     await _flutterLocalNotificationsPlugin.show(
-        _notificationIdCounter++,
-        title,
-        body,
-        notificationDetails,
-      payload: payload,
+        id: _notificationIdCounter++,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
+        payload: payload
     );
   }
 }

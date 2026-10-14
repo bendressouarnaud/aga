@@ -2,7 +2,7 @@ import 'package:cnmci/konan/model/artisan.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+//import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:money_formatter/money_formatter.dart';
 
 import '../getxcontroller/artisan_controller_x.dart';

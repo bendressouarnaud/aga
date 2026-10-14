@@ -7,7 +7,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+//import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart';
 
 import '../main.dart';
@@ -260,7 +260,7 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                 );
               }
               else{
-                var setMarkers = liste.map(
+                /*var setMarkers = liste.map(
                     (l) => Marker(
                       icon: l.paiement == 0 ? BitmapDescriptor.defaultMarker :
                         l.paiement == 1 ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange) :
@@ -281,6 +281,7 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                       );
                     })
                 );
+                */
               }
             }
           } else {
@@ -481,7 +482,7 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                   width: MediaQuery.of(context).size.width,
                   child: DropdownSearch<Commune>(
                     mode: Mode.form,
-                    onChanged: (Commune? value) => {
+                    onSelected: (Commune? value) => {
                       refreshVilleActivite(value!)
                     },
                     compareFn: (Commune? a, Commune? b){
@@ -524,7 +525,7 @@ class _InterfaceControleSermente extends State<InterfaceControleSermente> {
                       width: MediaQuery.of(context).size.width,
                       child: DropdownSearch<Quartier>(
                         mode: Mode.form,
-                        onChanged: (Quartier? value) => {
+                        onSelected: (Quartier? value) => {
                           leQuartierActivite = value!
                         },
                         compareFn: (Quartier? a, Quartier? b){

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cnmci/konan/interface_history_action_terrain.dart';
+import 'package:cnmci/konan/interface_regularisation_manuelle.dart';
 import 'package:cnmci/konan/search_entity_manager.dart';
 import 'package:cnmci/konan/services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -28,6 +29,7 @@ class InterfaceControleManager extends StatefulWidget {
 class _InterfaceControleManager extends State<InterfaceControleManager> {
 
   // A t t r i b u t e s  :
+  String textProgression = 'Progression des paiements (1M)';
   int currentPageIndex = 0;
   List<Color> gradientColors = [
     Colors.cyan,
@@ -43,6 +45,7 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
   bool flagSendData = false;
   bool flagServerResponse = false;
   List<StatsBeanManager> liste = [];
+  int scope = 2;
 
 
   // METHODS :
@@ -186,6 +189,17 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
           textAlign: TextAlign.left,
         ),
         actions: [
+          IconButton(
+              onPressed: () {
+                // Open NEW INTERFACE to DISPLAY DATA
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return InterfaceRegularisationManuelle();
+                    })
+                );
+              },
+              icon: const Icon(Icons.fact_check, color: Colors.blue)
+          ),
           Visibility(
             visible: (globalUser!.profil != "ROLE_AGENT_ENROLEMENT" &&
                 globalUser!.profil != "ROLE_AGENT_CONTROLE") && currentPageIndex == 3,
@@ -212,8 +226,8 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
               var listeTamp = pickedDailyPayment.map((p) => p.total).toList();
               listeTamp.sort();
               maxAmount = listeTamp.last;
-              tranche = (maxAmount / 3);
-              maxAmountString = (maxAmount * 100).toString();
+              tranche = (maxAmount / 2);
+              maxAmountString = (maxAmount * 10).toString();
 
               return SingleChildScrollView(
                 child: Column(
@@ -221,7 +235,7 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
                     SizedBox(
                       height: 30,
                     ),
-                    Text('Progression des paiements (10K)',
+                    Text(textProgression,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.brown,
@@ -386,8 +400,8 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
                 var listeTamp = pickedDailyPayment.map((p) => p.total).toList();
                 listeTamp.sort();
                 maxAmount = listeTamp.last;
-                tranche = (maxAmount / 3);
-                maxAmountString = (maxAmount * 100).toString();
+                tranche = (maxAmount / 2);
+                maxAmountString = (maxAmount * 10).toString();
 
                 return SingleChildScrollView(
                     child: Column(
@@ -395,7 +409,7 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
                         SizedBox(
                           height: 30,
                         ),
-                        Text('Progression des paiements (10K)',
+                        Text(textProgression,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.brown,
@@ -606,13 +620,13 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
       lineBarsData: [
         LineChartBarData(
           spots: [
-            FlSpot(0, pickedDailyPayment[6].total),
-            FlSpot(2, pickedDailyPayment[5].total),
-            FlSpot(4, pickedDailyPayment[4].total),
-            FlSpot(6, pickedDailyPayment[3].total),
-            FlSpot(8, pickedDailyPayment[2].total),
-            FlSpot(10, pickedDailyPayment[1].total),
-            FlSpot(11, pickedDailyPayment[0].total),
+            FlSpot(0, pickedDailyPayment[6].total * scope),
+            FlSpot(2, pickedDailyPayment[5].total * scope),
+            FlSpot(4, pickedDailyPayment[4].total * scope),
+            FlSpot(6, pickedDailyPayment[3].total * scope),
+            FlSpot(8, pickedDailyPayment[2].total * scope),
+            FlSpot(10, pickedDailyPayment[1].total * scope),
+            FlSpot(11, pickedDailyPayment[0].total * scope),
           ],
           isCurved: true,
           gradient: LinearGradient(
@@ -621,7 +635,7 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
           barWidth: 5,
           isStrokeCapRound: true,
           dotData: const FlDotData(
-            show: false,
+            show: true,
           ),
           belowBarData: BarAreaData(
             show: true,
@@ -664,9 +678,9 @@ class _InterfaceControleManager extends State<InterfaceControleManager> {
       fontSize: 15,
     );
     String text = switch (value.toInt()) {
-      1 => tranche.toStringAsFixed(1),
-      3 => (tranche * 2).toStringAsFixed(1),
-      5 => '$maxAmount',
+      1 => tranche.toStringAsFixed(2),
+      3 => maxAmount.toStringAsFixed(2),
+      5 => (maxAmount + tranche).toStringAsFixed(2),
       _ => '',
     };
 

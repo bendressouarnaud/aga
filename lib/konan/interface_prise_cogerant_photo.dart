@@ -321,10 +321,10 @@ class _InterfacePriseCogerantPhoto extends State<InterfacePriseCogerantPhoto> wi
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoRecto = io.File(result.files.single.path!);
-                          photoRectoController.text = result.files.single.name;
+                          fileUploadPhotoRecto = io.File(result.path!);
+                          photoRectoController.text = result.name;
                           setState(() {
                             uploadPhotoRecto = true;
                           });
@@ -441,10 +441,10 @@ class _InterfacePriseCogerantPhoto extends State<InterfacePriseCogerantPhoto> wi
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoVerso = io.File(result.files.single.path!);
-                          photoVersoController.text = result.files.single.name;
+                          fileUploadPhotoVerso = io.File(result.path!);
+                          photoVersoController.text = result.name;
                           setState(() {
                             uploadPhotoVerso = true;
                           });

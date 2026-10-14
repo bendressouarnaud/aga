@@ -310,10 +310,10 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhoto = io.File(result.files.single.path!);
-                          photoController.text = result.files.single.name;
+                          fileUploadPhoto = io.File(result.path!);
+                          photoController.text = result.name;
                           setState(() {
                             uploadPhoto = true;
                           });
@@ -430,10 +430,10 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoRecto = io.File(result.files.single.path!);
-                          photoRectoController.text = result.files.single.name;
+                          fileUploadPhotoRecto = io.File(result.path!);
+                          photoRectoController.text = result.name;
                           setState(() {
                             uploadPhotoRecto = true;
                           });
@@ -550,10 +550,10 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoVerso = io.File(result.files.single.path!);
-                          photoVersoController.text = result.files.single.name;
+                          fileUploadPhotoVerso = io.File(result.path!);
+                          photoVersoController.text = result.name;
                           setState(() {
                             uploadPhotoVerso = true;
                           });
@@ -670,10 +670,10 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoAutre = io.File(result.files.single.path!);
-                          photoAutreController.text = result.files.single.name;
+                          fileUploadPhotoAutre = io.File(result.path!);
+                          photoAutreController.text = result.name;
                           setState(() {
                             uploadPhotoAutre = true;
                           });

@@ -327,10 +327,10 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoRecto = io.File(result.files.single.path!);
-                          photoRectoController.text = result.files.single.name;
+                          fileUploadPhotoRecto = io.File(result.path!);
+                          photoRectoController.text = result.name;
                           setState(() {
                             uploadPhotoRecto = true;
                           });
@@ -447,10 +447,10 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoVerso = io.File(result.files.single.path!);
-                          photoVersoController.text = result.files.single.name;
+                          fileUploadPhotoVerso = io.File(result.path!);
+                          photoVersoController.text = result.name;
                           setState(() {
                             uploadPhotoVerso = true;
                           });
@@ -579,10 +579,10 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoCommerce = io.File(result.files.single.path!);
-                          photoCommerceController.text = result.files.single.name;
+                          fileUploadPhotoCommerce = io.File(result.path!);
+                          photoCommerceController.text = result.name;
                           setState(() {
                             uploadPhotoCommerce = true;
                           });
@@ -699,10 +699,10 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoDfe = io.File(result.files.single.path!);
-                          photoDfeController.text = result.files.single.name;
+                          fileUploadPhotoDfe = io.File(result.path!);
+                          photoDfeController.text = result.name;
                           setState(() {
                             uploadPhotoDfe = true;
                           });

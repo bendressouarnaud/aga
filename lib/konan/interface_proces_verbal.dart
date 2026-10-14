@@ -316,7 +316,7 @@ class _InterfaceProcesVerbal extends State<InterfaceProcesVerbal> {
                             style: ButtonStyle(
                                 backgroundColor: WidgetStateColor.resolveWith((states) => Colors.blue)
                             ),
-                            label: Text('Envoi SMS',
+                            label: Text('Envoi du code',
                                 style: TextStyle(
                                     color: Colors.white
                                 )

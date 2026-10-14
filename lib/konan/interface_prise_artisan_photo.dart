@@ -353,10 +353,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoArtisan = io.File(result.files.single.path!);
-                          photoArtisanController.text = result.files.single.name;
+                          fileUploadPhotoArtisan = io.File(result.path!);
+                          photoArtisanController.text = result.name;
                           setState(() {
                             uploadPhotoArtisan = true;
                           });
@@ -471,10 +471,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoDiplome = io.File(result.files.single.path!);
-                          photoDiplomeController.text = result.files.single.name;
+                          fileUploadPhotoDiplome = io.File(result.path!);
+                          photoDiplomeController.text = result.name;
                           setState(() {
                             uploadPhotoDiplome = true;
                           });
@@ -589,10 +589,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoRecto = io.File(result.files.single.path!);
-                          photoRectoController.text = result.files.single.name;
+                          fileUploadPhotoRecto = io.File(result.path!);
+                          photoRectoController.text = result.name;
                           setState(() {
                             uploadPhotoRecto = true;
                           });
@@ -707,10 +707,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoVerso = io.File(result.files.single.path!);
-                          photoVersoController.text = result.files.single.name;
+                          fileUploadPhotoVerso = io.File(result.path!);
+                          photoVersoController.text = result.name;
                           setState(() {
                             uploadPhotoVerso = true;
                           });
@@ -825,10 +825,10 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
                     onPressed: () async {
                       try {
                         // Try to pick files :
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        PlatformFile? result = await FilePicker.pickFile();
                         if (result != null) {
-                          fileUploadPhotoAutre = io.File(result.files.single.path!);
-                          photoAutreController.text = result.files.single.name;
+                          fileUploadPhotoAutre = io.File(result.path!);
+                          photoAutreController.text = result.name;
                           setState(() {
                             uploadPhotoAutre = true;
                           });

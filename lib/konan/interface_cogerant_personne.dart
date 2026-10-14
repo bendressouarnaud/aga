@@ -986,7 +986,7 @@ class _InterfaceCogerantPersonne extends State<InterfaceCogerantPersonne>
               width: (MediaQuery.of(context).size.width / 2) - 20,
               child: DropdownSearch<Commune>(
                 mode: Mode.form,
-                onChanged: (Commune? value) => {
+                onSelected: (Commune? value) => {
                   setState(() {
                     laCommune = value!;
                   }),
@@ -1190,7 +1190,7 @@ class _InterfaceCogerantPersonne extends State<InterfaceCogerantPersonne>
               width: (MediaQuery.of(context).size.width / 2) - 20,
               child: DropdownSearch<Commune>(
                 mode: Mode.form,
-                onChanged: (Commune? value) => {laVilleResidence = value!},
+                onSelected: (Commune? value) => {laVilleResidence = value!},
                 compareFn: (Commune? a, Commune? b) {
                   if (a == null || b == null) {
                     return false;
@@ -1408,7 +1408,7 @@ class _InterfaceCogerantPersonne extends State<InterfaceCogerantPersonne>
           width: (MediaQuery.of(context).size.width / 2) - 20,
           child: DropdownSearch<Commune>(
             mode: Mode.form,
-            onChanged: (Commune? value) => {laPieceDelivre = value!},
+            onSelected: (Commune? value) => {laPieceDelivre = value!},
             compareFn: (Commune? a, Commune? b) {
               if (a == null || b == null) {
                 return false;

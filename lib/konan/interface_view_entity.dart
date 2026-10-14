@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:http/http.dart';
-import 'package:maps_launcher/maps_launcher.dart';
+//import 'package:maps_launcher/maps_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../getxcontroller/apprenti_controller_x.dart';
@@ -1306,8 +1306,19 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
                                 )
                             ),
                             onPressed: () async {
-                              MapsLauncher.launchCoordinates(statsBeanManager.latitude, statsBeanManager.longitude,
-                              statsBeanManager.nom);
+                              /*MapsLauncher.launchCoordinates(statsBeanManager.latitude, statsBeanManager.longitude,
+                              statsBeanManager.nom);*/
+                              final Uri googleMapsUri = Uri.parse(
+                                'https://www.google.com/maps/search/?api=1&query=${statsBeanManager.latitude},${statsBeanManager.longitude}',
+                              );
+                              if (await canLaunchUrl(googleMapsUri)) {
+                                await launchUrl(
+                                  googleMapsUri,
+                                  mode: LaunchMode.externalApplication, // Forces opening in the native app or external browser rather than in-app webview
+                                );
+                              } else {
+                                throw 'Could not launch $googleMapsUri';
+                              }
                             },
                             icon: Icon(
                               Icons.gps_fixed,

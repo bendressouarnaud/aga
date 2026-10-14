@@ -1037,7 +1037,10 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               DropdownMenu<Crm>(
-                  enabled: globalUser!.crm > 0 ? false : true,
+                  enabled: (globalUser!.profil == "ROLE_SUPER_ADMIN" ||
+                      globalUser!.profil == "ROLE_AGENT_CONTROLE_ASSERMENTE" ||
+                      globalUser!.profil == "ROLE_AGENT_CONTROLE" ||
+                      globalUser!.profil == "ROLE_RESPONSABLE_AGENT_ASSERMENTE") ? true : false,
                   width: (MediaQuery.of(context).size.width / 2) - 20,
                   menuHeight: 250,
                   initialSelection: leCrm,
@@ -1143,7 +1146,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<GenericData>(
                   mode: Mode.form,
-                  onChanged: (GenericData? value) => {
+                  onSelected: (GenericData? value) => {
                     setState(() {
                       laLivraison = value!;
                     })
@@ -1283,7 +1286,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
+                  onSelected: (Commune? value) => {
                     setState(() {
                       laCommune = value!;
                     })
@@ -1511,7 +1514,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
+                  onSelected: (Commune? value) => {
                     laVilleResidence = value!
                   },
                   compareFn: (Commune? a, Commune? b){
@@ -1745,7 +1748,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
           width: (MediaQuery.of(context).size.width / 2) - 20,
           child: DropdownSearch<Commune>(
             mode: Mode.form,
-            onChanged: (Commune? value) => {
+            onSelected: (Commune? value) => {
               laPieceDelivre = value!
             },
             compareFn: (Commune? a, Commune? b){
@@ -1900,7 +1903,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Metier>(
                   mode: Mode.form,
-                  onChanged: (Metier? value) => {
+                  onSelected: (Metier? value) => {
                     lActivitePrincipale = value!
                   },
                   compareFn: (Metier? a, Metier? b){
@@ -1937,7 +1940,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Metier>(
                   mode: Mode.form,
-                  onChanged: (Metier? value) => {
+                  onSelected: (Metier? value) => {
                     lActiviteSecondaire = value!
                   },
                   compareFn: (Metier? a, Metier? b){
@@ -2390,7 +2393,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
-                  onChanged: (Commune? value) => {
+                  onSelected: (Commune? value) => {
                     refreshVilleActivite(value!)
                   },
                   compareFn: (Commune? a, Commune? b){
@@ -2428,7 +2431,7 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
                 width: (MediaQuery.of(context).size.width / 2) - 20,
                 child: DropdownSearch<Quartier>(
                   mode: Mode.form,
-                  onChanged: (Quartier? value) => {
+                  onSelected: (Quartier? value) => {
                     leQuartierActivite = value!
                   },
                   compareFn: (Quartier? a, Quartier? b){
