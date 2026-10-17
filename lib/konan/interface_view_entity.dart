@@ -59,7 +59,8 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
   bool openLocalWaveApplication = false;
-  bool paiementFraisLivraison = statsBeanManager.livraisonCarte == 1;
+  bool paiementFraisLivraison = statsBeanManager.livraisonCarte == 1 &&
+      statsBeanManager.statutLivraison == 0;
   List<ProcesVerbalHisoryData> listeHistoPvData = [];
 
 

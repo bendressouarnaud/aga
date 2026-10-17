@@ -52,7 +52,8 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
   void initState() {
     super.initState();
 
-    paiementFraisLivraison = widget.compagnon.livraisonCarte == 1;
+    paiementFraisLivraison = widget.compagnon.livraisonCarte == 1 &&
+        widget.compagnon.statutLivraison == 0;
   }
 
   void displayToast(String message) {

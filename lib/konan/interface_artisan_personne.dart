@@ -1390,7 +1390,9 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
                 child: DropdownSearch<Commune>(
                   mode: Mode.form,
                   onSelected: (Commune? value) => {
-                    laCommune = value!
+                    setState(() {
+                      laCommune = value!;
+                    })
                   },
                   compareFn: (Commune? a, Commune? b){
                     if(a == null || b == null){

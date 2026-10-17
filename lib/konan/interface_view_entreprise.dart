@@ -54,7 +54,8 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
   void initState() {
     super.initState();
 
-    paiementFraisLivraison = widget.entreprise.livraisonCarte == 1;
+    paiementFraisLivraison = widget.entreprise.livraisonCarte == 1 &&
+        widget.entreprise.statutLivraison == 0;
   }
 
   void displayToast(String message) {

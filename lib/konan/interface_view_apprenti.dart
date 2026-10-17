@@ -53,7 +53,8 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
   void initState() {
     super.initState();
 
-    paiementFraisLivraison = widget.apprenti.livraisonCarte == 1;
+    paiementFraisLivraison = widget.apprenti.livraisonCarte == 1 &&
+        widget.apprenti.statutLivraison == 0;
   }
 
   void displayToast(String message) {

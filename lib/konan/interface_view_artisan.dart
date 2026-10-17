@@ -52,7 +52,8 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
   ];
   int valeurParDefaut = 0;
   bool envoiLienPaiement = false;
-  bool paiementFraisLivraison = artisanToManage.livraisonCarte == 1;
+  bool paiementFraisLivraison = artisanToManage.livraisonCarte == 1 &&
+      artisanToManage.statutLivraison == 0;
   bool openLocalWaveApplication = false;
 
 
