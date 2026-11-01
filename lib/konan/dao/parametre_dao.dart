@@ -9,7 +9,7 @@ class ParametreDao {
   //Adds new Todo records
   Future<int> create(Parametre data) async {
     final db = await dbProvider.database;
-    var result = db.insert("parametre", data.toDatabaseJson());
+    var result = await db.insert("parametre", data.toDatabaseJson());
     return result;
   }
 

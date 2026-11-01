@@ -9,7 +9,7 @@ class QuartierDao {
   //Adds new Todo records
   Future<int> create(Quartier data) async {
     final db = await dbProvider.database;
-    var result = db.insert("quartier", data.toDatabaseJson());
+    var result = await db.insert("quartier", data.toDatabaseJson());
     return result;
   }
 

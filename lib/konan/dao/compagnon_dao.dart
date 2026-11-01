@@ -10,7 +10,7 @@ class CompagnonDao {
   //Adds new Todo records
   Future<int> create(Compagnon data) async {
     final db = await dbProvider.database;
-    var result = db.insert("compagnon", data.toDatabaseJson());
+    var result = await db.insert("compagnon", data.toDatabaseJson());
     return result;
   }
 

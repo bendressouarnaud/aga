@@ -8,7 +8,7 @@ class RequeteSqlDao {
   //Adds new Todo records
   Future<int> create(RequeteSql data) async {
     final db = await dbProvider.database;
-    var result = db.insert("requete_sql", data.toDatabaseJson());
+    var result = await db.insert("requete_sql", data.toDatabaseJson());
     return result;
   }
 

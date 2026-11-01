@@ -9,7 +9,7 @@ class NiveauEtudeDao {
   //Adds new Todo records
   Future<int> create(NiveauEtude data) async {
     final db = await dbProvider.database;
-    var result = db.insert("niveau_etude", data.toDatabaseJson());
+    var result = await db.insert("niveau_etude", data.toDatabaseJson());
     return result;
   }
 

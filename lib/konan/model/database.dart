@@ -10,7 +10,7 @@ class DatabaseHelper {
   static const _databaseName = "cmci.db";
 
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 9;
+  static final _databaseVersion = 10;
 
 
   // Make this a singleton class.
@@ -89,6 +89,10 @@ class DatabaseHelper {
 
       case 9:
         await _addCoGerantObjects(db);
+        break;
+
+      case 10:
+        await _addEnrolementPaiement(db);
         break;
 
       default:
@@ -174,6 +178,14 @@ class DatabaseHelper {
         'actif integer, co_gerant INTEGER, entreprise INTEGER)');
     // Requete_SQL
     await db.execute('CREATE TABLE requete_sql (id INTEGER PRIMARY KEY, phrase TEXT, requete TEXT)');
+  }
+
+  Future _addEnrolementPaiement(Database db) async {
+    // enrolement_paiement
+    await db.execute('CREATE TABLE enrolement_paiement (id INTEGER PRIMARY KEY AUTOINCREMENT, '
+        'millisecondes INTEGER, montant INTEGER)');
+    await db.execute('CREATE TABLE derniere_operation (id INTEGER PRIMARY KEY AUTOINCREMENT, '
+        'libelle TEXT, detail TEXT, action INTEGER, requester_id INTEGER, requester_type TEXT, millisecondes INTEGER)');
   }
 
   Future _createDatabase(Database db) async {

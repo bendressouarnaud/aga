@@ -14,6 +14,8 @@ import 'package:http/http.dart';
 
 import '../main.dart';
 import 'beans/message_response.dart';
+import 'model/derniere_operation.dart';
+import 'model/enrolement_paiement.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
 
@@ -1297,9 +1299,30 @@ class _InterfacePriseEntreprisePhoto extends State<InterfacePriseEntreprisePhoto
             confirmationLivraison: entrepriseToManage.confirmationLivraison,
             photoSignatureLivraison: entrepriseToManage.photoSignatureLivraison
         );
-        entrepriseToManage.id == 0 ? 
-        entrepriseControllerX.addItem(entreprise) : 
-        entrepriseControllerX.updateData(entreprise);
+        if(entrepriseToManage.id == 0){
+          entrepriseControllerX.addItem(entreprise);
+          // Add new Line to 'enrolementPaiement
+          enrolementPaiementControllerX.addItem(
+              EnrolementPaiement(id: 0,
+                  millisecondes: DateTime.now().millisecondsSinceEpoch,
+                  montant: 0)
+          );
+        }
+        else{
+          entrepriseControllerX.updateData(entreprise);
+        }
+
+        // Dernière opération :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: entreprise.denomination,
+                detail: entreprise.contact1,
+                action: entrepriseToManage.id == 0 ? 0 : 1,
+                requesterId: entreprise.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'ENT')
+        );
+
         // Refresh :
         entrepriseToManage = entreprise;
         flagSendData = false;

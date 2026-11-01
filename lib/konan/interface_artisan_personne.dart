@@ -42,6 +42,7 @@ import 'model/crm.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
 as picker;
 
+import 'model/derniere_operation.dart';
 import 'objets/amountseparator.dart';
 import 'objets/constants.dart';
 import 'package:money_formatter/money_formatter.dart';
@@ -475,6 +476,16 @@ class _InterfaceArtisanPersonne extends State<InterfaceArtisanPersonne> with Wid
         if(setOriginFromCallArtisan == 0) {
           artisanToManage = artisan;
           artisanControllerX.updateData(artisan);
+          // Dernière opération :
+          derniereOperationControllerX.addItem(
+              DerniereOperation(id: 0,
+                  libelle: '${artisan.nom} ${artisan.prenom}',
+                  detail: artisan.contact1,
+                  action: 1,
+                  requesterId: artisan.id,
+                  millisecondes: DateTime.now().millisecondsSinceEpoch,
+                  requesterType: 'ART')
+          );
         }
         else{
           // Update StatsBeanManager :

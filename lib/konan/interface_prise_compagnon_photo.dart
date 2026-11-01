@@ -13,6 +13,8 @@ import 'package:http/http.dart';
 import '../main.dart';
 import 'beans/message_response.dart';
 import 'model/compagnon.dart';
+import 'model/derniere_operation.dart';
+import 'model/enrolement_paiement.dart';
 import 'objets/constants.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -1365,9 +1367,28 @@ class _InterfacePriseCompagnonPhoto extends State<InterfacePriseCompagnonPhoto> 
                   .photoSignatureLivraison,
               statutLivraison: compagnonToManage.statutLivraison
           );
-          compagnonToManage.id == 0 ?
-          compagnonControllerX.addItem(compagnon) :
-          compagnonControllerX.updateData(compagnon);
+          if(compagnonToManage.id == 0){
+            compagnonControllerX.addItem(compagnon);
+            // Add new Line to 'enrolementPaiement
+            enrolementPaiementControllerX.addItem(
+                EnrolementPaiement(id: 0,
+                    millisecondes: DateTime.now().millisecondsSinceEpoch,
+                    montant: 0)
+            );
+          }
+          else{
+            compagnonControllerX.updateData(compagnon);
+          }
+          // Dernière opération :
+          derniereOperationControllerX.addItem(
+              DerniereOperation(id: 0,
+                  libelle: '${compagnon.nom} ${compagnon.prenom}',
+                  detail: compagnon.contact1,
+                  action: compagnonToManage.id == 0 ? 0 : 1,
+                  requesterId: compagnon.id,
+                  millisecondes: DateTime.now().millisecondsSinceEpoch,
+                  requesterType: 'COM')
+          );
         }
         else{
           addingExterneCompagnon = false;

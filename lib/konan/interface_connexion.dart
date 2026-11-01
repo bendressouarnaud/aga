@@ -49,6 +49,7 @@ import '../getxcontroller/internet_access_controller_x.dart';
 import 'beans/accountsigninresponse.dart';
 import 'beans/donnees_referentielles.dart';
 import 'model/crm.dart';
+import 'model/enrolement_paiement.dart';
 import 'model/parametre.dart';
 import 'model/user.dart';
 import 'objets/constants.dart';
@@ -301,6 +302,10 @@ class _ConnexionViewState extends State<ConnexionView> {
           // RequeteSql
           for (RequeteSql data in donnee.requetesql) {
             requeteSqlControllerX.addItem(data);
+          }
+          // Enrolement Paiement
+          for (EnrolementPaiement data in donnee.enrolementpaiements) {
+            enrolementPaiementControllerX.addItem(data);
           }
         }
         catch(e){

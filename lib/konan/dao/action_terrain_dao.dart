@@ -9,7 +9,7 @@ class ActionTerrainDao {
   //Adds new Todo records
   Future<int> create(ActionTerrain data) async {
     final db = await dbProvider.database;
-    var result = db.insert("action_terrain", data.toDatabaseJson());
+    var result = await db.insert("action_terrain", data.toDatabaseJson());
     return result;
   }
 

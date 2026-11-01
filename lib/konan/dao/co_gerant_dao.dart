@@ -8,7 +8,7 @@ class CoGerantDao {
   //Adds new Todo records
   Future<int> create(CoGerant data) async {
     final db = await dbProvider.database;
-    var result = db.insert("co_gerant", data.toDatabaseJson());
+    var result = await db.insert("co_gerant", data.toDatabaseJson());
     return result;
   }
 

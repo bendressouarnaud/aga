@@ -1,6 +1,7 @@
 import 'package:cnmci/konan/beans/user_response_record.dart';
 import 'package:cnmci/konan/model/apprenti.dart';
 import 'package:cnmci/konan/model/compagnon.dart';
+import 'package:cnmci/konan/model/enrolement_paiement.dart';
 import 'package:cnmci/konan/model/entreprise.dart';
 import 'package:cnmci/konan/model/requete_sql.dart';
 
@@ -22,11 +23,13 @@ class AccountSignInResponse {
   final List<CoGerant> cogerants;
   final List<GerantEntreprise> gerantentreprises;
   final List<RequeteSql> requetesql;
+  final List<EnrolementPaiement> enrolementpaiements;
 
   // M e t h o d s  :
   AccountSignInResponse({required this.code, required this.data, required this.artisans, required this.apprentis,
     required this.compagnons, required this.entreprises, required this.actionterrains,
-    required this.cogerants, required this.gerantentreprises, required this.requetesql
+    required this.cogerants, required this.gerantentreprises, required this.requetesql,
+    required this.enrolementpaiements
   });
   factory AccountSignInResponse.fromJson(Map<String, dynamic> json) {
     return AccountSignInResponse(
@@ -39,7 +42,8 @@ class AccountSignInResponse {
       actionterrains: List<dynamic>.from(json['actionterrains']).map((i) => ActionTerrain.fromDatabaseJson(i)).toList(),
       cogerants: List<dynamic>.from(json['cogerants']).map((i) => CoGerant.fromDatabaseJson(i)).toList(),
       gerantentreprises: List<dynamic>.from(json['gerantentreprises']).map((i) => GerantEntreprise.fromDatabaseJson(i)).toList(),
-        requetesql: List<dynamic>.from(json['requetesql']).map((i) => RequeteSql.fromDatabaseJson(i)).toList()
+      requetesql: List<dynamic>.from(json['requetesql']).map((i) => RequeteSql.fromDatabaseJson(i)).toList(),
+      enrolementpaiements: List<dynamic>.from(json['enrolementpaiements']).map((i) => EnrolementPaiement.fromDatabaseJson(i)).toList()
     );
   }
 }

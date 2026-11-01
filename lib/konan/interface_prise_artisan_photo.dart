@@ -4,6 +4,8 @@ import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
 import 'package:cnmci/konan/beans/stats_bean_manager.dart';
+import 'package:cnmci/konan/model/derniere_operation.dart';
+import 'package:cnmci/konan/model/enrolement_paiement.dart';
 import 'package:cnmci/konan/model/parametre.dart';
 import 'package:cnmci/konan/repositories/artisan_repository.dart';
 import 'package:cnmci/konan/services.dart';
@@ -1475,9 +1477,28 @@ class _InterfacePriseArtisanPhoto extends State<InterfacePriseArtisanPhoto> with
               photoSignatureLivraison: artisanToManage.photoSignatureLivraison
           );
           if(setOriginFromCallArtisan == 0) {
-            artisanToManage.id == 0
-                ? artisanControllerX.addItem(artisan)
-                : artisanControllerX.updateData(artisan);
+            if(artisanToManage.id == 0){
+              artisanControllerX.addItem(artisan);
+              // Add new Line to 'enrolementPaiement
+              enrolementPaiementControllerX.addItem(
+                EnrolementPaiement(id: 0,
+                    millisecondes: DateTime.now().millisecondsSinceEpoch,
+                    montant: 0)
+              );
+            }
+            else{
+              artisanControllerX.updateData(artisan);
+            }
+            // Dernière opération :
+            derniereOperationControllerX.addItem(
+                DerniereOperation(id: 0,
+                    libelle: '${artisan.nom} ${artisan.prenom}',
+                    detail: artisan.contact1,
+                    action: artisanToManage.id == 0 ? 0 : 1,
+                    requesterId: artisan.id,
+                    millisecondes: DateTime.now().millisecondsSinceEpoch,
+                    requesterType: 'ART')
+            );
           }
           else{
             // Update StatsBeanManager :

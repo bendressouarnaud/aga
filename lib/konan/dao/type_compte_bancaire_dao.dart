@@ -9,7 +9,7 @@ class TypeCompteBancaireDao {
   //Adds new Todo records
   Future<int> create(TypeCompteBancaire data) async {
     final db = await dbProvider.database;
-    var result = db.insert("type_compte_bancaire", data.toDatabaseJson());
+    var result = await db.insert("type_compte_bancaire", data.toDatabaseJson());
     return result;
   }
 

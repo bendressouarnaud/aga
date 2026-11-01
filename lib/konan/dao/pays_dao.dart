@@ -9,7 +9,7 @@ class PaysDao {
   //Adds new Todo records
   Future<int> create(Pays data) async {
     final db = await dbProvider.database;
-    var result = db.insert("pays", data.toDatabaseJson());
+    var result = await db.insert("pays", data.toDatabaseJson());
     return result;
   }
 

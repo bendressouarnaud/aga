@@ -9,7 +9,7 @@ class CrmDao {
   //Adds new Todo records
   Future<int> create(Crm data) async {
     final db = await dbProvider.database;
-    var result = db.insert("crm", data.toDatabaseJson());
+    var result = await db.insert("crm", data.toDatabaseJson());
     return result;
   }
 

@@ -9,7 +9,7 @@ class ClasseDao {
   //Adds new Todo records
   Future<int> create(Classe data) async {
     final db = await dbProvider.database;
-    var result = db.insert("classe", data.toDatabaseJson());
+    var result = await db.insert("classe", data.toDatabaseJson());
     return result;
   }
 

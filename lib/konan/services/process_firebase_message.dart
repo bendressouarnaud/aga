@@ -9,6 +9,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../model/apprenti.dart';
 import '../model/compagnon.dart';
+import '../model/enrolement_paiement.dart';
 import '../repositories/parametre_repository.dart';
 
 class FirebaseProcessMessage{
@@ -297,6 +298,15 @@ class FirebaseProcessMessage{
             photoSignatureLivraison: entreprise.photoSignatureLivraison
           );
           entrepriseControllerX.updateData(updateEntreprise);
+        }
+        //
+        if(sujet == 1){
+          // Add new Line to 'enrolementPaiement' with the appropriate AMOUT :
+          enrolementPaiementControllerX.addItem(
+              EnrolementPaiement(id: 0,
+                  millisecondes: DateTime.now().millisecondsSinceEpoch,
+                  montant: int.parse(message.data['montant']))
+          );
         }
         break;
 
@@ -745,6 +755,12 @@ class FirebaseProcessMessage{
           );
           entrepriseControllerX.updateData(updateEntreprise);
         }
+        // Add new Line to 'enrolementPaiement' with the appropriate AMOUT :
+        enrolementPaiementControllerX.addItem(
+            EnrolementPaiement(id: 0,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                montant: int.parse(message.data['montant']))
+        );
         break;
 
       case 6:

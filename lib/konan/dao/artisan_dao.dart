@@ -11,7 +11,7 @@ class ArtisanDao {
   //Adds new Todo records
   Future<int> create(Artisan data) async {
     final db = await dbProvider.database;
-    var result = db.insert("artisan", data.toDatabaseJson());
+    var result = await db.insert("artisan", data.toDatabaseJson());
     return result;
   }
 

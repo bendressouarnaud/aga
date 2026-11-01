@@ -34,6 +34,7 @@ import 'beans/message_response.dart';
 import 'factorise_widgets/custom_optin_checkbox.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
+import 'model/derniere_operation.dart';
 import 'objets/constants.dart';
 
 class InterfaceApprentiPersonne extends StatefulWidget {
@@ -392,6 +393,17 @@ class _InterfaceApprentiPersonne extends State<InterfaceApprentiPersonne> {
             ? apprentiControllerX.addItem(apprenti)
             : apprentiControllerX.updateData(apprenti);
         flagSendData = false;
+
+        // Dernière opération :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: '${apprenti.nom} ${apprenti.prenom}',
+                detail: apprenti.contact1,
+                action: 1,
+                requesterId: apprenti.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'APP')
+        );
       } else {
         displayToast("Impossible de traiter la demande");
       }

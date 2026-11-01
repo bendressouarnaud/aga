@@ -41,6 +41,7 @@ import 'model/crm.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
 as picker;
 
+import 'model/derniere_operation.dart';
 import 'model/quartier.dart';
 import 'objets/amountseparator.dart';
 import 'objets/constants.dart';
@@ -463,6 +464,16 @@ class _InterfaceEntreprise extends State<InterfaceEntreprise> with WidgetsBindin
         );
         entrepriseControllerX.updateData(entrepriseToManage);
         flagSendData = false;
+        // Dernière opération :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: entrepriseToManage.denomination,
+                detail: entrepriseToManage.contact1,
+                action: 1,
+                requesterId: entrepriseToManage.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'ENT')
+        );
       } else {
         displayToast("Impossible de synchroniser vos données");
       }

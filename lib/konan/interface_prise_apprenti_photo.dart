@@ -20,6 +20,8 @@ import '../main.dart';
 import 'beans/message_response.dart';
 import 'model/apprenti.dart';
 import 'model/artisan.dart';
+import 'model/derniere_operation.dart';
+import 'model/enrolement_paiement.dart';
 import 'objets/constants.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -1241,9 +1243,28 @@ class _InterfacePriseApprentiPhoto extends State<InterfacePriseApprentiPhoto> wi
               photoSignatureLivraison: apprentiToManage.photoSignatureLivraison
           );
           // Update 'APPRENTI :
-          apprentiToManage.id == 0
-              ? apprentiControllerX.addItem(apprenti)
-              : apprentiControllerX.updateData(apprenti);
+          if(apprentiToManage.id == 0){
+            apprentiControllerX.addItem(apprenti);
+            // Add new Line to 'enrolementPaiement
+            enrolementPaiementControllerX.addItem(
+                EnrolementPaiement(id: 0,
+                    millisecondes: DateTime.now().millisecondsSinceEpoch,
+                    montant: 0)
+            );
+          }
+          else{
+            apprentiControllerX.updateData(apprenti);
+          }
+          // Dernière opération :
+          derniereOperationControllerX.addItem(
+              DerniereOperation(id: 0,
+                  libelle: '${apprenti.nom} ${apprenti.prenom}',
+                  detail: apprenti.contact1,
+                  action: apprentiToManage.id == 0 ? 0 : 1,
+                  requesterId: apprenti.id,
+                  millisecondes: DateTime.now().millisecondsSinceEpoch,
+                  requesterType: 'APP')
+          );
         }
         else{
           addingExterneApprenti = false;

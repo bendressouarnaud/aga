@@ -33,6 +33,7 @@ import 'beans/message_response.dart';
 import 'factorise_widgets/custom_optin_checkbox.dart';
 import 'model/classe.dart';
 import 'model/crm.dart';
+import 'model/derniere_operation.dart';
 import 'objets/constants.dart';
 
 class InterfaceCompagnonPersonne extends StatefulWidget {
@@ -379,6 +380,16 @@ class _InterfaceCompagnonPersonne extends State<InterfaceCompagnonPersonne> {
         // Update 'APPRENTI :
         compagnonControllerX.updateData(compagnon);
         flagSendData = false;
+        // Dernière opération :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: '${compagnon.nom} ${compagnon.prenom}',
+                detail: compagnon.contact1,
+                action: 1,
+                requesterId: compagnon.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'COM')
+        );
       } else {
         displayToast("Impossible de traiter la demande");
       }

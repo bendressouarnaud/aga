@@ -9,7 +9,7 @@ class TypeDocumentDao {
   //Adds new Todo records
   Future<int> create(TypeDocument data) async {
     final db = await dbProvider.database;
-    var result = db.insert("type_document", data.toDatabaseJson());
+    var result = await db.insert("type_document", data.toDatabaseJson());
     return result;
   }
 

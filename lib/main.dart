@@ -1,5 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:cnmci/getxcontroller/action_terrain_controller_x.dart';
+import 'package:cnmci/getxcontroller/derniere_operation_controller_x.dart';
+import 'package:cnmci/getxcontroller/enrolement_paiement_controller_x.dart';
 import 'package:cnmci/getxcontroller/requete_sql_controller_x.dart';
 import 'package:cnmci/konan/interface_accueil.dart';
 import 'package:cnmci/konan/model/co_gerant.dart';
@@ -79,6 +81,8 @@ late CogerantControllerX cogerantControllerX;
 late GerantEntrepriseControllerX gerantEntrepriseControllerX;
 late ActionTerrainControllerX actionTerrainControllerX;
 late RequeteSqlControllerX requeteSqlControllerX;
+late EnrolementPaiementController enrolementPaiementControllerX;
+late DerniereOperationControllerX derniereOperationControllerX;
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 bool addingExterneApprenti = false;
@@ -116,6 +120,8 @@ Future<void> main() async {
   gerantEntrepriseControllerX = Get.put(GerantEntrepriseControllerX());
   actionTerrainControllerX = Get.put(ActionTerrainControllerX());
   requeteSqlControllerX = Get.put(RequeteSqlControllerX());
+  enrolementPaiementControllerX = Get.put(EnrolementPaiementController());
+  derniereOperationControllerX = Get.put(DerniereOperationControllerX());
 
   // Pick DATA :
   globalUser = await outil.findUser();

@@ -9,7 +9,7 @@ class StatutMatrimonialDao {
   //Adds new Todo records
   Future<int> create(StatutMatrimonial data) async {
     final db = await dbProvider.database;
-    var result = db.insert("statut_matrimonial", data.toDatabaseJson());
+    var result = await db.insert("statut_matrimonial", data.toDatabaseJson());
     return result;
   }
 

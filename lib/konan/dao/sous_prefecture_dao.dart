@@ -8,7 +8,7 @@ class SousPrefectureDao {
   //Adds new Todo records
   Future<int> create(SousPrefecture data) async {
     final db = await dbProvider.database;
-    var result = db.insert("sous_prefecture", data.toDatabaseJson());
+    var result = await db.insert("sous_prefecture", data.toDatabaseJson());
     return result;
   }
 

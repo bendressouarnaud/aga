@@ -9,7 +9,7 @@ class CommuneDao {
   //Adds new Todo records
   Future<int> create(Commune data) async {
     final db = await dbProvider.database;
-    var result = db.insert("commune", data.toDatabaseJson());
+    var result = await db.insert("commune", data.toDatabaseJson());
     return result;
   }
 
