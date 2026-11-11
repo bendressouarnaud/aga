@@ -48,7 +48,7 @@ class Entreprise {
   final String lot;
   final String telephone;
   final int statut_kyc;
-  final int statut_paiement;
+  int statut_paiement;
   final double longitude;
   final double latitude;
   final int millisecondes;

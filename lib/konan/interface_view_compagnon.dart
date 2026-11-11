@@ -18,6 +18,7 @@ import 'beans/generic_data_amount.dart';
 import 'beans/payment_livraison_status.dart';
 import 'beans/wave_payment_response.dart';
 import 'interface_compagnon_personne.dart';
+import 'model/derniere_operation.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewCompagnon extends StatefulWidget{
@@ -125,6 +126,16 @@ class _InterfaceViewCompagnon extends State<InterfaceViewCompagnon>{
             json.decode(response.body));
         //print('Lien URL **** : ${reponse.wave_launch_url}');
         paymentUrl = reponse.wave_launch_url;
+        // Track :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: '${widget.compagnon.nom} ${widget.compagnon.prenom}',
+                detail: '$montant - ${reponse.id}',
+                action: 3,
+                requesterId: widget.compagnon.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'COM')
+        );
         if(envoiLienPaiement){
           sendNotificationToCompagnon();
         }

@@ -27,6 +27,7 @@ import 'historique/historique_cogerant.dart';
 import 'interface_cogerant_personne.dart';
 import 'interface_entreprise.dart';
 import 'interface_signature.dart';
+import 'model/derniere_operation.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
 
@@ -140,6 +141,16 @@ class _InterfaceViewEntreprise extends State<InterfaceViewEntreprise>{
         //print('Lien URL **** : ${reponse.wave_launch_url}');
         paymentUrl = reponse.wave_launch_url;
         flagSendData = false;
+        // Track :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: widget.entreprise.nom,
+                detail: '$montant - ${reponse.id}',
+                action: 3,
+                requesterId: widget.entreprise.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'ENT')
+        );
       }
     }
     catch(e){

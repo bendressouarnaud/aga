@@ -19,6 +19,7 @@ import 'beans/payment_livraison_status.dart';
 import 'beans/wave_payment_response.dart';
 import 'interface_apprenti_personne.dart';
 import 'interface_signature.dart';
+import 'model/derniere_operation.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewApprenti extends StatefulWidget{
@@ -126,6 +127,16 @@ class _InterfaceViewApprenti extends State<InterfaceViewApprenti>{
             json.decode(response.body));
         //print('Lien URL **** : ${reponse.wave_launch_url}');
         paymentUrl = reponse.wave_launch_url;
+        // Track :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: '${widget.apprenti.nom} ${widget.apprenti.prenom}',
+                detail: '$montant - ${reponse.id}',
+                action: 3,
+                requesterId: widget.apprenti.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'APP')
+        );
         if(envoiLienPaiement){
           sendNotificationToApprenti();
         }

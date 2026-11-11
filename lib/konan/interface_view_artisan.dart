@@ -25,6 +25,7 @@ import 'beans/payment_livraison_status.dart';
 import 'beans/wave_payment_response.dart';
 import 'historique/historique_apprenti.dart';
 import 'interface_artisan_personne.dart';
+import 'model/derniere_operation.dart';
 import 'objets/constants.dart';
 
 class InterfaceViewArtisan extends StatefulWidget{
@@ -305,6 +306,16 @@ class _InterfaceViewArtisan extends State<InterfaceViewArtisan>{
             json.decode(response.body));
         //print('Lien URL **** : ${reponse.wave_launch_url}');
         paymentUrl = reponse.wave_launch_url;
+        // Track :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: '${artisanToManage.nom} ${artisanToManage.prenom}',
+                detail: '$montant - ${reponse.id}',
+                action: 3,
+                requesterId: artisanToManage.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: 'ART')
+        );
         if(envoiLienPaiement){
           sendNotificationToArtisan();
         }

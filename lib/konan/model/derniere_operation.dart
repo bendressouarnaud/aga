@@ -4,7 +4,7 @@ class DerniereOperation {
   int id;
   String libelle;// Nom ou dénomination
   String detail; // ex: 23000 F | 05 06 27 67 98
-  int action; // 0: Enregistré | 1: Modifié | 2: Payé
+  int action; // 0: Enregistré | 1: Modifié | 2: Payé | 3 : Paiement
   int requesterId;
   int millisecondes;
   String requesterType; // ART : ARTISAN | APP : APPRENTI | COM : COMPAGNON | ENT : ENTREPRISE

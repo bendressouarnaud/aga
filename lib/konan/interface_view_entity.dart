@@ -28,6 +28,7 @@ import 'interface_compagnon_personne.dart';
 import 'interface_manage_amende.dart';
 import 'interface_proces_verbal.dart';
 import 'interface_signature.dart';
+import 'model/derniere_operation.dart';
 import 'model/entreprise.dart';
 import 'objets/constants.dart';
 
@@ -566,6 +567,16 @@ class _InterfaceViewEntity extends State<InterfaceViewEntity> {
         WavePaymentResponse reponse = WavePaymentResponse.fromJson(
             json.decode(response.body));
         paymentUrl = reponse.wave_launch_url;
+        // Track :
+        derniereOperationControllerX.addItem(
+            DerniereOperation(id: 0,
+                libelle: statsBeanManager.nom,
+                detail: '$montant - ${reponse.id}',
+                action: 3,
+                requesterId: statsBeanManager.id,
+                millisecondes: DateTime.now().millisecondsSinceEpoch,
+                requesterType: getAppropriatePrefix(statsBeanManager.type))
+        );
         if(envoiLienPaiement){
           sendNotificationToEntity();
         }

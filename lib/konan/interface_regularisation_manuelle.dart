@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cnmci/konan/services.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
+import 'beans/regularisation_response.dart';
 import 'objets/constants.dart';
 
 class InterfaceRegularisationManuelle extends StatefulWidget {
@@ -81,7 +83,7 @@ class _InterfaceRegularisationManuelle extends State<InterfaceRegularisationManu
           timer.cancel();
 
           if (!flagSendData) {
-            displayToast("Veuillez vérifier vos données !");
+            displayToast("La régularisation a été faite !");
             // Close :
             Navigator.pop(context);
           }
@@ -104,7 +106,13 @@ class _InterfaceRegularisationManuelle extends State<InterfaceRegularisationManu
       ).timeout(const Duration(seconds: timeOutValue));
 
       if (response.statusCode == 200) {
-        flagSendData = false;
+        RegularisationResponse regularisationResponse = RegularisationResponse.fromJson(
+            json.decode(response.body));
+        if(regularisationResponse.statut > 0){
+          flagSendData = false;
+        }else {
+          displayToast(regularisationResponse.message);
+        }
       } else {
         displayToast("Impossible de procéder à la régularisation !");
       }

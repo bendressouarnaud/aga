@@ -38,7 +38,7 @@ class Apprenti {
   final String photoAutre;
 
   final int statut_kyc;
-  final int statut_paiement;
+  int statut_paiement;
   final double longitude;
   final double latitude;
 

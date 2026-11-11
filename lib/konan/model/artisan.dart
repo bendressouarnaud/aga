@@ -37,7 +37,7 @@ class Artisan {
   final String date_expiration_carte;
 
   final int statut_kyc;
-  final int statut_paiement;
+  int statut_paiement;
   final double longitude;
   final double latitude;
 
